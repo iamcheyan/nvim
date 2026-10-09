@@ -9,12 +9,10 @@ vim.g.maplocalleader = "\\"
 -- Load our options early (previously done by LazyVim's config.init()).
 require("config.options")
 
--- Cargo-installed Tree-sitter must also be discoverable in fresh GUI sessions.
-if vim.fn.executable("tree-sitter") == 0 then
-  local cargo_bin = (vim.env.CARGO_HOME or vim.fn.expand("~/.cargo")) .. "/bin"
-  if vim.fn.executable(cargo_bin .. "/tree-sitter") == 1 then
-    vim.env.PATH = cargo_bin .. ":" .. (vim.env.PATH or "")
-  end
+-- Prefer the current Cargo CLI over an older system CLI, including GUI sessions.
+local cargo_bin = (vim.env.CARGO_HOME or vim.fn.expand("~/.cargo")) .. "/bin"
+if vim.fn.executable(cargo_bin .. "/tree-sitter") == 1 then
+  vim.env.PATH = cargo_bin .. ":" .. (vim.env.PATH or "")
 end
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"

@@ -86,7 +86,7 @@ if (( link_only == 0 )); then
     [[ ! -r /etc/NIXOS ]] || fail 'Declare tree-sitter CLI 0.26.1+ in your NixOS configuration.'
     command -v cargo >/dev/null || fail 'Install Rust/Cargo or tree-sitter-cli 0.26.1+ with your package manager.'
     cargo install tree-sitter-cli --locked --version 0.26.8
-    export PATH="$HOME/.cargo/bin:$PATH"
+    export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
   fi
   if ! supported; then
     (( skip_install == 0 )) || fail 'Neovim 0.12 or newer is required.'
