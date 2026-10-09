@@ -1,0 +1,13 @@
+lazy-lock.json
+local/
+tmp/
+*.log
+*.swp
+*.swo
+*.bak
+.env
+.env.*
+*.key
+*.secret
+.DS_Store
+sbzr.nvim.im.db/
