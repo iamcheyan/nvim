@@ -53,6 +53,7 @@ return {
     },
     opts = {
       sources = { "filesystem", "buffers", "git_status" },
+      use_popups_for_input = false,
       open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
       -- The root directory is shown in the tabline offset instead (see
       -- `plugins/bufferline.lua`), so the tree itself starts one row higher.

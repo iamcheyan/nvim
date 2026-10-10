@@ -58,11 +58,7 @@ local function buffer_elements()
 end
 
 local function delete_buffers(ids)
-  for _, id in ipairs(ids) do
-    if vim.api.nvim_buf_is_valid(id) then
-      pcall(vim.api.nvim_buf_delete, id, { force = false })
-    end
-  end
+  require("config.file_actions").close_many(ids)
 end
 
 -- ---------------------------------------------------------------------------
@@ -164,8 +160,12 @@ local function run_neo(action, ctx)
     copy(path, "Copied absolute path")
   elseif action == "copy_filename" then
     copy(vim.fn.fnamemodify(path, ":t"), "Copied filename")
-  elseif action == "open_oil" then
-    pcall(vim.cmd, "Oil " .. vim.fn.fnameescape(vim.fn.fnamemodify(path, ":h")))
+  elseif action == "open_terminal" then
+    local dir = vim.fn.isdirectory(path) == 1 and path or vim.fn.fnamemodify(path, ":h")
+    vim.cmd("botright split")
+    vim.cmd("enew")
+    vim.fn.jobstart(vim.o.shell, { term = true, cwd = dir })
+    vim.cmd("startinsert")
   elseif action == "reveal" then
     local dir = vim.fn.isdirectory(path) == 1 and path or vim.fn.fnamemodify(path, ":h")
     if vim.fn.has("mac") == 1 then
@@ -327,7 +327,7 @@ local neo_entries = {
   { "󰆒  Paste",                      "paste" },
   { "󰩹  Delete",                     "delete" },
   { separator = true },
-  { "󰉖  Open Directory in Oil",      "open_oil" },
+  { "󰆍  Open Terminal Here",         "open_terminal" },
   { "󰀼  Reveal in File Manager",     "reveal" },
   { "󰋚  Git: View File History",     "history" },
 }
