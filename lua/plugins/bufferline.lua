@@ -7,7 +7,13 @@ return {
       _G.__bufferline_new_buffer = function(_, _, button)
         if button == "l" then
           require("config.bar_feedback").press("__bufferline_new_buffer", 0)
-          vim.defer_fn(function() vim.cmd("enew") end, 100)
+          vim.schedule(function() require("config.file_actions").new_file() end)
+        end
+      end
+      _G.__bufferline_open_buffer_list = function(_, _, button)
+        if button == "l" then
+          require("config.bar_feedback").press("__bufferline_open_buffer_list", 0)
+          require("snacks").picker.buffers()
         end
       end
 
@@ -73,14 +79,22 @@ return {
           },
           enforce_regular_tabs = false,
           buffer_close_icon = "",
-          modified_icon = "",
-          close_command = "bdelete! %d",
-          middle_mouse_command = "bdelete! %d",
+          modified_icon = "●",
+          close_command = require("config.file_actions").close,
+          middle_mouse_command = require("config.file_actions").close,
           right_mouse_command = function(buffer_id)
             require("config.context_menu").open_buffer(buffer_id)
           end,
           left_mouse_command = "buffer %d",
           custom_areas = {
+            left = function()
+              return {
+                {
+                  text = "%@v:lua.__bufferline_open_buffer_list@ 󰍜 %T",
+                  link = "BufferLineNewBuffer",
+                },
+              }
+            end,
             right = function()
               return {
                 {
@@ -101,6 +115,7 @@ return {
         opts.options.style_preset = bufferline.style_preset.no_italic
       end
       bufferline.setup(opts)
+      require("config.bufferline_scroll").setup()
       require("config.bufferline_drag").setup()
 
       -- Guard handle_close against right-clicks: right-click on close icon should
@@ -126,7 +141,7 @@ return {
       end
       local original_render = _G.nvim_bufferline
       _G.nvim_bufferline = function()
-        local line = original_render()
+        local line = require("config.bufferline_scroll").render(original_render)
         line = line:gsub("(%%%d+@v:lua%.___bufferline_private%.handle_close@)(.-)(%%X)", "%1 %2 %3")
         return require("config.bar_feedback").paint(line)
       end

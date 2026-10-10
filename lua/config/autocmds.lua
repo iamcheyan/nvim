@@ -10,6 +10,39 @@
 -- Keep LazyVim default startup behavior:
 -- restore session when available; otherwise show dashboard.
 
+-- Closing the last file leaves Neovim on its unnamed replacement buffer.
+-- Re-open the dashboard after the buffer switch settles, rather than leaving
+-- an empty editing screen behind.
+vim.api.nvim_create_autocmd("BufEnter", {
+  group = vim.api.nvim_create_augroup("DashboardOnEmptyBuffer", { clear = true }),
+  callback = function(args)
+    vim.schedule(function()
+      if not vim.api.nvim_buf_is_valid(args.buf) or vim.api.nvim_get_current_buf() ~= args.buf then
+        return
+      end
+      if vim.bo[args.buf].buftype ~= "" or vim.bo[args.buf].filetype == "dashboard" then
+        return
+      end
+      if vim.bo[args.buf].modified or vim.api.nvim_buf_line_count(args.buf) ~= 1
+        or vim.api.nvim_buf_get_lines(args.buf, 0, 1, false)[1] ~= "" then
+        return
+      end
+      if vim.api.nvim_buf_get_name(args.buf) ~= "" then
+        return
+      end
+
+      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+        local buf = vim.api.nvim_win_get_buf(win)
+        if buf ~= args.buf and vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= "" then
+          return
+        end
+      end
+
+      pcall(vim.cmd, "Dashboard")
+    end)
+  end,
+})
+
 local function set_cmdline_highlights()
   local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
   local bg, fg = normal.bg, normal.fg
