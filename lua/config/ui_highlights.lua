@@ -489,6 +489,20 @@ function M.apply()
   local p = tab_palette()
   local set = vim.api.nvim_set_hl
   local normal = get("Normal")
+  local comment = get("Comment")
+  local split_bg = normal.bg
+  if split_bg then
+    -- Hide split glyphs against the editor surface so pane boundaries do not
+    -- draw a contrasting line through the background.
+    set(0, "WinSeparator", { fg = split_bg, bg = split_bg })
+    set(0, "VertSplit", { fg = split_bg, bg = split_bg })
+    set(0, "NeoTreeWinSeparator", { fg = split_bg, bg = split_bg })
+  end
+  if normal.bg then
+    local muted_fg = comment.fg or normal.fg
+    set(0, "NeoTreeMessage", { fg = muted_fg, bg = normal.bg, italic = true })
+    set(0, "NeoTreeDimText", { fg = muted_fg, bg = normal.bg, italic = true })
+  end
   if nostalgia then
     set(0, "TabLine", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })
     set(0, "TabLineFill", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })

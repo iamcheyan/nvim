@@ -7,6 +7,24 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     opts = function()
+      local function set_contextline_diagnostic_badges()
+        vim.api.nvim_set_hl(0, "ContextlineErrorBadge", {
+          fg = "#ffffff",
+          bg = "#b3261e",
+          bold = true,
+        })
+        vim.api.nvim_set_hl(0, "ContextlineWarningBadge", {
+          fg = "#ffffff",
+          bg = "#8a5a00",
+          bold = true,
+        })
+      end
+      set_contextline_diagnostic_badges()
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        group = vim.api.nvim_create_augroup("ContextlineDiagnosticBadgeColors", { clear = true }),
+        callback = set_contextline_diagnostic_badges,
+      })
+
       local gap = { provider = "  " }
       local pad = { provider = " " }
       local function caps_locked()
@@ -706,9 +724,14 @@ return {
               { separator = true },
               {
                 icon = "󰉖",
-                label = "Open Directory in Oil (-)",
+                label = "Open Directory in Ranger",
                 action = function()
-                  vim.cmd("Oil")
+                  if vim.fn.executable("ranger") ~= 1 then
+                    vim.notify("Ranger is not installed", vim.log.levels.WARN)
+                    return
+                  end
+                  local dir = vim.fn.isdirectory(path) == 1 and path or vim.fn.fnamemodify(path, ":h")
+                  require("snacks").terminal({ "ranger" }, { cwd = dir })
                 end,
               },
               {
@@ -1201,6 +1224,23 @@ return {
             local ok, cl = pcall(require, "contextline")
             if not ok then return "" end
             local feedback = require("config.bar_feedback")
+            _G.contextline_diagnostic_click = function(severity, _, button)
+              if button and button ~= "l" then return end
+              local bufnr = vim.api.nvim_get_current_buf()
+              local diagnostics = vim.diagnostic.get(bufnr, { severity = tonumber(severity) })
+              if #diagnostics == 0 then
+                vim.notify("No matching diagnostics in this buffer", vim.log.levels.INFO)
+                return
+              end
+
+              local title = tonumber(severity) == vim.diagnostic.severity.ERROR
+                  and "Errors in current buffer" or "Warnings in current buffer"
+              vim.fn.setqflist({}, "r", {
+                title = title,
+                items = vim.diagnostic.toqflist(diagnostics),
+              })
+              vim.cmd("copen")
+            end
             if _G.contextline_click and not cl._bar_feedback_installed then
               cl._bar_feedback_installed = true
               local callback = _G.contextline_click
@@ -1214,11 +1254,23 @@ return {
               local anchor = tonumber(id) == cl._active_menu_segment and "%#ContextlineActiveMenu#" or ""
               return marker .. anchor .. " " .. text .. " " .. ending
             end)
+            line = line:gsub("%%#DiagnosticError#(.-)%%%*", function(text)
+              return "%1@v:lua.contextline_diagnostic_click@%#ContextlineErrorBadge# "
+                .. text .. " %#WinBar#%X"
+            end)
+            line = line:gsub("%%#DiagnosticWarn#(.-)%%%*", function(text)
+              return "%2@v:lua.contextline_diagnostic_click@%#ContextlineWarningBadge# "
+                .. text .. " %#WinBar#%X"
+            end)
             -- Embedded resets otherwise fall back to the window's default
             -- surface between icons, labels and padding. Keep every cell on
             -- the same winbar palette, including while a menu is open.
             line = line:gsub("%%#([^#]+)#", function(group)
-              return group == "ContextlineActiveMenu" and "%#ContextlineActiveMenu#" or "%#WinBar#"
+              if group == "ContextlineActiveMenu" then return "%#ContextlineActiveMenu#" end
+              if group == "ContextlineErrorBadge" or group == "ContextlineWarningBadge" then
+                return "%#" .. group .. "#"
+              end
+              return "%#WinBar#"
             end)
             line = line:gsub("%%%*", "%%#WinBar#")
             vim.api.nvim_set_hl(0, "ContextlineActiveMenu", { link = "WinBar" })
