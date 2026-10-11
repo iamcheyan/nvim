@@ -17,27 +17,6 @@ return {
         end
       end
 
-      -- The sidebar's title shows the tree's current root instead of a static
-      -- label. neo-tree hides its own root node (`hide_root_node`), so this is
-      -- where the path is displayed -- bufferline truncates it to the offset
-      -- width when it does not fit.
-      local function neo_tree_root_text()
-        local ok, manager = pcall(require, "neo-tree.sources.manager")
-        if ok then
-          for _, win in ipairs(vim.api.nvim_list_wins()) do
-            local buf = vim.api.nvim_win_get_buf(win)
-            if vim.bo[buf].filetype == "neo-tree" then
-              local source = vim.b[buf].neo_tree_source or "filesystem"
-              local state = manager.get_state(source)
-              if state and state.path and state.path ~= "" then
-                return vim.fn.fnamemodify(state.path, ":~")
-              end
-            end
-          end
-        end
-        return "Neo-tree"
-      end
-
       -- The native PopUp menu is installed by config.context_menu.
       return {
         highlights = require("config.ui_highlights").bufferline_highlights(),
@@ -54,11 +33,17 @@ return {
           offsets = {
             {
               filetype = "neo-tree",
-              text = neo_tree_root_text,
-              highlight = "Directory",
+              text = "",
+              highlight = "NeoTreeTabInactive",
               text_align = "left",
               -- Window width excludes the split separator; reserve that cell
               -- so the first tab starts above the editor's winbar.
+              padding = 1,
+            },
+            {
+              filetype = "aerial",
+              text = "",
+              highlight = "NeoTreeTabInactive",
               padding = 1,
             },
             {
@@ -85,7 +70,9 @@ return {
           right_mouse_command = function(buffer_id)
             require("config.context_menu").open_buffer(buffer_id)
           end,
-          left_mouse_command = "buffer %d",
+          left_mouse_command = function(buf)
+            require("config.sidebar_tabs").open_buffer(buf)
+          end,
           custom_areas = {
             left = function()
               return {
@@ -115,6 +102,7 @@ return {
         opts.options.style_preset = bufferline.style_preset.no_italic
       end
       bufferline.setup(opts)
+      require("config.sidebar_tabs").setup()
       require("config.bufferline_scroll").setup()
       require("config.bufferline_drag").setup()
 

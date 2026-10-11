@@ -3,16 +3,20 @@ return {
     "stevearc/aerial.nvim",
     cmd = { "AerialToggle", "AerialOpen", "AerialInfo" },
     keys = {
-      { "<leader>cs", "<cmd>AerialToggle!<cr>", desc = "Aerial (Symbols)" },
+      { "<leader>cs", function() require("config.sidebar_tabs").toggle_symbols() end, desc = "Aerial (Symbols)" },
     },
     opts = {
       layout = {
         default_direction = "left",
         placement = "window",
-        width = 30,
-        min_width = 24,
-        max_width = { 120, 0.4 },
-        resize_to_content = true,
+        width = 32,
+        min_width = 32,
+        max_width = 32,
+        resize_to_content = false,
+      },
+      keymaps = {
+        ["<"] = function() require("config.sidebar_tabs").cycle(-1) end,
+        [">"] = function() require("config.sidebar_tabs").cycle(1) end,
       },
       show_guides = true,
       manage_folds = true,

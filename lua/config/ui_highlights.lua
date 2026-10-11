@@ -577,6 +577,12 @@ function M.apply()
   set(0, "WinBar", { fg = p.winbar_fg, bg = p.winbar_bg })
   set(0, "WinBarNC", { fg = p.winbar_fg, bg = p.winbar_bg })
 
+  -- Source tabs use exactly the same styles as file tabs, including theme changes.
+  set(0, "NeoTreeTabInactive", { link = "BufferLineBuffer" })
+  set(0, "NeoTreeTabActive", { link = "BufferLineBufferSelected" })
+  set(0, "NeoTreeTabSeparatorInactive", { link = "BufferLineBuffer" })
+  set(0, "NeoTreeTabSeparatorActive", { link = "BufferLineBufferSelected" })
+
   set(0, "BufferLineFill", { fg = p.surface_fg, bg = "NONE" })
   set(0, "BufferLineNewBuffer", { fg = p.normal_fg, bg = "NONE", bold = p.top_bold })
   set(0, "BufferLineTruncMarker", { fg = get("Comment").fg or p.surface_fg, bg = "NONE" })

@@ -53,10 +53,35 @@ return {
     },
     opts = {
       sources = { "filesystem", "buffers", "git_status" },
+      event_handlers = {
+        {
+          event = "neo_tree_window_after_open",
+          handler = function(args) require("config.sidebar_tabs").on_tree_open(args) end,
+        },
+        {
+          event = "neo_tree_buffer_enter",
+          handler = function()
+            -- Editing windows reserve a fold column; the tree needs no gutter.
+            vim.wo.foldcolumn = "0"
+            vim.wo.statuscolumn = ""
+          end,
+        },
+      },
+      source_selector = {
+        winbar = false,
+        -- Rendered in bufferline's sidebar offset by config.sidebar_tabs.
+        statusline = false,
+        separator = "",
+        content_layout = "center",
+        sources = {
+          { source = "filesystem", display_name = "󰉓 File" },
+          { source = "buffers", display_name = "󰈚 Bufs" },
+          { source = "git_status", display_name = "󰊢 Git" },
+        },
+      },
       use_popups_for_input = false,
       open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
-      -- The root directory is shown in the tabline offset instead (see
-      -- `plugins/bufferline.lua`), so the tree itself starts one row higher.
+      -- Keep the tree compact below the source tabs in the tabline.
       hide_root_node = true,
       -- With the root node hidden, drop its indent level too: every row shifts
       -- one level to the left. Nothing is clipped by this -- the indent
@@ -92,7 +117,7 @@ return {
       git_status = {
         window = {
           position = "left",
-          width = 30,
+          width = 32,
           mappings = {
             ["A"] = "git_add_all",
             ["gu"] = "git_unstage_file",
@@ -127,7 +152,7 @@ return {
       buffers = {
         window = {
           position = "left",
-          width = 28,
+          width = 32,
         },
         -- 使用自定义渲染器，覆盖缩进配置
         renderers = {
@@ -149,8 +174,10 @@ return {
       },
       window = {
         position = "left",
-        width = 28,
+        width = 32,
         mappings = {
+          ["<"] = function() require("config.sidebar_tabs").cycle(-1) end,
+          [">"] = function() require("config.sidebar_tabs").cycle(1) end,
           ["l"] = "open",
           ["h"] = "close_node",
           ["<space>"] = "none",

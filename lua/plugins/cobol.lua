@@ -14,7 +14,7 @@ return {
     "stevearc/aerial.nvim",
     cmd = { "AerialToggle", "AerialOpen", "AerialClose", "AerialNavToggle" },
     keys = {
-      { "<leader>cs", "<cmd>AerialToggle!<cr>", desc = "Toggle Aerial Outline" },
+      { "<leader>cs", function() require("config.sidebar_tabs").toggle_symbols() end, desc = "Toggle Aerial Outline" },
       { "<leader>cO", "<cmd>CobolFormatCase<cr>", desc = "Format COBOL reserved words" },
     },
     opts = function(_, opts)

@@ -867,7 +867,7 @@ return {
                 icon = "󰘦",
                 label = "Document Symbols (<leader>cs)",
                 action = function()
-                  vim.cmd("AerialToggle!")
+                  require("config.sidebar_tabs").toggle_symbols()
                 end,
               },
               { separator = true },
