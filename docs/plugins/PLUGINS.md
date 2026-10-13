@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，含公开配置与本机私有配置中的 **44 个插件**（公开 38 个、私有 6 个）。私有插件已按要求列入，并在章节标题和目录中标明。依赖库也单独列出；它们通常由上层插件自动调用，不需要手动启动。
+这本书按当前 `lazy.nvim` 注册结果整理，含公开配置与本机私有配置中的 **47 个插件**（公开 41 个、私有 6 个）。私有插件已按要求列入，并在章节标题和目录中标明。依赖库也单独列出；它们通常由上层插件自动调用，不需要手动启动。
 
 ## 怎么使用这本书
 
@@ -16,7 +16,7 @@
 可以按这个顺序熟悉：
 
 1. **先熟悉入口与找文件**：Which-key、Dashboard、Snacks、Neo-tree、Bufferline。
-2. **再练编辑**：Flash、mini.ai、mini.pairs、Yanky、Visual Multi、Smart Paste。
+2. **再练编辑**：Flash、mini.ai、mini.pairs、mini.surround、Yanky、Visual Multi、Smart Paste。
 3. **然后学代码理解与格式化**：LSP、Treesitter、Aerial、Conform、Todo Comments、Markview。
 4. **再练 Git 与会话**：Gitsigns、Diffview、Auto Session。
 5. **最后按需探索语言辅助和视觉插件**：COBOL、Batch、Contextline、VimQuest、颜色、折叠和状态显示。
@@ -32,6 +32,7 @@
 | [grug-far.nvim](chapters/grug-far.nvim.md) | 公开 | 跨文件查找替换 |
 | [auto-session](chapters/auto-session.md) | 公开 | 项目会话保存和恢复 |
 | [aerial.nvim](chapters/aerial.md) | 公开 | 代码符号大纲 |
+| [quicker.nvim](chapters/quicker.md) | 公开 | quickfix 结果上下文和编辑 |
 
 ## 编辑、补全与代码导航
 
@@ -44,8 +45,10 @@
 | [nvim-treesitter](chapters/nvim-treesitter.md) | 公开 | 语法解析和高亮 |
 | [nvim-treesitter-textobjects](chapters/nvim-treesitter-textobjects.md) | 公开 | 语法对象和结构跳转 |
 | [mini.ai](chapters/mini-ai.md) | 公开 | 代码结构文本对象 |
+| [mini.surround](chapters/mini-surround.md) | 公开 | 添加、删除和替换包围符号 |
 | [flash.nvim](chapters/flash.nvim.md) | 公开 | 屏幕内快速定位 |
 | [conform.nvim](chapters/conform.md) | 公开 | 代码格式化 |
+| [nvim-lint](chapters/nvim-lint.md) | 公开 | ShellCheck 静态检查 |
 | [todo-comments.nvim](chapters/todo-comments.md) | 公开 | TODO 等标记的导航 |
 | [markview.nvim](chapters/markview.md) | 公开 | Markdown 等文档预览 |
 | [vim-visual-multi](chapters/vim-visual-multi.md) | 公开 | 多光标批量编辑 |

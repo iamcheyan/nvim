@@ -23,7 +23,7 @@ return {
       -- Run this after startup: registry.refresh() performs network I/O and
       -- would otherwise add ~10ms to every launch. It is also a no-op once the
       -- tools exist, so it stays cheap on machines that already have them.
-      local wanted = { "stylua", "shfmt" }
+      local wanted = { "stylua", "shfmt", "ruff", "shellcheck" }
       vim.api.nvim_create_autocmd("User", {
         pattern = "VeryLazy",
         once = true,

@@ -24,6 +24,26 @@ local editor = vim.api.nvim_get_current_win()
 local file = vim.api.nvim_get_current_buf()
 local sidebar
 
+local function check_symbols_inset(win)
+  assert(vim.fn.getwininfo(win)[1].textoff == 1,
+    "symbols must have a one-cell inset immediately on opening")
+  local column = vim.api.nvim_eval_statusline(vim.wo[win].statuscolumn,
+    { winid = win, use_statuscol_lnum = 1 })
+  assert(column.str == " ", "symbols inset must stay blank, without fold arrows")
+end
+
+-- Session restoration and :AerialOpen bypass sidebar_tabs.select().
+for _, focus in ipairs({ true, false }) do
+  require("aerial").open({ focus = focus, direction = "left" })
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "aerial" then
+      check_symbols_inset(win)
+    end
+  end
+  require("aerial").close()
+  vim.api.nvim_set_current_win(editor)
+end
+
 local function check(source)
   tabs.select(source)
   vim.wait(100, function() return false end)
@@ -34,7 +54,9 @@ local function check(source)
   assert(vim.api.nvim_win_get_width(sidebar) == 32, "all sources must keep the fixed width")
   assert(#vim.api.nvim_tabpage_list_wins(0) == 2, "only one sidebar should be open")
   assert(vim.api.nvim_win_get_buf(editor) == file, "editor buffer must survive switching")
-  assert(vim.fn.getwininfo(vim.api.nvim_get_current_win())[1].textoff == 0, "no gutter")
+  local expected_textoff = source == "symbols" and 1 or 0
+  assert(vim.fn.getwininfo(vim.api.nvim_get_current_win())[1].textoff == expected_textoff,
+    "symbols must have a one-cell left inset and tree sources must have no gutter")
   local offset = require("bufferline.offset").get()
   local rendered = vim.api.nvim_eval_statusline(offset.left, { use_tabline = true, maxwidth = offset.left_size })
   for _, label in ipairs({ "File", "Bufs", "Git", "Syms" }) do
@@ -45,6 +67,7 @@ local function check(source)
   end
   assert(rendered.width == offset.left_size, "tab width must match sidebar width")
   if source == "symbols" then
+    check_symbols_inset(sidebar)
     local lines = table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "\n")
     assert(lines:find("Title", 1, true), "symbols must contain the right editor's heading, not an empty buffer")
   end
@@ -101,6 +124,7 @@ for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
   if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "aerial" then fresh_sidebar = win end
 end
 assert(fresh_sidebar, "symbols sidebar must open")
+check_symbols_inset(fresh_sidebar)
 tabs.select("filesystem")
 vim.wait(100, function() return false end)
 assert(#vim.api.nvim_tabpage_list_wins(0) == 2, "opening symbols first must still share one sidebar")

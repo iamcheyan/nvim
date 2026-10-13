@@ -1,6 +1,6 @@
 # 当前 Neovim 插件使用手册
 
-这份手册按本机实际加载的 `lazy.nvim` 插件规格编写。此前移除 Oil 后核对得到 43 个条目；新增启动页后 headless 核对当前为 **44 个**：配置条目以及独立公开插件。依赖库和管理器也计入总数；下文逐一说明它们是否有直接用户入口。
+这份手册按当前 `lazy.nvim` 插件规格编写。新增 mini.surround、quicker.nvim 和 nvim-lint 后，插件目录共 **47 个条目**（公开 41 个、私有 6 个）；依赖库和管理器也计入总数。分类目录和逐项练习见 [插件使用书](../plugins/PLUGINS.md)。
 
 插件仍然可以因未安装的外部工具、当前 filetype 或 LSP 服务器能力不同而表现不同。`<leader>` 是空格。`<leader>` 后停顿可看 which-key 提示；`<leader>?` 可查看当前模式的快捷键。
 
@@ -18,6 +18,8 @@
 | 查看剪贴板历史 | `<leader>fy` |
 | Markdown 预览开关 | `<leader>um` |
 | 查看个人书签 | `<leader>mm` |
+| 包围符号添加/替换/删除 | `gsa` / `gsr` / `gsd` |
+| 打开 quickfix 结果 | `<leader>xq`；列表内 `>` 展开上下文，`<` 收起 |
 | 查看完整命令/快捷键 | `<leader>` 后稍候；使用 `<leader>?` / `:WhichKey` |
 | COBOL 定义跳转与返回 | `gd` 跳转，`Ctrl-o` 返回；`:help jumplist` |
 
@@ -53,6 +55,10 @@
 
 符号大纲侧栏，按函数、类、章节等结构跳转。`<leader>cs` 或 `:AerialToggle` 开关，`:AerialOpen` 打开，`:AerialInfo` 查看支持情况；大纲内选择条目可跳到定义位置。普通语言用 Treesitter/LSP 等后端，Markdown 等也可显示结构；COBOL 与 Batch 后端由私有插件提供。
 
+### quicker.nvim（公开）
+
+改善 quickfix 结果列表。用 `<leader>xq` 或 `:copen` 打开结果，在列表中按 `>` 展开结果前后各两行上下文，按 `<` 收起，Enter 跳到对应位置；`[q` / `]q` 切换结果。可用 `:vimgrep /TODO/j **/*` 生成练习结果。位置列表仍可用 `:lopen`。
+
 ### auto-session（公开）
 
 按项目保存/恢复窗口、缓冲区、目录和侧栏状态。`<leader>ws` 保存当前会话，`<leader>wr` 搜索并恢复会话，`<leader>wa` 切换自动保存，`<leader>wd` 删除会话。通常按项目根目录识别会话；自动保存/恢复也会在启动和退出时运行。会话会记录本地文件路径，不要把生成的本机 session 数据提交到公开配置仓库。
@@ -77,7 +83,11 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 ### nvim-lspconfig（公开）+ mason-lspconfig.nvim（公开）+ mason.nvim（公开）
 
-这是三项协同工作的 LSP 安装和连接设施。Mason 用 `:Mason` / `<leader>cm` 浏览安装服务器和工具；当前自动管理 basedpyright 与 lua_ls，并尝试安装 shfmt、stylua。mason-lspconfig 把已安装服务器连接到 Neovim，nvim-lspconfig 提供服务器配置。LSP 附加后：`gd` 定义，`gD` 声明，`K` 悬浮文档，`gI` 实现，`gy` 类型定义，`gK` 签名帮助（插入模式 `<C-k>`），`<leader>ca` 代码操作，`<leader>cr` 重命名，`<leader>co` 整理 imports，`<leader>cl` 查看 LSP 配置。`]d`/`[d` 诊断跳转等是 Neovim 内置映射。当前配置全局关闭诊断显示，所以诊断相关显示/操作可能没有可见结果；这由本地配置主动设置。
+这是三项协同工作的 LSP 安装和连接设施。Mason 用 `:Mason` / `<leader>cm` 浏览安装服务器和工具；当前管理 basedpyright、lua_ls、shfmt、stylua、ruff、shellcheck。Ruff 用于 Conform 的 Python 格式化，ShellCheck 由 nvim-lint 调用。mason-lspconfig 把已安装服务器连接到 Neovim，nvim-lspconfig 提供服务器配置。LSP 附加后：`gd` 定义，`gD` 声明，`K` 悬浮文档，`gI` 实现，`gy` 类型定义，`gK` 签名帮助（插入模式 `<C-k>`），`<leader>ca` 代码操作，`<leader>cr` 重命名，`<leader>co` 整理 imports，`<leader>cl` 查看 LSP 配置。`]d`/`[d` 诊断跳转等是 Neovim 内置映射。当前配置全局关闭诊断显示，所以诊断相关显示/操作可能没有可见结果；这由本地配置主动设置。
+
+### mini.surround（公开）
+
+以 `gs` 前缀操作包围符号：`gsa` 添加，`gsd` 删除，`gsr` 替换，`gsf` / `gsF` 向右/向左查找，`gsh` 高亮范围。例如 `gsaiw)` 给当前单词加括号，`gsr)'` 把括号改成单引号。可用 `:help mini.surround` 查看完整说明。
 
 ### conform.nvim（公开）
 
@@ -131,6 +141,10 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 自动按层级为括号、方括号等嵌套分隔符着色，便于看清配对范围；无命令和快捷键。若颜色干扰阅读，可从插件规格移除或调整主题高亮。
 
+### nvim-lint（公开；ShellCheck）
+
+打开、保存或离开插入模式时自动对 `sh`、`bash` 文件运行 ShellCheck。命令行可用 `shellcheck script.sh` 检查，或用 `shellcheck -s bash script.sh` 指定 Bash 语法。当前 Neovim 全局关闭诊断显示，因此自动 lint 结果不会显示在编辑区；需要查看报告时直接运行 ShellCheck 命令。
+
 ## Git 与导航信息
 
 ### gitsigns.nvim（公开）
@@ -183,7 +197,7 @@ LSP 服务器执行索引、诊断等工作时显示进度通知；自动运行�
 
 ### cobol.nvim（私有）
 
-独立插件，源码、配置说明、完整用法和练习统一维护在 [cobol.nvim 插件目录](../../lua/cobol.nvim/README.zh-CN.md)；安装后可在 Neovim 中运行 `:help cobol.nvim`。这里仅保留目录入口，避免手册分散。
+独立插件，源码、配置说明、完整用法和练习统一维护在 [cobol.nvim 插件章节](../plugins/chapters/cobol.md) 和插件仓库；安装后可在 Neovim 中运行 `:help cobol.nvim`。这里仅保留目录入口，避免手册分散。
 
 ### batch.nvim（私有）
 
@@ -196,7 +210,7 @@ Windows Batch 文件结构解析与导航。支持 `:BatchCheck` 检查、`:Batc
 ## 建议清理顺序与目前发现
 
 1. **Oil 已按要求删除**：`config/nvim/lua/plugins/oil.lua` 已移除；运行时规格核对也不再出现 `oil.nvim`。重启 Neovim 后可用 `:Lazy clean` 清理缓存。插件清单中不再把它列为当前插件。
-2. **此前公开清单把私有插件混入公开统计**，并把插件数写成 44；实际运行时核对是 43（删除 Oil 后），其中公开 37、私有 6。依赖和 lazy 管理器计入数量。
+2. **插件统计**：当前插件目录列出公开 41 个、私有 6 个；依赖和 lazy 管理器也计入数量。
 3. **发现 `[b` / `]b` 冲突**：私有书签把它们用于前/后书签，公开默认映射此前又用于前/后缓冲区。已删除默认缓冲区映射；请用 `Shift+h/l` 或 `<leader>bh/bl` 切换缓冲区。
 4. **自动格式化默认关闭**，所以 Conform 并非每次保存都会执行；手动 `<leader>F` 是明确入口。
 5. **诊断显示被配置关闭**，尽管 LSP 仍能提供跳转、补全和重命名。若要依赖诊断列表，应单独评估 `disable-diagnostics.lua` 的行为。

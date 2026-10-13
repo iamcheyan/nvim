@@ -72,10 +72,6 @@ function M.select(source, opts)
     else
       require("aerial").open({ focus = focus, direction = "left" })
     end
-    if vim.bo.filetype == "aerial" then
-      vim.wo.foldcolumn = "0"
-      vim.wo.statuscolumn = ""
-    end
   else
     -- Neo-tree's left location survives while Aerial borrows its window.
     if sidebar and vim.bo[vim.api.nvim_win_get_buf(sidebar)].filetype == "aerial" then

@@ -8,15 +8,15 @@
 
 ## 在当前配置里怎么用
 
-运行 `:Mason` 或 `<leader>cm` 打开界面；搜索包名，Enter 查看详情，`i` 安装、`X` 卸载、`U` 更新（以界面底部提示为准）。当前配置重点管理 basedpyright、lua_ls，以及 shfmt、stylua。
+运行 `:Mason` 或 `<leader>cm` 打开界面；搜索包名，Enter 查看详情，`i` 安装、`X` 卸载、`U` 更新（以界面底部提示为准）。当前配置管理 basedpyright、lua_ls，以及 shfmt、stylua、ruff、shellcheck。ruff 为 Python 格式化服务；shellcheck 供 nvim-lint 检查 Shell 脚本。
 
 ## 动手练习
 
-运行 `:Mason`，搜索 `lua-language-server`，查看它的安装状态；再搜索 `stylua`。先不要卸载，练习按 Esc 退出并用 `:Mason` 再打开。
+运行 `:Mason`，搜索 `lua-language-server`、`stylua`、`ruff` 和 `shellcheck`，查看安装状态。命令行也可用 `ruff check file.py` 和 `shellcheck file.sh` 检查文件；先不要卸载，练习按 Esc 退出并用 `:Mason` 再打开。
 
 ## 注意事项
 
-Mason 安装的是外部可执行程序；插件规格可能自动安装部分工具。确认项目和机器需要后再卸载已有包。
+Mason 安装的是外部可执行程序；配置会在启动后自动补装上述工具，已经安装的包不会重复处理。确认项目和机器需要后再卸载已有包。
 
 ## 查快捷键和帮助
 

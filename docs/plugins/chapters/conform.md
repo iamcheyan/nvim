@@ -8,7 +8,7 @@
 
 ## 在当前配置里怎么用
 
-手动格式化按 `<leader>F`；`:ConformInfo` 查看当前 filetype 的 formatter；`<leader>uf` 切换保存时格式化，`<leader>uF` 切换到相反状态。配置按语言选择 stylua、shfmt、Ruff、Prettier、rustfmt、gofumpt 等。
+手动格式化按 `<leader>F`；`:ConformInfo` 查看当前 filetype 的 formatter；`<leader>uf` 切换保存时格式化，`<leader>uF` 切换到相反状态。配置按语言选择 stylua、shfmt、Ruff、Prettier、rustfmt、gofumpt 等。Ruff 由 Mason 安装，并用于 Python 的 `ruff_fix` 和 `ruff_format`。
 
 ## 动手练习
 
@@ -16,7 +16,7 @@
 
 ## 注意事项
 
-formatter 必须安装并在 PATH 中可用；保存格式化默认关闭。格式化会改文件，先查看 diff。
+formatter 必须安装并在 PATH 中可用；本配置由 Mason 提供 stylua、shfmt 和 Ruff。保存格式化默认关闭。格式化会改文件，先查看 diff。
 
 ## 查快捷键和帮助
 

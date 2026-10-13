@@ -13,6 +13,12 @@ return {
         min_width = 32,
         max_width = 32,
         resize_to_content = false,
+        -- Apply the inset on every Aerial window creation, including session
+        -- restoration. A literal status column keeps fold arrows out of it.
+        win_opts = {
+          foldcolumn = "1",
+          statuscolumn = " ",
+        },
       },
       keymaps = {
         ["<"] = function() require("config.sidebar_tabs").cycle(-1) end,
