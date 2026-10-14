@@ -1,42 +1,40 @@
 return {
-  -- 启用经典的 nvim-web-devicons
   {
     "nvim-tree/nvim-web-devicons",
-    opts = {
-      -- 全局开启彩色图标
-      color_icons = true,
-      -- 开启默认图标支持
-      default = true,
-      -- 显式强制深色模式（适配您的主题）
-      variant = "dark",
-      -- 针对特定文件后缀的图标修正（解决您看到的问号问题）
-      override = {
-        md = {
-          icon = "",
-          color = "#ffffff",
-          name = "Markdown",
-        },
-        cobol = {
-          icon = "",
-          color = "#005CA5",
-          name = "Cobol",
-        },
-        sh = {
-          icon = "",
-          color = "#428850",
-          name = "Shell",
-        },
-        zsh = {
-          icon = "",
-          color = "#428850",
-          name = "Zsh",
-        },
-        toml = {
-          icon = "",
-          color = "#9c4221",
-          name = "TOML",
-        },
-      },
-    },
+    opts = function(_, opts)
+      opts.color_icons = true
+      opts.default = true
+      opts.variant = "dark"
+      opts.override_by_extension = vim.tbl_extend("force", opts.override_by_extension or {}, {
+        ["cob"] = { icon = "", color = "#005CA5", name = "Cobol" },
+        ["COB"] = { icon = "", color = "#005CA5", name = "Cobol" },
+        ["cbl"] = { icon = "", color = "#005CA5", name = "Cobol" },
+        ["CBL"] = { icon = "", color = "#005CA5", name = "Cobol" },
+        ["cobol"] = { icon = "", color = "#005CA5", name = "Cobol" },
+        ["COBOL"] = { icon = "", color = "#005CA5", name = "Cobol" },
+        ["cpy"] = { icon = "", color = "#005CA5", name = "Cobol" },
+        ["CPY"] = { icon = "", color = "#005CA5", name = "Cobol" },
+        ["cnf"] = { icon = "", color = "#6D8086", name = "Conf" },
+        ["CNF"] = { icon = "", color = "#6D8086", name = "Conf" },
+        ["cmd"] = { icon = "", color = "#C1F12E", name = "Bat" },
+        ["CMD"] = { icon = "", color = "#C1F12E", name = "Bat" },
+      })
+      opts.override = vim.tbl_extend("force", opts.override or {}, {
+        md = { icon = "", color = "#ffffff", name = "Markdown" },
+        sh = { icon = "", color = "#428850", name = "Shell" },
+        zsh = { icon = "", color = "#428850", name = "Zsh" },
+        toml = { icon = "", color = "#9c4221", name = "TOML" },
+      })
+    end,
+    config = function(_, opts)
+      local devicons = require("nvim-web-devicons")
+      devicons.setup(opts)
+      devicons.set_icon_by_filetype({
+        cobol = "cobol",
+        cbl = "cobol",
+        cob = "cobol",
+        cpy = "cobol",
+      })
+    end,
   },
 }
