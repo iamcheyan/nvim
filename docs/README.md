@@ -14,6 +14,7 @@ Neovim 的说明文档按用途集中放在 `config/nvim/docs/`。配置源文�
 
 ## 使用指南
 
+- [Markdown 阅读主题](guides/MARKDOWN-TYPOGRAPHY.md)：仅 Markdown 使用的 Blue 协调排版配色。
 - [鼠标与剪贴板](guides/MOUSE-AND-CLIPBOARD.md)。
 - [Caps Lock 状态指示器](guides/CAPS-LOCK.md)。
 - [Visual Multi 多光标逐行扩展](guides/VISUAL-MULTI.md)。

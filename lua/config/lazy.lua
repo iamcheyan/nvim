@@ -107,4 +107,8 @@ require("config.keymaps-defaults")
 -- Load personal keymaps last so they intentionally override compatibility
 -- mappings when the same lhs is used.
 require("config.keymaps")
+
+-- Typography overrides are isolated to Markdown windows and harmonized with
+-- the current global colorscheme (Blue); all other buffers retain that theme.
+require("config.markdown_typography").setup()
 require("config.autocmds")
