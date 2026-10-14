@@ -103,27 +103,81 @@ function M.save_image_to_assets(source_path, bufnr)
   return "assets/" .. filename, nil
 end
 
+---Ensure WAYLAND_DISPLAY is pointing to a live socket if on Linux/Wayland
+local function ensure_wayland_display()
+  local runtime_dir = vim.env.XDG_RUNTIME_DIR
+  if not runtime_dir or runtime_dir == "" then
+    local uid = (vim.uv.getuid and vim.uv.getuid()) or vim.fn.getuid()
+    runtime_dir = "/run/user/" .. tostring(uid)
+  end
+
+  local function is_valid(name)
+    if not name or name == "" then return false end
+    local sock = vim.fs.joinpath(runtime_dir, name)
+    local stat = vim.uv.fs_stat(sock)
+    return stat and stat.type == "socket"
+  end
+
+  if is_valid(vim.env.WAYLAND_DISPLAY) then
+    return true
+  end
+
+  local handle = vim.uv.fs_scandir(runtime_dir)
+  if handle then
+    local candidates = {}
+    while true do
+      local name = vim.uv.fs_scandir_next(handle)
+      if not name then break end
+      if name:match("^wayland%-%d+$") and not name:match("%.lock$") and is_valid(name) then
+        table.insert(candidates, name)
+      end
+    end
+    if #candidates > 0 then
+      table.sort(candidates)
+      vim.env.WAYLAND_DISPLAY = candidates[#candidates]
+      return true
+    end
+  end
+  return false
+end
+
 ---Try to fetch image from system clipboard raw bytes (xclip/wl-paste)
 ---@return string|nil temp_path
 local function dump_clipboard_bytes_to_temp()
-  local tmp_file = vim.fn.tempname() .. ".png"
-  if vim.fn.executable("wl-paste") == 1 then
+  local tmp_file = vim.fn.tempname()
+  local mime_types = {
+    { mime = "image/png", ext = ".png" },
+    { mime = "image/jpeg", ext = ".jpg" },
+    { mime = "image/webp", ext = ".webp" },
+  }
+
+  if vim.fn.executable("wl-paste") == 1 and ensure_wayland_display() then
     local types = vim.fn.system("wl-paste --list-types 2>/dev/null")
-    if types and types:find("image/png") then
-      vim.fn.system(string.format("wl-paste --type image/png > '%s' 2>/dev/null", tmp_file))
-      local stat = vim.uv.fs_stat(tmp_file)
-      if stat and stat.size > 0 then
-        return tmp_file
+    if types and types ~= "" then
+      for _, entry in ipairs(mime_types) do
+        if types:find(entry.mime, 1, true) then
+          local target_tmp = tmp_file .. entry.ext
+          vim.fn.system(string.format("wl-paste --type '%s' > '%s' 2>/dev/null", entry.mime, target_tmp))
+          local stat = vim.uv.fs_stat(target_tmp)
+          if stat and stat.size > 0 then
+            return target_tmp
+          end
+        end
       end
     end
   end
   if vim.fn.executable("xclip") == 1 then
     local targets = vim.fn.system("xclip -selection clipboard -t TARGETS -o 2>/dev/null")
-    if targets and targets:find("image/png") then
-      vim.fn.system(string.format("xclip -selection clipboard -t image/png -o > '%s' 2>/dev/null", tmp_file))
-      local stat = vim.uv.fs_stat(tmp_file)
-      if stat and stat.size > 0 then
-        return tmp_file
+    if targets and targets ~= "" then
+      for _, entry in ipairs(mime_types) do
+        if targets:find(entry.mime, 1, true) then
+          local target_tmp = tmp_file .. entry.ext
+          vim.fn.system(string.format("xclip -selection clipboard -t '%s' -o > '%s' 2>/dev/null", entry.mime, target_tmp))
+          local stat = vim.uv.fs_stat(target_tmp)
+          if stat and stat.size > 0 then
+            return target_tmp
+          end
+        end
       end
     end
   end
@@ -178,17 +232,19 @@ function M.paste_image(bufnr)
   -- Check system clipboard registers (+ and *) for image paths.
   -- Intentionally DO NOT check register '"' (unnamed) to avoid pasting stale old files.
   for _, reg in ipairs({ "+", "*" }) do
-    local content = vim.fn.getreg(reg)
-    if content and content ~= "" then
+    local ok, content = pcall(vim.fn.getreg, reg)
+    if ok and content and content ~= "" then
       local new_text, count = M.replace_image_paths_in_text(content, bufnr)
       if count > 0 then
-        local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+        local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
         local cur_line = vim.api.nvim_get_current_line()
+        local lines = vim.split(vim.trim(new_text), "\n", { plain = true })
         if vim.trim(cur_line) == "" then
-          vim.api.nvim_set_current_line(new_text)
+          vim.api.nvim_buf_set_lines(bufnr, row - 1, row, false, lines)
+          vim.api.nvim_win_set_cursor(0, { row - 1 + #lines, 0 })
         else
-          vim.api.nvim_buf_set_lines(bufnr, row, row, false, { new_text })
-          vim.api.nvim_win_set_cursor(0, { row + 1, 0 })
+          vim.api.nvim_buf_set_lines(bufnr, row, row, false, lines)
+          vim.api.nvim_win_set_cursor(0, { row + #lines, 0 })
         end
         return true
       end
@@ -202,10 +258,11 @@ function M.paste_image(bufnr)
     pcall(vim.uv.fs_unlink, temp_path)
     if rel_path then
       local markdown_link = string.format("![](%s)", rel_path)
-      local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+      local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
       local cur_line = vim.api.nvim_get_current_line()
       if vim.trim(cur_line) == "" then
-        vim.api.nvim_set_current_line(markdown_link)
+        vim.api.nvim_buf_set_lines(bufnr, row - 1, row, false, { markdown_link })
+        vim.api.nvim_win_set_cursor(0, { row, 0 })
       else
         vim.api.nvim_buf_set_lines(bufnr, row, row, false, { markdown_link })
         vim.api.nvim_win_set_cursor(0, { row + 1, 0 })

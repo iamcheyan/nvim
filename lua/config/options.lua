@@ -169,7 +169,53 @@ vim.opt.clipboard = "unnamedplus"
 
 -- 多设备跨平台剪贴板智能适配：
 -- 优先级：本地 Wayland (wl-copy) -> macOS (pbcopy) -> WSL (win32yank) -> X11 (xclip) -> tmux -> 终端 OSC 52 (降级兜底)
-if vim.env.WAYLAND_DISPLAY and vim.env.WAYLAND_DISPLAY ~= "" and vim.fn.executable("wl-copy") == 1 and vim.fn.executable("wl-paste") == 1 then
+local function resolve_wayland_display()
+  local runtime_dir = vim.env.XDG_RUNTIME_DIR
+  if not runtime_dir or runtime_dir == "" then
+    local uid = (vim.uv.getuid and vim.uv.getuid()) or vim.fn.getuid()
+    runtime_dir = "/run/user/" .. tostring(uid)
+  end
+
+  local function is_valid_socket(name)
+    if not name or name == "" then return false end
+    local sock_path = vim.fs.joinpath(runtime_dir, name)
+    local stat = vim.uv.fs_stat(sock_path)
+    return stat and stat.type == "socket"
+  end
+
+  -- 1. Check current WAYLAND_DISPLAY
+  if is_valid_socket(vim.env.WAYLAND_DISPLAY) then
+    return vim.env.WAYLAND_DISPLAY
+  end
+
+  -- 2. If invalid or missing (e.g. stale socket in tmux session), scan runtime_dir for active wayland-* sockets
+  local handle = vim.uv.fs_scandir(runtime_dir)
+  if handle then
+    local candidates = {}
+    while true do
+      local name, _ = vim.uv.fs_scandir_next(handle)
+      if not name then break end
+      if name:match("^wayland%-%d+$") and not name:match("%.lock$") and is_valid_socket(name) then
+        table.insert(candidates, name)
+      end
+    end
+    if #candidates > 0 then
+      table.sort(candidates)
+      local best = candidates[#candidates]
+      vim.env.WAYLAND_DISPLAY = best
+      return best
+    end
+  end
+
+  -- Socket does not exist; clear stale variable so child tools don't try connecting to a ghost socket
+  if vim.env.WAYLAND_DISPLAY then
+    vim.env.WAYLAND_DISPLAY = nil
+  end
+  return nil
+end
+
+local wayland_display = resolve_wayland_display()
+if wayland_display and vim.fn.executable("wl-copy") == 1 and vim.fn.executable("wl-paste") == 1 then
   vim.g.clipboard = "wl-copy"
 elseif vim.fn.has("mac") == 1 and vim.fn.executable("pbcopy") == 1 then
   vim.g.clipboard = "pbcopy"
