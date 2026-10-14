@@ -200,11 +200,16 @@ local function restore_window(win)
   vim.api.nvim_win_set_hl_ns(win, 0)
   vim.wo[win].winhighlight = ""
   if palette_active and not any_markdown_window() then
-    for name, spec in pairs(original_treesitter_groups or {}) do
-      vim.api.nvim_set_hl(0, name, spec)
-    end
-    palette_active = false
-    original_treesitter_groups = nil
+    vim.schedule(function()
+      if any_markdown_window() then
+        return
+      end
+      for name, spec in pairs(original_treesitter_groups or {}) do
+        vim.api.nvim_set_hl(0, name, spec)
+      end
+      palette_active = false
+      original_treesitter_groups = nil
+    end)
   end
 end
 
@@ -214,6 +219,13 @@ end
 
 function M.setup()
   local group = vim.api.nvim_create_augroup("MarkdownTypographyBlue", { clear = true })
+  local current_ns = vim.api.nvim_get_hl_ns({ winid = vim.api.nvim_get_current_win() })
+  if current_ns <= 0 then
+    original_treesitter_groups = snapshot_treesitter_groups()
+    palette_active = false
+  else
+    palette_active = true
+  end
   vim.api.nvim_create_autocmd("FileType", {
     group = group,
     pattern = "markdown",
@@ -233,9 +245,18 @@ function M.setup()
   vim.api.nvim_create_autocmd({ "BufWinLeave", "WinClosed" }, {
     group = group,
     callback = function(args)
-      local win = tonumber(args.match) or vim.api.nvim_get_current_win()
+      local buf = args.buf or vim.api.nvim_get_current_buf()
+      local win = vim.api.nvim_get_current_win()
       vim.schedule(function()
-        restore_window(win)
+        if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win) ~= buf then
+          restore_window(win)
+        else
+          for _, candidate in ipairs(vim.api.nvim_list_wins()) do
+            if vim.api.nvim_win_is_valid(candidate) and vim.api.nvim_win_get_buf(candidate) ~= buf then
+              restore_window(candidate)
+            end
+          end
+        end
       end)
     end,
   })
