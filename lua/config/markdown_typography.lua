@@ -337,7 +337,7 @@ function M.setup()
         end
       end
       if vim.bo.filetype == "markdown" then
-        apply_global_markdown_surface()
+        apply_markview_palette()
       end
       if markdown_open then
         palette_active = false
