@@ -336,6 +336,9 @@ function M.setup()
           break
         end
       end
+      if vim.bo.filetype == "markdown" then
+        apply_global_markdown_surface()
+      end
       if markdown_open then
         palette_active = false
         original_treesitter_groups = nil
