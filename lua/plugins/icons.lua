@@ -16,6 +16,11 @@ return {
           color = "#ffffff",
           name = "Markdown",
         },
+        cobol = {
+          icon = "",
+          color = "#005CA5",
+          name = "Cobol",
+        },
         sh = {
           icon = "",
           color = "#428850",
