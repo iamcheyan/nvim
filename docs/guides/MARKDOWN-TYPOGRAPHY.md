@@ -1,22 +1,24 @@
-# Neovim Markdown Typography — Blue Palette
+# Neovim Markdown Typography — Delek Light Palette
 
-This adds a Typora-like reading surface for `FileType=markdown` while keeping the
-configured global Blue colorscheme as the source of the accent colors and leaving
-COBOL, shell, Lua, SQL, and other buffers unchanged.
+This adds a clean, comfortable reading surface for `FileType=markdown` inspired
+by the classic `delek` theme while keeping the configured global Blue colorscheme
+for all controls, sidebars, and non-Markdown buffers.
 
 ## Design
 
-The Markdown page uses warm paper (`#faf9f5`) and book-text ink (`#303030`) for
-long-form reading. Blue's active cursor-line accent (`#005faf`), deep navy
-background identity (`#000087`), and cyan UI accent (`#008787`) carry into heading
-hierarchy, links, list markers, and quote rules. H1 through H6 descend in size and
-weight through color, bold and italic emphasis.
-
-Inline code uses a soft warm-gray chip (`#ebe8df`) and muted red text. Fenced code
-keeps a dark Blue-night-like panel (`#202536`) with pale text, so code remains
-visually distinct from prose. Quotes use a quiet left marker and italic gray text;
-links are underlined; list and task markers use Blue cyan and a restrained green
-for completed items. Tables use normal readable text and soft separators.
+The Markdown page uses pure white (`#ffffff`) and deep black ink (`#000000`) for
+crisp, effortless document editing. Window highlights, cursors, line numbers,
+search highlights, and headings follow `delek`:
+- Cursor: black block on white paper (`#000000` / `#ffffff`)
+- Line numbers: `delek` brown (`#a52a2a`)
+- Cursor line: subtle soft gray (`#e4e4e4`)
+- Selection: light gray (`#d0d0d0`)
+- Search: magenta/white (`#cd00cd` / `#ffffff`)
+- Headings: magenta (`#cd00cd`), blue (`#0000ff`), cyan (`#008b8b`), pink (`#ff1493`), green (`#008700`), brown (`#a52a2a`)
+- Blockquotes: italic comment red (`#ee0000`)
+- Links: blue with underline (`#0000ff`)
+- Inline code: fresh green constant (`#008700`) on subtle gray (`#e8e8e8`)
+- Fenced code block: clean light panel (`#f4f4f4`) with dark text
 
 ## Files and activation
 

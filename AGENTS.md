@@ -3,7 +3,7 @@
 This public repository is the canonical configuration source. It can be checked
 out at ~/nvim or as dotfiles/config/nvim. Never assume a particular checkout path.
 Edit source files; init.sh links the checkout into the Neovim configuration path.
-
+![](assets/image-20261014-232947.png)![](assets/image-20261014-232956.png)
 - Require Neovim 0.12+. Keep Treesitter and textobjects on their main branches.
 - Self-authored plugins have independent public Git repositories. Declare them
   in lua/plugins; edit their own development checkouts rather than vendoring code.

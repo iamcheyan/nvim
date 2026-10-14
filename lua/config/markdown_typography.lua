@@ -1,150 +1,114 @@
--- Local Blue-coordinated reading palette for Markdown windows only.
--- Global Blue and all non-Markdown buffers retain their existing highlights.
+-- Window-local native Delek colorscheme application for Markdown windows.
+-- The global Blue colorscheme and all non-Markdown windows/controls remain unchanged.
 local M = {}
 
+local delek = require("config.delek_palette")
+
 local palette = {
-  paper = "#faf9f5",
-  ink = "#303030",
-  muted = "#686b78",
-  blue = "#005faf", -- Blue's active cursor-line accent
-  blue_dark = "#000087", -- Blue's background identity, used sparingly
-  cyan = "#008787", -- Blue's sign/border accent
-  violet = "#805080",
-  rule = "#d8d6cf",
-  code_bg = "#202536",
-  code_fg = "#e4e7ed",
-  inline_bg = "#ebe8df",
-  red = "#a43f45",
-  green = "#477356",
+  paper = "#ffffff",
+  ink = "#000000",
+  cursor = "#000000",
+  cursor_fg = "#ffffff",
+  cursor_line = "#e4e4e4",
+  visual = "#d0d0d0",
+  line_nr = "#a52a2a",
+  blue = "#0000ff",
+  dark_blue = "#00008b",
+  cyan = "#008b8b",
+  magenta = "#cd00cd",
+  blue_dark = "#cd00cd", -- delek Title / H1 alias
+  pink = "#ff1493",
+  green = "#00cd00",
+  dark_green = "#008700",
+  red = "#ee0000",
+  slate = "#6a5acd",
+  border = "#bcbcbc",
+  code_bg = "#f4f4f4",
+  code_fg = "#000000",
+  inline_bg = "#e8e8e8",
 }
 
+-- Target groups for winhighlight compatibility
 local window_groups = {
-  MdTypographyNormal = { fg = palette.ink, bg = palette.paper },
-  MdTypographyNormalNC = { fg = palette.ink, bg = palette.paper },
-  MdTypographySignColumn = { fg = palette.cyan, bg = palette.paper },
-  MdTypographyFoldColumn = { fg = palette.cyan, bg = palette.paper },
-  MdTypographyLineNr = { fg = palette.muted, bg = palette.paper },
-  MdTypographyCursorLineNr = { fg = palette.blue, bg = palette.paper, bold = true },
-  MdTypographyCursorLine = { bg = "#eeece5" },
-  MdTypographyColorColumn = { bg = "#f1efe8" },
-  MdTypographyEndOfBuffer = { fg = palette.paper, bg = palette.paper },
-  MdTypographyWinSeparator = { fg = palette.rule, bg = palette.paper },
-  MdTypographyStatusLine = { fg = palette.ink, bg = "#eeece5" },
-  MdTypographyStatusLineNC = { fg = palette.muted, bg = palette.paper },
+  Normal = delek["Normal"] or { fg = 0, bg = 16777215, ctermfg = 16, ctermbg = 231 },
+  NormalNC = delek["Normal"] or { fg = 0, bg = 16777215, ctermfg = 16, ctermbg = 231 },
+  Cursor = delek["Cursor"] or { fg = 16777215, bg = 0, ctermfg = 231, ctermbg = 16 },
+  lCursor = delek["lCursor"] or { fg = 0, bg = 52480, ctermfg = 16, ctermbg = 40 },
+  CursorLine = delek["CursorLine"] or { bg = 15000804, ctermbg = 254 },
+  CursorLineNr = delek["CursorLineNr"] or { fg = 10824234, bold = true, ctermfg = 124 },
+  LineNr = delek["LineNr"] or { fg = 10824234, ctermfg = 124 },
+  SignColumn = { fg = 35723, bg = 16777215, ctermfg = 30, ctermbg = 231 },
+  FoldColumn = delek["FoldColumn"] or { fg = 18, bg = 16777215 },
+  Folded = delek["Folded"] or { fg = 18, bg = 15000804, ctermfg = 18, ctermbg = 254 },
+  Visual = delek["Visual"] or { fg = 0, bg = 13684944, ctermfg = 16, ctermbg = 252 },
+  Search = delek["Search"] or { fg = 16777215, bg = 13435085, ctermfg = 231, ctermbg = 164 },
+  IncSearch = delek["IncSearch"] or { fg = 52480, reverse = true, ctermfg = 40 },
+  MatchParen = delek["MatchParen"] or { fg = 16777215, bg = 16716947, bold = true },
+  EndOfBuffer = { fg = 16777215, bg = 16777215, ctermfg = 231, ctermbg = 231 },
+  WinSeparator = { fg = 12369084, bg = 16777215 },
+  StatusLine = { fg = 0, bg = 15000804 },
+  StatusLineNC = { fg = 12369084, bg = 16777215 },
+  CursorColumn = delek["CursorColumn"] or { bg = 15000804, ctermbg = 254 },
+  WinBar = { fg = 0, bg = 16777215, bold = true },
+  WinBarNC = { fg = 8947848, bg = 16777215 },
+  ContextlineText = { fg = 0, bg = 16777215 },
+  ContextlineActiveMenu = { fg = 0, bg = 16777215, bold = true },
+  ContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = true },
+  ContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = true },
+  SnacksStatusColumnMark = { fg = 34560, bg = 16777215 },
+  SnacksStatusColumnSign = { fg = 35723, bg = 16777215 },
+  MdTypographyNormal = delek["Normal"] or { fg = 0, bg = 16777215, ctermfg = 16, ctermbg = 231 },
+  MdTypographyNormalNC = delek["Normal"] or { fg = 0, bg = 16777215, ctermfg = 16, ctermbg = 231 },
+  MdTypographyCursor = delek["Cursor"] or { fg = 16777215, bg = 0, ctermfg = 231, ctermbg = 16 },
+  MdTypographyCursorLine = delek["CursorLine"] or { bg = 15000804, ctermbg = 254 },
+  MdTypographyCursorLineNr = delek["CursorLineNr"] or { fg = 10824234, bold = true, ctermfg = 124 },
+  MdTypographyCursorColumn = delek["CursorColumn"] or { bg = 15000804, ctermbg = 254 },
+  MdTypographyLineNr = delek["LineNr"] or { fg = 10824234, ctermfg = 124 },
+  MdTypographySignColumn = { fg = 35723, bg = 16777215, ctermfg = 30, ctermbg = 231 },
+  MdTypographyFoldColumn = delek["FoldColumn"] or { fg = 18, bg = 16777215 },
+  MdTypographyColorColumn = { fg = 0, bg = 15000804, ctermfg = 16, ctermbg = 254 },
+  MdTypographyEndOfBuffer = { fg = 16777215, bg = 16777215, ctermfg = 231, ctermbg = 231 },
+  MdTypographyWinSeparator = { fg = 12369084, bg = 16777215 },
+  MdTypographyStatusLine = { fg = 0, bg = 15000804 },
+  MdTypographyStatusLineNC = { fg = 12369084, bg = 16777215 },
+  MdTypographyWinBar = { fg = 0, bg = 16777215, bold = true },
+  MdTypographyWinBarNC = { fg = 8947848, bg = 16777215 },
+  MdTypographyContextlineText = { fg = 0, bg = 16777215 },
+  MdTypographyContextlineActiveMenu = { fg = 0, bg = 16777215, bold = true },
+  MdTypographyContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = true },
+  MdTypographyContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = true },
+  MdTypographyVisual = delek["Visual"] or { fg = 0, bg = 13684944, ctermfg = 16, ctermbg = 252 },
 }
 
-local syntax_groups = {
-  markdownH1 = { fg = palette.blue_dark, bold = true },
-  markdownH2 = { fg = palette.blue, bold = true },
-  markdownH3 = { fg = palette.violet, bold = true },
-  markdownH4 = { fg = palette.ink, bold = true },
-  markdownH5 = { fg = palette.ink, italic = true },
-  markdownH6 = { fg = palette.muted, italic = true },
-  markdownCode = { fg = palette.code_fg, bg = palette.code_bg },
-  markdownCodeBlock = { fg = palette.code_fg, bg = palette.code_bg },
-  markdownCodeDelimiter = { fg = palette.cyan, bg = palette.code_bg },
-  markdownBlockquote = { fg = palette.muted, italic = true },
-  markdownBlockquoteDelimiter = { fg = palette.cyan, bold = true },
-  markdownListMarker = { fg = palette.cyan, bold = true },
-  markdownUrl = { fg = palette.cyan, underline = true },
-  markdownLinkText = { fg = palette.blue, underline = true },
-  markdownBold = { fg = palette.ink, bold = true },
-  markdownItalic = { fg = palette.ink, italic = true },
-  markdownStrike = { fg = palette.muted, strikethrough = true },
-  markdownRule = { fg = palette.rule },
-  markdownTable = { fg = palette.ink },
-  markdownTableDelimiter = { fg = palette.rule },
-  MarkviewHeading1 = { fg = palette.blue_dark, bold = true },
-  MarkviewHeading2 = { fg = palette.blue, bold = true },
-  MarkviewHeading3 = { fg = palette.violet, bold = true },
-  MarkviewHeading1Sign = { fg = palette.cyan },
-  MarkviewHeading2Sign = { fg = palette.cyan },
-  MarkviewHeading3Sign = { fg = palette.violet },
-  MarkviewHeading4Sign = { fg = palette.ink },
-  MarkviewHeading5Sign = { fg = palette.muted },
-  MarkviewHeading6Sign = { fg = palette.muted },
-  MarkviewCodeFg = { fg = palette.code_fg },
-  MarkviewCodeInfo = { fg = palette.cyan, bg = palette.code_bg },
-  MarkviewInlineCode = { fg = palette.red, bg = palette.inline_bg },
-  MarkviewCode = { fg = palette.code_fg, bg = palette.code_bg },
-  MarkviewQuote = { fg = palette.muted, italic = true },
-  MarkviewListItemMinus = { fg = palette.cyan, bold = true },
-  MarkviewListItemPlus = { fg = palette.green, bold = true },
-  MarkviewListItemStar = { fg = palette.cyan, bold = true },
-  MarkviewCheckboxChecked = { fg = palette.green, bold = true },
-  MarkviewCheckboxUnchecked = { fg = palette.cyan },
-  MarkviewCheckboxPending = { fg = palette.blue, bold = true },
-  MarkviewCheckboxProgress = { fg = palette.blue, bold = true },
-  MarkviewCheckboxCancelled = { fg = palette.muted, strikethrough = true },
-  MarkviewCheckboxStriked = { fg = palette.muted, strikethrough = true },
-  MarkviewBlockQuoteDefault = { fg = palette.muted, italic = true },
-  MarkviewBlockQuoteNote = { fg = palette.blue, italic = true },
-  MarkviewBlockQuoteOk = { fg = palette.green, italic = true },
-  MarkviewBlockQuoteWarn = { fg = palette.violet, italic = true },
-  MarkviewBlockQuoteError = { fg = palette.red, italic = true },
-  MarkviewBlockQuoteSpecial = { fg = palette.cyan, italic = true },
-  MarkviewTableHeader = { fg = palette.blue_dark, bg = "#eeece5", bold = true },
-  MarkviewTableBorder = { fg = palette.rule },
-  MarkviewTableAlignLeft = { fg = palette.blue },
-  MarkviewTableAlignRight = { fg = palette.blue },
-  MarkviewTableAlignCenter = { fg = palette.blue },
-}
-
+-- Markview styling harmonized with delek clean paper
 local markview_overrides = {
-  MarkviewHeading1 = { fg = palette.blue_dark, bg = palette.paper, bold = true },
+  MarkviewHeading1 = { fg = palette.magenta, bg = palette.paper, bold = true },
   MarkviewHeading2 = { fg = palette.blue, bg = palette.paper, bold = true },
-  MarkviewHeading3 = { fg = palette.violet, bg = palette.paper, bold = true },
-  MarkviewHeading4 = { fg = palette.ink, bg = palette.paper, bold = true },
-  MarkviewHeading5 = { fg = palette.ink, bg = palette.paper, italic = true },
-  MarkviewHeading6 = { fg = palette.muted, bg = palette.paper, italic = true },
-  MarkviewHeading1Sign = { fg = palette.cyan, bg = palette.paper },
-  MarkviewHeading2Sign = { fg = palette.cyan, bg = palette.paper },
-  MarkviewHeading3Sign = { fg = palette.violet, bg = palette.paper },
-  MarkviewHeading4Sign = { fg = palette.ink, bg = palette.paper },
-  MarkviewHeading5Sign = { fg = palette.muted, bg = palette.paper },
-  MarkviewHeading6Sign = { fg = palette.muted, bg = palette.paper },
+  MarkviewHeading3 = { fg = palette.cyan, bg = palette.paper, bold = true },
+  MarkviewHeading4 = { fg = palette.pink, bg = palette.paper, bold = true },
+  MarkviewHeading5 = { fg = palette.dark_green, bg = palette.paper, bold = true },
+  MarkviewHeading6 = { fg = palette.line_nr, bg = palette.paper, bold = true, italic = true },
+  MarkviewHeading1Sign = { fg = palette.magenta, bg = palette.paper },
+  MarkviewHeading2Sign = { fg = palette.blue, bg = palette.paper },
+  MarkviewHeading3Sign = { fg = palette.cyan, bg = palette.paper },
+  MarkviewHeading4Sign = { fg = palette.pink, bg = palette.paper },
+  MarkviewHeading5Sign = { fg = palette.dark_green, bg = palette.paper },
+  MarkviewHeading6Sign = { fg = palette.line_nr, bg = palette.paper },
   MarkviewCode = { fg = palette.code_fg, bg = palette.code_bg },
   MarkviewCodeFg = { fg = palette.code_fg, bg = palette.code_bg },
   MarkviewCodeInfo = { fg = palette.cyan, bg = palette.code_bg },
-  MarkviewInlineCode = { fg = palette.red, bg = palette.inline_bg },
-  MarkviewTableHeader = { fg = palette.blue_dark, bg = "#eeece5", bold = true },
-}
-
-local treesitter_groups = {
-  ["@markup.heading"] = { fg = palette.blue, bold = true },
-  ["@markup.heading.1"] = { fg = palette.blue_dark, bold = true },
-  ["@markup.heading.2"] = { fg = palette.blue, bold = true },
-  ["@markup.heading.3"] = { fg = palette.violet, bold = true },
-  ["@markup.heading.4"] = { fg = palette.ink, bold = true },
-  ["@markup.heading.5"] = { fg = palette.ink, italic = true },
-  ["@markup.heading.6"] = { fg = palette.muted, italic = true },
-  ["@markup.heading.1.marker"] = { fg = palette.cyan, bold = true },
-  ["@markup.heading.2.marker"] = { fg = palette.cyan },
-  ["@markup.heading.3.marker"] = { fg = palette.violet },
-  ["@markup.heading.marker"] = { fg = palette.cyan },
-  ["@markup.strong"] = { fg = palette.ink, bold = true },
-  ["@markup.italic"] = { fg = palette.ink, italic = true },
-  ["@markup.strikethrough"] = { fg = palette.muted, strikethrough = true },
-  ["@markup.link"] = { fg = palette.blue, underline = true },
-  ["@markup.link.url"] = { fg = palette.cyan, underline = true },
-  ["@markup.link.label"] = { fg = palette.blue, underline = true },
-  ["@markup.list"] = { fg = palette.cyan, bold = true },
-  ["@markup.list.checked"] = { fg = palette.green, bold = true },
-  ["@markup.list.unchecked"] = { fg = palette.cyan },
-  ["@markup.quote"] = { fg = palette.muted, italic = true },
-  ["@markup.quote.marker"] = { fg = palette.cyan, bold = true },
-  ["@markup.raw"] = { fg = palette.red, bg = palette.inline_bg },
-  ["@markup.raw.block"] = { fg = palette.code_fg, bg = palette.code_bg },
-  ["@markup.raw.inline"] = { fg = palette.red, bg = palette.inline_bg },
-  ["@markup.math"] = { fg = palette.violet },
+  MarkviewInlineCode = { fg = palette.dark_green, bg = palette.inline_bg },
+  MarkviewTableHeader = { fg = palette.blue, bg = palette.cursor_line, bold = true },
 }
 
 local original_treesitter_groups
 local palette_active = false
 
-local function set_highlights(ns, source)
-  for name, spec in pairs(source) do
-    vim.api.nvim_set_hl(ns, name, spec)
+local function register_global_aliases()
+  for name, spec in pairs(window_groups) do
+    if name:find("^MdTypography") then
+      vim.api.nvim_set_hl(0, name, spec)
+    end
   end
 end
 
@@ -152,9 +116,20 @@ local function apply_namespace(win)
   if not vim.api.nvim_win_is_valid(win) then
     return
   end
-  local ns = vim.api.nvim_create_namespace("MarkdownTypographyBlue:" .. tostring(win))
-  set_highlights(ns, window_groups)
-  set_highlights(ns, syntax_groups)
+  register_global_aliases()
+  local ns = vim.api.nvim_create_namespace("MarkdownTypographyDelek:" .. tostring(win))
+  -- Apply all native delek highlight groups into the window-local namespace
+  for name, spec in pairs(delek) do
+    vim.api.nvim_set_hl(ns, name, spec)
+  end
+  -- Apply window-local surface overrides
+  for name, spec in pairs(window_groups) do
+    vim.api.nvim_set_hl(ns, name, spec)
+  end
+  -- Apply Markview paper-background overrides
+  for name, spec in pairs(markview_overrides) do
+    vim.api.nvim_set_hl(ns, name, spec)
+  end
   vim.api.nvim_win_set_hl_ns(win, ns)
 end
 
@@ -164,7 +139,12 @@ end
 
 local function snapshot_treesitter_groups()
   local snapshot = {}
-  for name in pairs(treesitter_groups) do
+  local keys = {
+    "@markup.heading.1",
+    "@markup.raw.block",
+    "@markup.raw.inline",
+  }
+  for _, name in ipairs(keys) do
     local ok, spec = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
     snapshot[name] = ok and vim.deepcopy(spec) or {}
   end
@@ -172,9 +152,9 @@ local function snapshot_treesitter_groups()
 end
 
 local function apply_treesitter_groups()
-  for name, spec in pairs(treesitter_groups) do
-    vim.api.nvim_set_hl(0, name, spec)
-  end
+  vim.api.nvim_set_hl(0, "@markup.heading.1", { fg = palette.magenta, bold = true })
+  vim.api.nvim_set_hl(0, "@markup.raw.block", { fg = palette.code_fg, bg = palette.code_bg })
+  vim.api.nvim_set_hl(0, "@markup.raw.inline", { fg = palette.dark_green, bg = palette.inline_bg })
 end
 
 local function apply_to_markdown_windows(buf)
@@ -183,22 +163,34 @@ local function apply_to_markdown_windows(buf)
     palette_active = true
   end
   apply_treesitter_groups()
+  if vim.api.nvim_buf_is_valid(buf) then
+    vim.b[buf].snacks_statuscolumn_left = false
+  end
   for _, win in ipairs(vim.fn.win_findbuf(buf)) do
     if vim.api.nvim_win_is_valid(win) then
       apply_namespace(win)
       vim.wo[win].winhighlight = table.concat({
         "Normal:MdTypographyNormal",
         "NormalNC:MdTypographyNormalNC",
+        "Cursor:MdTypographyCursor",
+        "CursorLine:MdTypographyCursorLine",
+        "CursorLineNr:MdTypographyCursorLineNr",
+        "CursorColumn:MdTypographyCursorColumn",
+        "LineNr:MdTypographyLineNr",
         "SignColumn:MdTypographySignColumn",
         "FoldColumn:MdTypographyFoldColumn",
-        "LineNr:MdTypographyLineNr",
-        "CursorLineNr:MdTypographyCursorLineNr",
-        "CursorLine:MdTypographyCursorLine",
         "ColorColumn:MdTypographyColorColumn",
         "EndOfBuffer:MdTypographyEndOfBuffer",
         "WinSeparator:MdTypographyWinSeparator",
         "StatusLine:MdTypographyStatusLine",
         "StatusLineNC:MdTypographyStatusLineNC",
+        "WinBar:MdTypographyWinBar",
+        "WinBarNC:MdTypographyWinBarNC",
+        "ContextlineText:MdTypographyContextlineText",
+        "ContextlineActiveMenu:MdTypographyContextlineActiveMenu",
+        "ContextlineErrorBadge:MdTypographyContextlineErrorBadge",
+        "ContextlineWarningBadge:MdTypographyContextlineWarningBadge",
+        "Visual:MdTypographyVisual",
       }, ",")
     end
   end
@@ -213,24 +205,24 @@ local function any_markdown_window()
   return false
 end
 
+local function restore_treesitter()
+  if palette_active and not any_markdown_window() then
+    for name, spec in pairs(original_treesitter_groups or {}) do
+      vim.api.nvim_set_hl(0, name, spec)
+    end
+    palette_active = false
+    original_treesitter_groups = nil
+  end
+end
+
 local function restore_window(win)
   if not vim.api.nvim_win_is_valid(win) or is_markdown(vim.api.nvim_win_get_buf(win)) then
     return
   end
   vim.api.nvim_win_set_hl_ns(win, 0)
   vim.wo[win].winhighlight = ""
-  if palette_active and not any_markdown_window() then
-    vim.schedule(function()
-      if any_markdown_window() then
-        return
-      end
-      for name, spec in pairs(original_treesitter_groups or {}) do
-        vim.api.nvim_set_hl(0, name, spec)
-      end
-      palette_active = false
-      original_treesitter_groups = nil
-    end)
-  end
+  restore_treesitter()
+  vim.schedule(restore_treesitter)
 end
 
 function M.palette()
@@ -243,13 +235,13 @@ local function apply_markview_palette()
   end
   local groups = require("markview.highlights").groups
   local colors = {
-    "#686b78",
-    palette.blue_dark,
-    palette.blue,
-    palette.violet,
-    palette.green,
-    palette.cyan,
-    palette.red,
+    palette.border,     -- 0
+    palette.magenta,    -- 1 (delek Title)
+    palette.blue,       -- 2 (delek Statement)
+    palette.cyan,       -- 3 (delek Identifier)
+    palette.pink,       -- 4 (delek Special)
+    palette.dark_green, -- 5 (delek Constant)
+    palette.line_nr,    -- 6 (delek LineNr)
   }
   for level = 0, 6 do
     local n = level
@@ -302,9 +294,12 @@ function M.setup()
   vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {
     group = group,
     callback = function(args)
-      local buf = args.buf > 0 and args.buf or vim.api.nvim_get_current_buf()
+      local win = vim.api.nvim_get_current_win()
+      local buf = (vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win)) or args.buf
       if is_markdown(buf) then
         apply_to_markdown_windows(buf)
+      else
+        restore_window(win)
       end
     end,
   })

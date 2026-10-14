@@ -37,6 +37,16 @@ return {
     opts = {
       explorer = { enabled = false },
       scroll = { enabled = false },
+      image = {
+        enabled = true,
+        doc = {
+          inline = true,
+          float = true,
+          max_width = 80,
+          max_height = 40,
+        },
+        img_dirs = { "assets", "img", "images", "static", "media", "attachments" },
+      },
       statuscolumn = {
         enabled = true,
         left = { "mark", "sign" },

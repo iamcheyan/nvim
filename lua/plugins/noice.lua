@@ -26,7 +26,32 @@ return {
         view_search = "cmdline",
         view_history = "messages",
       },
+      -- Keep yank confirmations in their own bottom view. They can stack while
+      -- copying, then the whole message group hides after the last yank.
+      routes = {
+        {
+          filter = { event = "msg_show", find = "yanked into" },
+          view = "yank",
+          opts = { stop = true },
+        },
+      },
       views = {
+        yank = {
+          backend = "popup",
+          relative = "editor",
+          position = { row = "100%", col = 0 },
+          size = { height = "auto", width = "100%" },
+          border = { style = "none" },
+          timeout = 2200,
+          win_options = {
+            winhighlight = {
+              Normal = "NoiceCmdline",
+              IncSearch = "",
+              CurSearch = "",
+              Search = "",
+            },
+          },
+        },
         confirm = {
           position = { row = "50%", col = "50%" },
           size = { width = "auto", height = "auto", max_width = 64 },

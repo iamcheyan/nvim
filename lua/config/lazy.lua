@@ -111,4 +111,5 @@ require("config.keymaps")
 -- Typography overrides are isolated to Markdown windows and harmonized with
 -- the current global colorscheme (Blue); all other buffers retain that theme.
 require("config.markdown_typography").setup()
+require("config.markdown_image_paste").setup()
 require("config.autocmds")
