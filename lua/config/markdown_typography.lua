@@ -252,8 +252,8 @@ local function apply_markview_palette()
     palette.red,
   }
   for level = 0, 6 do
-    local color = colors[level + 1]
     local n = level
+    local color = colors[level + 1]
     groups[tostring(level)] = function()
       return {
         { group_name = string.format("MarkviewPalette%d", n), value = { fg = color, bg = palette.paper } },
@@ -261,6 +261,11 @@ local function apply_markview_palette()
         { group_name = string.format("MarkviewPalette%dFg", n), value = { fg = color } },
         { group_name = string.format("MarkviewPalette%dBg", n), value = { bg = palette.paper } },
       }
+    end
+  end
+  for level = 0, 6 do
+    for _, suffix in ipairs({ "", "Sign", "Fg", "Bg" }) do
+      vim.api.nvim_set_hl(0, string.format("MarkviewPalette%d%s", level, suffix), {})
     end
   end
   require("markview.highlights").setup()
