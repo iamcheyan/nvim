@@ -5,14 +5,32 @@ return {
     config = function()
       require("smart-paste").setup()
 
+      local function flatten_lines(raw_lines)
+        if type(raw_lines) ~= "table" then return {} end
+        local res = {}
+        for _, item in ipairs(raw_lines) do
+          local str = tostring(item):gsub("\r$", ""):gsub("\r\n", "\n")
+          local parts = vim.split(str, "\n", { plain = true })
+          for _, part in ipairs(parts) do
+            table.insert(res, part)
+          end
+        end
+        return res
+      end
+
       -- External clipboard registers are often characterwise. Keep their
       -- relative indentation intact while rebasing the block to this line.
       local function clipboard_lines()
         local info = vim.fn.getreginfo("+")
-        local lines = info and info.regcontents
-        if type(lines) ~= "table" or #lines == 0 then return nil end
-        lines = vim.deepcopy(lines)
-        for i, line in ipairs(lines) do lines[i] = line:gsub("\r$", "") end
+        local raw = info and info.regcontents
+        if not raw or (type(raw) == "table" and #raw == 0) then
+          local text = vim.fn.getreg("+")
+          if text and text ~= "" then
+            raw = { text }
+          end
+        end
+        if type(raw) ~= "table" or #raw == 0 then return nil end
+        local lines = flatten_lines(raw)
         if #lines > 1 and lines[#lines] == "" then table.remove(lines) end
         return lines
       end
@@ -127,8 +145,8 @@ return {
           if first > last then first, last = last, first end
           local bufnr = vim.api.nvim_get_current_buf()
           local row = first - 1
-          local target = require("smart-paste.indent").get_target_indent(bufnr, row)
-          vim.api.nvim_buf_set_lines(bufnr, row, last, false, align(lines, target, bufnr))
+          local adjusted = flatten_lines(align(lines, target, bufnr))
+          vim.api.nvim_buf_set_lines(bufnr, row, last, false, adjusted)
           vim.api.nvim_win_set_cursor(0, { first, 0 })
           return
         end
@@ -158,6 +176,7 @@ return {
           else
             adjusted[1] = adjusted[1]:gsub("^%s*", "")
           end
+          adjusted = flatten_lines(adjusted)
           vim.api.nvim_buf_set_text(bufnr, srow, scol, erow, end_col, adjusted)
           vim.api.nvim_win_set_cursor(0, { srow + #adjusted, #adjusted[#adjusted] })
           return
@@ -198,8 +217,9 @@ return {
           adjusted[1] = prefix .. adjusted[1]
           adjusted[#adjusted] = adjusted[#adjusted] .. suffix
         end
-        vim.api.nvim_buf_set_lines(bufnr, row - 1, row, false, adjusted)
-        vim.api.nvim_win_set_cursor(0, { row + #adjusted - 1, #adjusted[#adjusted] - #suffix })
+        local flat_adjusted = flatten_lines(adjusted)
+        vim.api.nvim_buf_set_lines(bufnr, row - 1, row, false, flat_adjusted)
+        vim.api.nvim_win_set_cursor(0, { row + #flat_adjusted - 1, #flat_adjusted[#flat_adjusted] - #suffix })
       end, { desc = "Smart paste system clipboard block" })
     end,
   },
