@@ -90,6 +90,26 @@ local syntax_groups = {
   MarkviewTableAlignCenter = { fg = palette.blue },
 }
 
+local markview_overrides = {
+  MarkviewHeading1 = { fg = palette.blue_dark, bg = palette.paper, bold = true },
+  MarkviewHeading2 = { fg = palette.blue, bg = palette.paper, bold = true },
+  MarkviewHeading3 = { fg = palette.violet, bg = palette.paper, bold = true },
+  MarkviewHeading4 = { fg = palette.ink, bg = palette.paper, bold = true },
+  MarkviewHeading5 = { fg = palette.ink, bg = palette.paper, italic = true },
+  MarkviewHeading6 = { fg = palette.muted, bg = palette.paper, italic = true },
+  MarkviewHeading1Sign = { fg = palette.cyan, bg = palette.paper },
+  MarkviewHeading2Sign = { fg = palette.cyan, bg = palette.paper },
+  MarkviewHeading3Sign = { fg = palette.violet, bg = palette.paper },
+  MarkviewHeading4Sign = { fg = palette.ink, bg = palette.paper },
+  MarkviewHeading5Sign = { fg = palette.muted, bg = palette.paper },
+  MarkviewHeading6Sign = { fg = palette.muted, bg = palette.paper },
+  MarkviewCode = { fg = palette.code_fg, bg = palette.code_bg },
+  MarkviewCodeFg = { fg = palette.code_fg, bg = palette.code_bg },
+  MarkviewCodeInfo = { fg = palette.cyan, bg = palette.code_bg },
+  MarkviewInlineCode = { fg = palette.red, bg = palette.inline_bg },
+  MarkviewTableHeader = { fg = palette.blue_dark, bg = "#eeece5", bold = true },
+}
+
 local treesitter_groups = {
   ["@markup.heading"] = { fg = palette.blue, bold = true },
   ["@markup.heading.1"] = { fg = palette.blue_dark, bold = true },
@@ -233,16 +253,20 @@ local function apply_markview_palette()
   }
   for level = 0, 6 do
     local color = colors[level + 1]
+    local n = level
     groups[tostring(level)] = function()
       return {
-        { group_name = string.format("MarkviewPalette%d", level), value = { fg = color, bg = palette.paper } },
-        { group_name = string.format("MarkviewPalette%dSign", level), value = { fg = color, bg = palette.paper } },
-        { group_name = string.format("MarkviewPalette%dFg", level), value = { fg = color } },
-        { group_name = string.format("MarkviewPalette%dBg", level), value = { bg = palette.paper } },
+        { group_name = string.format("MarkviewPalette%d", n), value = { fg = color, bg = palette.paper } },
+        { group_name = string.format("MarkviewPalette%dSign", n), value = { fg = color, bg = palette.paper } },
+        { group_name = string.format("MarkviewPalette%dFg", n), value = { fg = color } },
+        { group_name = string.format("MarkviewPalette%dBg", n), value = { bg = palette.paper } },
       }
     end
   end
   require("markview.highlights").setup()
+  for name, spec in pairs(markview_overrides) do
+    vim.api.nvim_set_hl(0, name, spec)
+  end
 end
 
 function M.setup()
