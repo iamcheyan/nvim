@@ -217,8 +217,45 @@ function M.palette()
   return palette
 end
 
+local function apply_markview_palette()
+  if not package.loaded["markview.highlights"] then
+    return
+  end
+  local groups = require("markview.highlights").groups
+  local colors = {
+    "#686b78",
+    palette.blue_dark,
+    palette.blue,
+    palette.violet,
+    palette.green,
+    palette.cyan,
+    palette.red,
+  }
+  for level = 0, 6 do
+    local color = colors[level + 1]
+    groups[tostring(level)] = function()
+      return {
+        { group_name = string.format("MarkviewPalette%d", level), value = { fg = color, bg = palette.paper } },
+        { group_name = string.format("MarkviewPalette%dSign", level), value = { fg = color, bg = palette.paper } },
+        { group_name = string.format("MarkviewPalette%dFg", level), value = { fg = color } },
+        { group_name = string.format("MarkviewPalette%dBg", level), value = { bg = palette.paper } },
+      }
+    end
+  end
+  require("markview.highlights").setup()
+end
+
 function M.setup()
   local group = vim.api.nvim_create_augroup("MarkdownTypographyBlue", { clear = true })
+  local colorscheme_group = vim.api.nvim_create_augroup("MarkdownTypographyBlueMarkview", { clear = true })
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    group = colorscheme_group,
+    callback = function()
+      if (vim.g.colors_name or ""):lower() == "blue" then
+        apply_markview_palette()
+      end
+    end,
+  })
   local current_ns = vim.api.nvim_get_hl_ns({ winid = vim.api.nvim_get_current_win() })
   if current_ns <= 0 then
     original_treesitter_groups = snapshot_treesitter_groups()
