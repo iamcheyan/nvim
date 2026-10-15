@@ -51,4 +51,37 @@ vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("A<CR><Esc>", true, false, 
 local after_enter = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 assert(after_enter[9] == string.rep(" ", 11), "Enter should continue Area B indentation exactly once")
 
+local procedure_buf = vim.api.nvim_create_buf(false, true)
+vim.api.nvim_set_current_buf(procedure_buf)
+vim.api.nvim_buf_set_lines(procedure_buf, 0, -1, false, {
+  "       PROCEDURE DIVISION.",
+  "       MAIN-PARA.",
+  "           IF WS-READY = 'Y'",
+})
+vim.bo[procedure_buf].filetype = "cobol"
+local procedure_lines = vim.api.nvim_buf_get_lines(procedure_buf, 0, -1, false)
+local o_map = vim.fn.maparg("o", "n", false, true)
+assert(o_map.buffer == 1 and o_map.desc == "COBOL: open below with current-line indentation", "o should use the COBOL line-open mapping")
+vim.api.nvim_set_current_buf(procedure_buf)
+vim.api.nvim_win_set_cursor(0, { 3, #procedure_lines[3] })
+vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("oDISPLAY WS-READY.<Esc>", true, false, true), "xt", false)
+local after_o = vim.api.nvim_buf_get_lines(procedure_buf, 0, -1, false)
+assert(after_o[4]:gsub("^[ \\t]*", "") == "DISPLAY WS-READY.", "o should preserve typed text")
+assert(vim.fn.strdisplaywidth(after_o[4]:match("^[ \\t]*") or "") == 11, "o should indent once to the current line")
+
+vim.api.nvim_buf_set_lines(procedure_buf, 0, -1, false, {
+  "       PROCEDURE DIVISION.",
+  "       MAIN-PARA.",
+  "               DISPLAY WS-READY.",
+})
+vim.api.nvim_win_set_cursor(0, { 3, 0 })
+local O_map = vim.fn.maparg("O", "n", false, true)
+assert(O_map.buffer == 1 and O_map.desc == "COBOL: open above with current-line indentation", "O should use current-line indentation")
+vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("OIF WS-READY = 'Y'<Esc>", true, false, true), "xt", false)
+local after_O = vim.api.nvim_buf_get_lines(procedure_buf, 0, -1, false)
+assert(after_O[3]:gsub("^[ \\t]*", "") == "IF WS-READY = 'Y'", "O should preserve typed text")
+assert(vim.fn.strdisplaywidth(after_O[3]:match("^[ \\t]*") or "") == 15, "O should copy the current line indentation once")
+assert(after_O[4]:gsub("^[ \\t]*", "") == "DISPLAY WS-READY.", "O should retain the original following line")
+assert(vim.fn.strdisplaywidth(after_O[4]:match("^[ \\t]*") or "") == 15, "O should not alter the original following line indentation")
+
 print("cobol_indent_spec: OK")
