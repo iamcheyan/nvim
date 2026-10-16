@@ -1,3 +1,25 @@
+-- The + and * registers are backed by an in-memory stub so this spec never depends
+-- on a live X11/Wayland clipboard being present.
+local clipboard_store = { ["+"] = "", ["*"] = "" }
+vim.g.clipboard = {
+  name = "markdown-image-paste-spec",
+  copy = {
+    ["+"] = function(lines) clipboard_store["+"] = table.concat(lines, "\n") end,
+    ["*"] = function(lines) clipboard_store["*"] = table.concat(lines, "\n") end,
+  },
+  paste = {
+    ["+"] = function() return { clipboard_store["+"] } end,
+    ["*"] = function() return { clipboard_store["*"] } end,
+  },
+}
+-- A provider chosen at startup (for example "wl-copy") is already cached, so the
+-- provider must be re-initialized for the stub above to take effect.
+vim.g.loaded_clipboard_provider = nil
+assert(vim.fn["provider#clipboard#Executable"]() == "markdown-image-paste-spec",
+  "the in-memory clipboard stub must be the active provider")
+vim.g.loaded_clipboard_provider = 2
+assert(vim.fn.has("clipboard") == 1, "the clipboard provider must be usable")
+
 local mip = require("config.markdown_image_paste")
 mip.setup()
 
@@ -66,15 +88,101 @@ for _ in multi_line:gmatch("%!%[%]%(assets/image%-[^%)]+%)") do
 end
 assert(count == 2, "multi-image paste must convert all paths: " .. multi_line)
 
--- 6. unnamed register safety: ensure paste_image does NOT use register '"'
+-- 6. unnamed register safety: ensure paste_image does NOT use register '"'.
+-- PATH points at an empty directory so this check cannot depend on the real system
+-- clipboard or on a locally installed kitten.
+-- Register contents are set while PATH is still intact: a clipboard provider that
+-- was initialized at startup resolves its helper binary through PATH.
 vim.fn.setreg("+", "")
 vim.fn.setreg("*", "")
 vim.fn.setreg('"', sample_img)
+local register_test_bin = vim.fn.tempname()
+vim.fn.mkdir(register_test_bin, "p")
+local path_before_register_test = vim.env.PATH
+vim.env.PATH = register_test_bin
 local pasted_empty = mip.paste_image()
+vim.env.PATH = path_before_register_test
 assert(pasted_empty == false, "must not fall back to register quote")
+
+-- 7. Simulate Kitty's OSC 5522 responses at the terminal boundary. Exercise the
+-- full paste path, including binary chunks, asset creation, and failed reads.
+local saved_send = vim.api.nvim_ui_send
+local saved_uis = vim.api.nvim_list_uis
+local saved_path = vim.env.PATH
+local saved_tmux = vim.env.TMUX
+local empty_bin = vim.fn.tempname()
+local clip_dir = vim.fn.tempname()
+vim.fn.mkdir(empty_bin, "p")
+vim.fn.mkdir(clip_dir, "p")
+vim.env.PATH = empty_bin -- no wl-paste or xclip
+vim.env.TMUX = "tmux-test"
+vim.fn.setreg("+", "")
+vim.fn.setreg("*", "")
+vim.api.nvim_list_uis = function() return { {} } end
+
+local denied = false
+local requested = {}
+local image_bytes = "\137PNG\r\n\26\n\0\255image payload"
+local function reply(status, id, mime, payload)
+  local header = "\27]5522;type=read:status=" .. status .. ":id=" .. id
+  if mime then header = header .. ":mime=" .. vim.base64.encode(mime) end
+  vim.api.nvim_exec_autocmds("TermResponse", {
+    data = { sequence = header .. (payload and ";" .. vim.base64.encode(payload) or "") },
+  })
+end
+
+vim.api.nvim_ui_send = function(query)
+  assert(query:sub(1, 7) == "\27Ptmux;", "tmux clipboard query must use passthrough")
+  local id = assert(query:match(":id=([%w%-]+)"))
+  local mime = vim.base64.decode(assert(query:match(";([%w+/=]+)\27\27\\\27\\$")))
+  requested[#requested + 1] = mime
+  vim.schedule(function()
+    if mime == "." then
+      reply("OK", id)
+      reply("DATA", id, ".", "text/plain\nimage/png\n")
+      reply("DONE", id)
+    elseif denied then
+      reply("OK", id)
+      reply("DATA", id, mime, image_bytes:sub(1, 9))
+      reply("EBUSY", id)
+    else
+      reply("OK", id)
+      reply("DATA", id, mime, image_bytes:sub(1, 9))
+      reply("DATA", id, mime, image_bytes:sub(10))
+      reply("DONE", id)
+    end
+  end)
+end
+
+local clip_doc = clip_dir .. "/clip.md"
+vim.cmd("edit " .. vim.fn.fnameescape(clip_doc))
+vim.bo.filetype = "markdown"
+vim.api.nvim_set_current_line("")
+assert(mip.paste_image(), "Kitty image bytes must paste through tmux")
+local archived = vim.api.nvim_get_current_line():match("^%!%[%]%((assets/image%-[%w%-]+%.png)%)$")
+assert(archived, "pasted image must link to a PNG asset")
+local image = assert(io.open(clip_dir .. "/" .. archived, "rb"))
+assert(image:read("*a") == image_bytes, "clipboard image must be archived byte for byte")
+image:close()
+assert(vim.deep_equal(requested, { ".", "image/png" }), "paste must request only the chosen image type")
+
+denied = true
+vim.api.nvim_set_current_line("")
+assert(not mip.paste_image(), "denied clipboard reads must not paste")
+assert(vim.api.nvim_get_current_line() == "", "failed read must leave the buffer unchanged")
+assert(#vim.fn.glob(clip_dir .. "/assets/*", false, true) == 1, "denied read must not create an asset")
+
+vim.api.nvim_ui_send = saved_send
+vim.api.nvim_list_uis = saved_uis
+vim.env.PATH = saved_path
+vim.env.TMUX = saved_tmux
+vim.fn.delete(clip_dir, "rf")
+vim.fn.delete(empty_bin, "rf")
+
 
 vim.fn.delete(sample_img)
 vim.fn.delete(sample_img2)
 vim.fn.delete(tmp_dir, "rf")
+vim.fn.delete(register_test_bin, "rf")
 print("markdown_image_paste_spec: OK")
 vim.cmd("qa!")

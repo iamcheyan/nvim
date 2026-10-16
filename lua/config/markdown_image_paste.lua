@@ -12,6 +12,13 @@ local IMAGE_EXTENSIONS = {
   ico = true,
 }
 
+---Clipboard image MIME types in preference order, with the file extension used on disk
+local CLIPBOARD_IMAGE_TYPES = {
+  { mime = "image/png", ext = ".png" },
+  { mime = "image/jpeg", ext = ".jpg" },
+  { mime = "image/webp", ext = ".webp" },
+}
+
 ---Cleans up a candidate path string (trims whitespace, quotes, file:// protocol)
 ---@param str string
 ---@return string
@@ -141,20 +148,121 @@ local function ensure_wayland_display()
   return false
 end
 
----Try to fetch image from system clipboard raw bytes (xclip/wl-paste)
+---Pick the preferred clipboard image MIME type present in an availability listing
+---@param available string
+---@return table|nil entry
+local function pick_clipboard_image_type(available)
+  local types = {}
+  for mime in available:gmatch("%S+") do
+    types[mime] = true
+  end
+  for _, entry in ipairs(CLIPBOARD_IMAGE_TYPES) do
+    if types[entry.mime] then return entry end
+  end
+  return nil
+end
+
+local clipboard_request_id = 0
+
+---Read a MIME type through kitty's OSC 5522 clipboard protocol. Neovim owns
+---the terminal, so a child `kitten clipboard` cannot open /dev/tty here.
+---@param mime string "." lists available types without prompting for permission
+---@param target? string write binary chunks directly to this file
+---@param timeout integer milliseconds
+---@return string|boolean|nil listing or successful file read
+local function read_kitty_clipboard(mime, target, timeout)
+  if not vim.api.nvim_ui_send or #vim.api.nvim_list_uis() == 0 then return nil end
+
+  clipboard_request_id = clipboard_request_id + 1
+  local id = string.format("nvim-%d-%d", vim.fn.getpid(), clipboard_request_id)
+  local done, accepted, bytes_written = false, false, 0
+  local chunks = {}
+  local file
+  local prefix = "\27]5522;"
+  local autocmd = vim.api.nvim_create_autocmd("TermResponse", {
+    callback = function(ev)
+      local sequence = ev.data.sequence
+      if sequence:sub(1, #prefix) ~= prefix then return end
+      local header, payload = sequence:sub(#prefix + 1):match("^([^;]+);?(.*)$")
+      if not header or header:sub(1, 10) ~= "type=read:" or header:match(":id=([%w%-%_+%.]+)") ~= id then
+        return
+      end
+      local status = header:match(":status=([A-Z]+)")
+      if status == "OK" then
+        accepted = true
+      elseif status == "DATA" and accepted then
+        local encoded_mime = header:match(":mime=([^:]+)")
+        local mime_ok, response_mime = pcall(vim.base64.decode, encoded_mime or "")
+        local data_ok, data = pcall(vim.base64.decode, payload)
+        if not mime_ok or response_mime ~= mime or not data_ok then
+          accepted, done = false, true
+          return
+        end
+        if target then
+          if not file then file = io.open(target, "wb") end
+          if not file then
+            accepted, done = false, true
+            return
+          end
+          if not file:write(data) then
+            accepted, done = false, true
+            return
+          end
+          bytes_written = bytes_written + #data
+        else
+          chunks[#chunks + 1] = data
+        end
+      elseif status == "DONE" then
+        done = true
+      else
+        accepted, done = false, true
+      end
+    end,
+  })
+
+  local query = prefix .. "type=read:id=" .. id .. ";" .. vim.base64.encode(mime) .. "\27\\"
+  if vim.env.TMUX then
+    query = "\27Ptmux;" .. query:gsub("\27", "\27\27") .. "\27\\"
+  end
+  vim.api.nvim_ui_send(query)
+  vim.wait(timeout, function() return done end, 10)
+  vim.api.nvim_del_autocmd(autocmd)
+  if file and not file:close() then accepted = false end
+  if not (done and accepted) then
+    if target then pcall(vim.uv.fs_unlink, target) end
+    return nil
+  end
+  if target then
+    if bytes_written > 0 then return true end
+    pcall(vim.uv.fs_unlink, target)
+    return nil
+  end
+  return table.concat(chunks)
+end
+
+---Read image data from the local Kitty clipboard over SSH (also through tmux).
+---@param tmp_file string temporary file prefix
+---@return string|nil temp_path
+local function dump_clipboard_image_via_kitty(tmp_file)
+  local listing = read_kitty_clipboard(".", nil, 1000)
+  if type(listing) ~= "string" then return nil end
+  local entry = pick_clipboard_image_type(listing)
+  if not entry then return nil end
+
+  local target = tmp_file .. entry.ext
+  if read_kitty_clipboard(entry.mime, target, 60000) then return target end
+  return nil
+end
+
+---Try to fetch image from system clipboard raw bytes (wl-paste/xclip/Kitty)
 ---@return string|nil temp_path
 local function dump_clipboard_bytes_to_temp()
   local tmp_file = vim.fn.tempname()
-  local mime_types = {
-    { mime = "image/png", ext = ".png" },
-    { mime = "image/jpeg", ext = ".jpg" },
-    { mime = "image/webp", ext = ".webp" },
-  }
 
   if vim.fn.executable("wl-paste") == 1 and ensure_wayland_display() then
     local types = vim.fn.system("wl-paste --list-types 2>/dev/null")
     if types and types ~= "" then
-      for _, entry in ipairs(mime_types) do
+      for _, entry in ipairs(CLIPBOARD_IMAGE_TYPES) do
         if types:find(entry.mime, 1, true) then
           local target_tmp = tmp_file .. entry.ext
           vim.fn.system(string.format("wl-paste --type '%s' > '%s' 2>/dev/null", entry.mime, target_tmp))
@@ -169,7 +277,7 @@ local function dump_clipboard_bytes_to_temp()
   if vim.fn.executable("xclip") == 1 then
     local targets = vim.fn.system("xclip -selection clipboard -t TARGETS -o 2>/dev/null")
     if targets and targets ~= "" then
-      for _, entry in ipairs(mime_types) do
+      for _, entry in ipairs(CLIPBOARD_IMAGE_TYPES) do
         if targets:find(entry.mime, 1, true) then
           local target_tmp = tmp_file .. entry.ext
           vim.fn.system(string.format("xclip -selection clipboard -t '%s' -o > '%s' 2>/dev/null", entry.mime, target_tmp))
@@ -181,7 +289,9 @@ local function dump_clipboard_bytes_to_temp()
       end
     end
   end
-  return nil
+
+  -- Wayland/X11 remain preferred; OSC 5522 reaches Kitty through SSH/tmux.
+  return dump_clipboard_image_via_kitty(tmp_file)
 end
 
 ---Scans a line for image paths, copies them to assets/, and replaces them with Markdown links.
