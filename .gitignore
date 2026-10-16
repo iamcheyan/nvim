@@ -11,3 +11,4 @@ tmp/
 *.secret
 .DS_Store
 sbzr.nvim.im.db/
+lazyvim.json

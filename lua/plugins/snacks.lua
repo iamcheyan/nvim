@@ -44,6 +44,28 @@ return {
       end
       require("snacks").setup(opts)
 
+      -- Work around an upstream snacks bug where ioctl(TIOCGWINSZ) in tmux/pty
+      -- returns xpixel=0 and ypixel=0, which causes cell_width=0 and cell_height=0,
+      -- resulting in division by zero and width=NaN, completely breaking image display.
+      local image_terminal = require("snacks.image.terminal")
+      local orig_size = image_terminal.size
+      image_terminal.size = function()
+        local s = orig_size()
+        if not s or s.cell_width == 0 or s.cell_height == 0 or s.width == 0 or s.height == 0 then
+          local dw, dh = 9, 18
+          s = {
+            width = vim.o.columns * dw,
+            height = vim.o.lines * dh,
+            columns = vim.o.columns,
+            rows = vim.o.lines,
+            cell_width = dw,
+            cell_height = dh,
+            scale = 1,
+          }
+        end
+        return s
+      end
+
       -- Work around an upstream grep transform crash when rg outputs a non-NUL line.
       local proc = require("snacks.picker.source.proc")
       local raw_proc = proc.proc

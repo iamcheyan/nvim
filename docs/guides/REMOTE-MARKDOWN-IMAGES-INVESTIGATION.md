@@ -115,8 +115,34 @@ remote = true
 - 位于本地的 tmux 遇到未被 `\027Ptmux;` 包裹的裸 `\027_G`，**100% 作为未知控制序列直接丢弃**（即便开启 `allow-passthrough on`，tmux 也绝不会透传裸 APC 控制码）。
 - 结果：普通文本和占位符字符正常显示，但所有图片控制序列在本地 tmux 处全部丢失。
 
-### 4. 终端探针超时（200ms）
-`snacks.lua` 在终端判定为通用 `xterm-256color` 时，曾发送 OSC 5522 MIME 列表探测，但超时时间仅设为 200ms。在跨 Tailscale 或公网 SSH 链路中，网络往返 RTT + tmux 调度极易超过 200ms。一旦超时，`SNACKS_KITTY` 未能置位，Snacks 直接判定终端不支持 Kitty 协议。
+### 5. 上游 Snacks.nvim 零像素尺寸除零缺陷（导致白块的最致命根因）
+在 `folke/snacks.nvim` 的 `lua/snacks/image/terminal.lua` 中：
+```lua
+pcall(function()
+  local sz = ffi.new("winsize")
+  if ffi.C.ioctl(1, TIOCGWINSZ, sz) ~= 0 or sz.col == 0 or sz.row == 0 then
+    return
+  end
+  size = {
+    width = sz.xpixel,
+    height = sz.ypixel,
+    columns = sz.col,
+    rows = sz.row,
+    cell_width = sz.xpixel / sz.col,
+    cell_height = sz.ypixel / sz.row,
+    scale = math.max(1, sz.xpixel / sz.col / 8),
+  }
+end)
+```
+- 在 tmux 内部运行时，Linux pty 的 `TIOCGWINSZ` 系统调用返回的字符行列数正常（如 `sz.col=157, sz.row=39`），但**像素数始终为 0**（`sz.xpixel=0, sz.ypixel=0`）。
+- Snacks 上游源码仅检查了 `sz.col == 0 or sz.row == 0`，**遗漏了对 `sz.xpixel == 0` 的检查**。
+- 这导致计算得出的字符单元格像素宽高直接除以零变成 0：`cell_width = 0, cell_height = 0`，将默认安全兜底值（`dw=9, dh=18`）覆写为 0。
+- 随后在 `util.lua` 中：
+  `img_cells.width = size.width / terminal.cell_width`（除以 0 变成 `inf`）；
+  `scale = ret.width / ret.height`（`inf / inf` 变成 `NaN`）；
+  在 `placement.lua` 中：`loc.width` 成为 `NaN`。
+- 一旦 `loc.width` 为 `NaN`，生成 Unicode 占位符网格的循环 `for c = 1, width do` 无法正常执行，向终端发送的显示命令变为 `c=nan`，被 Kitty 判定为非法指令直接拒绝。
+- 结果：Neovim 虽然用 extmark 撑开了行高，但网格内部是空白的，Kitty 也无法将像素绑定到占位符上，用户看到的就是一个完全空白的白块！
 
 ---
 
@@ -139,7 +165,9 @@ remote = true
    - 若主机名非本机工作站（`hx90`），兜底设置为 SSH 模式；
    - 确保 `remote = true` 始终生效，强制走 `t="d"` 流式二进制传输，杜绝发送本地无效路径。
 2. **加固 `SNACKS_KITTY` 识别**：
-   - 当附着客户端为 `xterm-256color` 或 `tmux-256color` 时，将 OSC 5522 探针超时从 200ms 提高到 1000ms，免疫网络延迟波动。
+   - 当附着客户端为 `xterm-256color` 或 `tmux-256color` 时，默认开启 Kitty 支持或执行探针，避免启动探测阻塞或丢失。
+3. **修复终端零像素除零缺陷（`terminal.size` 封装拦截）**：
+   - 包装 `Snacks.image.terminal.size`；当检测到 `cell_width == 0` 或 `cell_height == 0`（即在 tmux/pty 中 `xpixel=0`）时，自动回退到默认字符网格尺寸（`dw=9, dh=18`），彻底消除除以零与 `NaN`，确保占位符网格与图片尺寸计算 100% 成功。
 
 ### 3. tmux 全局配置加固（`dotfiles/config/tmux/tmux.conf`）
 在通用 tmux 配置中显式加入：
