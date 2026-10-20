@@ -110,13 +110,8 @@ local function scroll_tabs(direction, key)
 end
 
 function M.setup()
-  vim.keymap.set({ "n", "i" }, "<ScrollWheelUp>", function()
-    scroll_tabs(-1, "<ScrollWheelUp>")
-  end, { silent = true, desc = "Scroll buffer tabs left" })
-  vim.keymap.set({ "n", "i" }, "<ScrollWheelDown>", function()
-    scroll_tabs(1, "<ScrollWheelDown>")
-  end, { silent = true, desc = "Scroll buffer tabs right" })
-
+  -- Intentionally do not hijack mouse wheel for tab cycling.
+  -- Document scrolling is handled cleanly without jumping across document tabs.
   vim.api.nvim_create_autocmd("BufEnter", {
     group = vim.api.nvim_create_augroup("BufferLineScrollAnchor", { clear = true }),
     callback = function() M.anchor = nil end,

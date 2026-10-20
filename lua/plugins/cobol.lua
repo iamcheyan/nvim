@@ -41,7 +41,7 @@ return {
   -- COBOL guides and development tools.
   {
     "iamcheyan/cobol.nvim",
-    name = "cobol.nvim",
+    build = "bash scripts/build_parser.sh",
     dependencies = { "iamcheyan/contextline.nvim" },
     ft = { "cobol", "cbl", "cob" },
     cmd = {
@@ -49,9 +49,17 @@ return {
       "CobolGuideEnable",
       "CobolGuideDisable",
       "CobolToggleComment",
+      "CobolHex",
+      "CobolRenum",
+      "CobolUnnum",
+      "CobolCapsToggle",
+      "CobolCalcRecord",
     },
     keys = {
       { "<leader>uc", "<cmd>CobolGuideToggle<cr>", desc = "Toggle COBOL Guide" },
+      { "<leader>cr", "<cmd>CobolCalcRecord<cr>", desc = "Calculate Record Layout" },
+      { "<leader>ch", "<cmd>CobolHex<cr>", desc = "Inspect Hex / EBCDIC / COMP-3" },
+      { "<leader>cc", "<cmd>CobolCapsToggle<cr>", desc = "Toggle Smart CAPS" },
     },
     opts = {
       enabled = true,

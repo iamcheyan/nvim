@@ -659,6 +659,9 @@ function M.apply()
     end
     vim.schedule(function() pcall(vim.cmd, "redrawstatus") end)
   end
+
+  local markdown = package.loaded["config.markdown_typography"]
+  if markdown and markdown.refresh then markdown.refresh() end
 end
 
 local ui_group = vim.api.nvim_create_augroup("ThemeUiHighlights", { clear = true })

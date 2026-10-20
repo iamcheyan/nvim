@@ -10,35 +10,54 @@ return {
       { "<leader>E", false },
     },
     config = function(_, opts)
-      -- Ensure remote image streaming (t="d") is active over SSH or on remote hosts.
-      -- In tmux, SSH_CLIENT/SSH_CONNECTION can be missing from the pane environment when
-      -- attaching to an existing session, which causes Snacks to fall back to local file path
-      -- mode (t="f"), rendering blank placeholder images in local Kitty.
-      if vim.env.SNACKS_SSH == nil then
-        if vim.env.SSH_CLIENT or vim.env.SSH_CONNECTION or vim.env.SSH_TTY then
-          vim.env.SNACKS_SSH = "1"
-        elseif vim.env.TMUX and vim.fn.executable("tmux") == 1 then
-          local tmux_ssh = vim.fn.system({ "tmux", "show-environment", "-g", "SSH_CLIENT" })
-          if vim.v.shell_error == 0 and not tmux_ssh:match("^%-") and tmux_ssh:find("=", 1, true) then
+      local is_wsl = (vim.fn.has("wsl") == 1)
+        or (vim.env.WSL_DISTRO_NAME ~= nil and vim.env.WSL_DISTRO_NAME ~= "")
+        or (vim.env.WSL_INTEROP ~= nil and vim.env.WSL_INTEROP ~= "")
+        or (function()
+          local uname = vim.uv.os_uname()
+          return uname and uname.release and (uname.release:lower():find("microsoft") ~= nil or uname.release:lower():find("wsl") ~= nil)
+        end)()
+
+      -- In WSL, terminal graphics protocols (Kitty/Sixel) typically fail or output
+      -- raw escape sequences (garbled text). Disable image module on WSL.
+      if is_wsl then
+        opts = vim.tbl_deep_extend("force", opts or {}, {
+          image = {
+            enabled = false,
+            doc = { inline = false, float = false },
+          },
+        })
+      else
+        -- Ensure remote image streaming (t="d") is active over SSH or on remote hosts.
+        -- In tmux, SSH_CLIENT/SSH_CONNECTION can be missing from the pane environment when
+        -- attaching to an existing session, which causes Snacks to fall back to local file path
+        -- mode (t="f"), rendering blank placeholder images in local Kitty.
+        if vim.env.SNACKS_SSH == nil then
+          if vim.env.SSH_CLIENT or vim.env.SSH_CONNECTION or vim.env.SSH_TTY then
             vim.env.SNACKS_SSH = "1"
-          elseif vim.fn.hostname() ~= "hx90" then
-            -- Fallback for remote hosts (non-workstation)
-            vim.env.SNACKS_SSH = "1"
+          elseif vim.env.TMUX and vim.fn.executable("tmux") == 1 then
+            local tmux_ssh = vim.fn.system({ "tmux", "show-environment", "-g", "SSH_CLIENT" })
+            if vim.v.shell_error == 0 and not tmux_ssh:match("^%-") and tmux_ssh:find("=", 1, true) then
+              vim.env.SNACKS_SSH = "1"
+            elseif vim.fn.hostname() ~= "hx90" then
+              -- Fallback for remote hosts (non-workstation)
+              vim.env.SNACKS_SSH = "1"
+            end
           end
         end
-      end
 
-      -- With extended-keys off, tmux answers Snacks' XTVERSION query itself.
-      -- In Tailscale SSH or nested sessions, client_termname is often generic xterm-256color
-      -- or tmux-256color. Default to Kitty capability for tmux sessions so image rendering
-      -- is enabled without blocking on startup probes.
-      if vim.env.SNACKS_KITTY == nil then
-        if vim.env.TERM == "xterm-kitty" or vim.env.TERM_PROGRAM == "kitty" then
-          vim.env.SNACKS_KITTY = "1"
-        elseif vim.env.TMUX and vim.fn.executable("tmux") == 1 then
-          local client = vim.fn.system({ "tmux", "display-message", "-p", "#{client_termname}" })
-          if vim.v.shell_error == 0 and (client:lower():find("kitty", 1, true) or vim.trim(client) == "xterm-256color" or vim.trim(client) == "tmux-256color") then
+        -- With extended-keys off, tmux answers Snacks' XTVERSION query itself.
+        -- In Tailscale SSH or nested sessions, client_termname is often generic xterm-256color
+        -- or tmux-256color. Default to Kitty capability for tmux sessions so image rendering
+        -- is enabled without blocking on startup probes.
+        if vim.env.SNACKS_KITTY == nil then
+          if vim.env.TERM == "xterm-kitty" or vim.env.TERM_PROGRAM == "kitty" then
             vim.env.SNACKS_KITTY = "1"
+          elseif vim.env.TMUX and vim.fn.executable("tmux") == 1 then
+            local client = vim.fn.system({ "tmux", "display-message", "-p", "#{client_termname}" })
+            if vim.v.shell_error == 0 and (client:lower():find("kitty", 1, true) or vim.trim(client) == "xterm-256color" or vim.trim(client) == "tmux-256color") then
+              vim.env.SNACKS_KITTY = "1"
+            end
           end
         end
       end

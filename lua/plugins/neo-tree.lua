@@ -184,5 +184,64 @@ return {
         },
       },
     },
+    config = function(_, opts)
+      -- Fix upstream Neo-tree re-entrancy bug in renderer.position.restore where
+      -- focus_node -> expand_to_node -> render_tree -> restore causes infinite recursion / stack overflow.
+      local renderer = require("neo-tree.ui.renderer")
+      local orig_restore = renderer.position.restore
+      renderer.position.restore = function(state)
+        if state and state.position and state.position.node_id then
+          local node_id = state.position.node_id
+          state.position.node_id = nil
+          if state.position.topline and state.position.lnum then
+            pcall(vim.api.nvim_win_call, state.winid, function()
+              vim.fn.winrestview({ topline = state.position.topline, lnum = state.position.lnum })
+            end)
+          end
+          local log = require("neo-tree.log")
+          log.debug("Focusing on node_id:", node_id)
+          renderer.focus_node(state, node_id, true)
+          renderer.position.restore_selection(state)
+          renderer.position.clear(state)
+          return
+        end
+        return orig_restore(state)
+      end
+
+      -- Guard nui.utils.render_lines against strings containing newlines passed to nvim_buf_set_lines
+      local ok_nui, nui_utils = pcall(require, "nui.utils")
+      if ok_nui and nui_utils and nui_utils.render_lines then
+        local orig_render_lines = nui_utils.render_lines
+        nui_utils.render_lines = function(lines, bufnr, ns_id, linenr_start, linenr_end, byte_start, byte_end)
+          local orig_buf_set_lines = vim.api.nvim_buf_set_lines
+          local orig_buf_set_text = vim.api.nvim_buf_set_text
+          local function sanitize(arr)
+            for i, s in ipairs(arr) do
+              if type(s) == "string" and s:find("[\r\n]") then
+                arr[i] = s:gsub("\r", ""):gsub("\n", " ")
+              end
+            end
+            return arr
+          end
+
+          vim.api.nvim_buf_set_lines = function(b, s, e, strict, replacement)
+            return orig_buf_set_lines(b, s, e, strict, sanitize(replacement))
+          end
+          vim.api.nvim_buf_set_text = function(b, sr, sc, er, ec, replacement)
+            return orig_buf_set_text(b, sr, sc, er, ec, sanitize(replacement))
+          end
+
+          local ok, res = pcall(orig_render_lines, lines, bufnr, ns_id, linenr_start, linenr_end, byte_start, byte_end)
+          vim.api.nvim_buf_set_lines = orig_buf_set_lines
+          vim.api.nvim_buf_set_text = orig_buf_set_text
+          if not ok then
+            error(res)
+          end
+          return res
+        end
+      end
+
+      require("neo-tree").setup(opts)
+    end,
   },
 }

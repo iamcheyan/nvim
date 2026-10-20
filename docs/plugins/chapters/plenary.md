@@ -12,7 +12,7 @@
 
 ## 动手练习
 
-日常通过 Neo-tree、Diffview、Todo Comments 等上层插件的操作间接使用；在 `:Lazy` 中查看它被哪些插件依赖。
+日常通过 Neo-tree、Diffview 等上层插件的操作间接使用；在 `:Lazy` 中查看它被哪些插件依赖。
 
 ## 注意事项
 

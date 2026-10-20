@@ -23,6 +23,7 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.api.nvim_buf_call(ev.buf, function()
       vim.cmd("runtime! indent/cobol.vim")
     end)
+    vim.b[ev.buf].snacks_indent = false
     vim.bo[ev.buf].autoindent = false
     vim.keymap.set("i", "<CR>", function()
       local ok, blink = pcall(require, "blink.cmp")
@@ -240,7 +241,7 @@ require("config.float_style").setup()
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.cursorline = true
-vim.opt.cursorcolumn = true
+vim.opt.cursorcolumn = false
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 -- Keep sidebar splits from being equalized or stolen down to 1 column.

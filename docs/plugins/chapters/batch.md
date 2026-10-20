@@ -8,7 +8,7 @@
 
 ## 在当前配置里怎么用
 
-`:BatchCheck` 检查结构；`:BatchJumpToLabel` 选择 label，也可带名称；`:BatchReferences` 查引用；`:BatchOutline` 打开大纲；`:BatchPeek` 预览目标。默认不抢占通用按键。
+:batch.nvim 只在 `dosbatch` 文件类型的缓冲区打开时加载；当前文件类型识别覆盖 `.bat`、`.BAT` 和 `.cmd` 等大小写形式。`:BatchCheck` 等命令会在打开这类文件后可用。插件默认不抢占通用按键。
 
 ## 动手练习
 

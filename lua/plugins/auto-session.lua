@@ -299,6 +299,17 @@ return {
 
     init = function()
       vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "SessionLoadPost",
+        callback = function()
+          vim.opt.cursorcolumn = false
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            if vim.api.nvim_win_is_valid(win) then
+              vim.wo[win].cursorcolumn = false
+            end
+          end
+        end,
+      })
       vim.api.nvim_create_autocmd("VimLeavePre", {
         group = vim.api.nvim_create_augroup("persist_sidebars_before_session_save", { clear = true }),
         callback = function()

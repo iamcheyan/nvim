@@ -44,5 +44,9 @@ return {
         },
       },
     },
+    config = function(_, opts)
+      require("satellite").setup(opts)
+      require("config.scrollbar_scroll").setup()
+    end,
   },
 }

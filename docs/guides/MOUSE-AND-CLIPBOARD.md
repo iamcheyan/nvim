@@ -16,7 +16,7 @@
 | 复制选区 | Visual `<C-c>` | 复制到系统剪贴板 |
 | 剪切选区 | Visual `<C-x>` 或 `m` | 写入系统剪贴板并删除选区 |
 | 智能粘贴系统剪贴板 | Normal `<C-v>` / `<leader>p`（非 Markdown），Insert `<C-v>`，Visual `<C-v>` | 私有 `smart-paste.nvim` 提供；多行内容按目标缩进调整 |
-| 普通 yank/put | `y`、`p`、`P`、`gp`、`gP` | 由 Yanky 增强；`[p`/`]p` 切换粘贴历史，`<leader>fy` 浏览历史 |
+| 普通 yank/put | `y`、`p`、`P`、`gp`、`gP` | Neovim 寄存器与系统剪贴板（`clipboard=unnamedplus`） |
 | 纯删除/修改 | `d`、`c`、`x` 等 | 写入黑洞寄存器，不覆盖系统剪贴板 |
 | 专用剪切 | Normal `m` + motion、`mm`、`M`；Visual `m`/`<C-x>` | 剪切到系统剪贴板；原生 mark 改用 `<leader>m` |
 
@@ -44,5 +44,5 @@
 ## 配置位置
 
 - 鼠标、全局剪贴板选项与双击颜色检测：[`lua/config/keymaps.lua`](../../lua/config/keymaps.lua)、[`lua/config/options.lua`](../../lua/config/options.lua)
-- yank/put 历史：[`lua/plugins/yanky-substitute.lua`](../../lua/plugins/yanky-substitute.lua)
+ - 普通 yank/put：Neovim 内置寄存器映射
 - 私有智能粘贴：`lua/plugins/smart-paste.lua`

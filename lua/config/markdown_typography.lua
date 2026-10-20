@@ -49,10 +49,10 @@ local window_groups = {
   StatusLine = { fg = 0, bg = 15000804 },
   StatusLineNC = { fg = 12369084, bg = 16777215 },
   CursorColumn = delek["CursorColumn"] or { bg = 15000804, ctermbg = 254 },
-  WinBar = { fg = 0, bg = 16777215, bold = true },
-  WinBarNC = { fg = 8947848, bg = 16777215 },
-  ContextlineText = { fg = 0, bg = 16777215 },
-  ContextlineActiveMenu = { fg = 0, bg = 16777215, bold = true },
+  WinBar = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
+  WinBarNC = delek["WinBarNC"] or { fg = 8947848, bg = 16777215, bold = true },
+  ContextlineText = delek["WinBar"] or { fg = 0, bg = 16777215 },
+  ContextlineActiveMenu = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
   ContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = true },
   ContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = true },
   SnacksStatusColumnMark = { fg = 34560, bg = 16777215 },
@@ -71,10 +71,10 @@ local window_groups = {
   MdTypographyWinSeparator = { fg = 12369084, bg = 16777215 },
   MdTypographyStatusLine = { fg = 0, bg = 15000804 },
   MdTypographyStatusLineNC = { fg = 12369084, bg = 16777215 },
-  MdTypographyWinBar = { fg = 0, bg = 16777215, bold = true },
-  MdTypographyWinBarNC = { fg = 8947848, bg = 16777215 },
-  MdTypographyContextlineText = { fg = 0, bg = 16777215 },
-  MdTypographyContextlineActiveMenu = { fg = 0, bg = 16777215, bold = true },
+  MdTypographyWinBar = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
+  MdTypographyWinBarNC = delek["WinBarNC"] or { fg = 8947848, bg = 16777215, bold = true },
+  MdTypographyContextlineText = delek["WinBar"] or { fg = 0, bg = 16777215 },
+  MdTypographyContextlineActiveMenu = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
   MdTypographyContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = true },
   MdTypographyContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = true },
   MdTypographyVisual = delek["Visual"] or { fg = 0, bg = 13684944, ctermfg = 16, ctermbg = 252 },
@@ -104,8 +104,30 @@ local markview_overrides = {
 local original_treesitter_groups
 local palette_active = false
 
-local function register_global_aliases()
-  for name, spec in pairs(window_groups) do
+local function resolve_window_groups()
+  local resolved = vim.deepcopy(window_groups)
+  local winbar = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
+  local winbar_nc = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
+  if not winbar.bg then winbar = vim.deepcopy(delek["WinBar"] or window_groups.WinBar) end
+  if not winbar_nc.bg then winbar_nc = vim.deepcopy(delek["WinBarNC"] or window_groups.WinBarNC) end
+
+  resolved.WinBar = vim.deepcopy(winbar)
+  resolved.WinBarNC = vim.deepcopy(winbar_nc)
+  resolved.ContextlineText = vim.deepcopy(winbar)
+  resolved.ContextlineActiveMenu = vim.deepcopy(winbar)
+  resolved.MdTypographyWinBar = vim.deepcopy(winbar)
+  resolved.MdTypographyWinBarNC = vim.deepcopy(winbar_nc)
+  resolved.MdTypographyContextlineText = vim.deepcopy(winbar)
+  resolved.MdTypographyContextlineActiveMenu = vim.deepcopy(winbar)
+  for _, name in ipairs({ "ContextlineErrorBadge", "ContextlineWarningBadge" }) do
+    resolved[name].bg = winbar.bg
+    resolved["MdTypography" .. name].bg = winbar.bg
+  end
+  return resolved
+end
+
+local function register_global_aliases(groups)
+  for name, spec in pairs(groups) do
     if name:find("^MdTypography") then
       vim.api.nvim_set_hl(0, name, spec)
     end
@@ -116,14 +138,15 @@ local function apply_namespace(win)
   if not vim.api.nvim_win_is_valid(win) then
     return
   end
-  register_global_aliases()
+  local groups = resolve_window_groups()
+  register_global_aliases(groups)
   local ns = vim.api.nvim_create_namespace("MarkdownTypographyDelek:" .. tostring(win))
   -- Apply all native delek highlight groups into the window-local namespace
   for name, spec in pairs(delek) do
     vim.api.nvim_set_hl(ns, name, spec)
   end
   -- Apply window-local surface overrides
-  for name, spec in pairs(window_groups) do
+  for name, spec in pairs(groups) do
     vim.api.nvim_set_hl(ns, name, spec)
   end
   -- Apply Markview paper-background overrides
@@ -169,6 +192,10 @@ local function apply_to_markdown_windows(buf)
   for _, win in ipairs(vim.fn.win_findbuf(buf)) do
     if vim.api.nvim_win_is_valid(win) then
       apply_namespace(win)
+      -- Markdown windows drop the vertical cursor guide; the horizontal
+      -- cursorline stays. cursorcolumn is global-local and nvim_win_set_buf
+      -- resets it, so the override is re-asserted by the autocmds in
+      -- M.setup() rather than set once here.
       vim.wo[win].winhighlight = table.concat({
         "Normal:MdTypographyNormal",
         "NormalNC:MdTypographyNormalNC",
@@ -215,10 +242,18 @@ local function restore_treesitter()
   end
 end
 
+local saved_cursorcolumn = {}
+
 local function restore_window(win)
   if not vim.api.nvim_win_is_valid(win) or is_markdown(vim.api.nvim_win_get_buf(win)) then
     return
   end
+  local prev = saved_cursorcolumn[win]
+  if prev == nil then
+    prev = vim.o.cursorcolumn
+  end
+  saved_cursorcolumn[win] = nil
+  vim.api.nvim_set_option_value("cursorcolumn", prev, { scope = "local", win = win })
   vim.api.nvim_win_set_hl_ns(win, 0)
   vim.wo[win].winhighlight = ""
   restore_treesitter()
@@ -227,6 +262,14 @@ end
 
 function M.palette()
   return palette
+end
+
+function M.refresh()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_is_valid(win) and is_markdown(vim.api.nvim_win_get_buf(win)) then
+      apply_namespace(win)
+    end
+  end
 end
 
 local function apply_markview_palette()
@@ -289,6 +332,24 @@ function M.setup()
     pattern = "markdown",
     callback = function(args)
       apply_to_markdown_windows(args.buf)
+    end,
+  })
+  -- cursorcolumn is window-local but global-initialized, and entering a buffer
+  -- resets it. Re-assert "off" for Markdown windows on every entry so the
+  -- vertical cursor guide stays hidden there without touching other windows.
+  vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter", "FileType" }, {
+    group = group,
+    callback = function()
+      local win = vim.api.nvim_get_current_win()
+      if not vim.api.nvim_win_is_valid(win) then
+        return
+      end
+      if is_markdown(vim.api.nvim_win_get_buf(win)) then
+        if saved_cursorcolumn[win] == nil then
+          saved_cursorcolumn[win] = vim.wo[win].cursorcolumn
+        end
+        vim.api.nvim_set_option_value("cursorcolumn", false, { scope = "local", win = win })
+      end
     end,
   })
   vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {

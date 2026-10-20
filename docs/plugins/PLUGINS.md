@@ -16,8 +16,8 @@
 可以按这个顺序熟悉：
 
 1. **先熟悉入口与找文件**：Which-key、Dashboard、Snacks、Neo-tree、Bufferline。
-2. **再练编辑**：Flash、mini.ai、mini.pairs、mini.surround、Yanky、Visual Multi、Smart Paste。
-3. **然后学代码理解与格式化**：LSP、Treesitter、Aerial、Conform、Todo Comments、Markview。
+2. **再练编辑**：Flash、mini.ai、mini.pairs、mini.surround、Visual Multi、multicursor.nvim、Smart Paste。
+3. **然后学代码理解与格式化**：LSP、Treesitter、Aerial、Conform、Markview。
 4. **再练 Git 与会话**：Gitsigns、Diffview、Auto Session。
 5. **最后按需探索语言辅助和视觉插件**：COBOL、Batch、Contextline、VimQuest、颜色、折叠和状态显示。
 
@@ -49,9 +49,8 @@
 | [flash.nvim](chapters/flash.nvim.md) | 公开 | 屏幕内快速定位 |
 | [conform.nvim](chapters/conform.md) | 公开 | 代码格式化 |
 | [nvim-lint](chapters/nvim-lint.md) | 公开 | ShellCheck 静态检查 |
-| [todo-comments.nvim](chapters/todo-comments.md) | 公开 | TODO 等标记的导航 |
 | [markview.nvim](chapters/markview.md) | 公开 | Markdown 等文档预览 |
-| [vim-visual-multi](chapters/vim-visual-multi.md) | 公开 | 多光标批量编辑 |
+| [multicursor.nvim](chapters/multicursor.nvim.md) | 公开 | 多光标匹配与批量编辑 |
 | [nvim-ufo](chapters/nvim-ufo.md) | 公开 | 代码折叠 |
 | [promise-async](chapters/promise-async.md) | 依赖 | nvim-ufo 的异步依赖 |
 
@@ -61,7 +60,6 @@
 |---|---|---|
 | [gitsigns.nvim](chapters/gitsigns.md) | 公开 | Git 行变更与 hunk 操作 |
 | [diffview.nvim](chapters/diffview.md) | 公开 | 分支差异和文件历史 |
-| [yanky.nvim](chapters/yanky.md) | 公开 | Yank/粘贴历史 |
 | [bookmark.nvim](chapters/bookmark.md) | 私有 | 项目书签 |
 
 ## 界面、颜色和辅助操作

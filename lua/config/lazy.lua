@@ -112,4 +112,5 @@ require("config.keymaps")
 -- the current global colorscheme (Blue); all other buffers retain that theme.
 require("config.markdown_typography").setup()
 require("config.markdown_image_paste").setup()
+require("config.scrollbar_scroll").setup()
 require("config.autocmds")

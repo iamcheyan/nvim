@@ -1,6 +1,6 @@
 # 当前 Neovim 插件使用手册
 
-这份手册按当前 `lazy.nvim` 插件规格编写。新增 mini.surround、quicker.nvim 和 nvim-lint 后，插件目录共 **47 个条目**（公开 41 个、私有 6 个）；依赖库和管理器也计入总数。分类目录和逐项练习见 [插件使用书](../plugins/PLUGINS.md)。
+这份手册按当前 `lazy.nvim` 插件规格编写。插件目录共 **48 个条目**（公开 42 个、私有 6 个）；依赖库和管理器也计入总数。分类目录和逐项练习见 [插件使用书](../plugins/PLUGINS.md)。
 
 插件仍然可以因未安装的外部工具、当前 filetype 或 LSP 服务器能力不同而表现不同。`<leader>` 是空格。`<leader>` 后停顿可看 which-key 提示；`<leader>?` 可查看当前模式的快捷键。
 
@@ -27,7 +27,7 @@
 
 ### snacks.nvim（公开）
 
-当前配置的主要文件/文本搜索器，也承载通知、状态列、部分小工具和 LazyGit 集成。常用入口：`<leader><space>` / `<leader>ff` 找文件，`<leader>fF` 从 Git 根目录找文件，`<leader>fb` 缓冲区，`<leader>fr` 最近文件，`<leader>fg` 或 `<leader>/` 搜内容，`<leader>fw` 搜光标下单词，`<leader>fh` 帮助，`<leader>fS` Treesitter 符号。picker 中输入查询，Enter 打开，Esc 关闭；`Alt-h` 切换隐藏文件，`Alt-i` 切换忽略文件。`<leader>fy` 的 Yanky 历史也由 Snacks picker 显示。若系统装有 `lazygit`，`<leader>gg` 在 Git 根目录启动、`<leader>gG` 在当前目录启动。`<leader>gl/gL` 看 Git log，`<leader>gf` 看当前文件历史。
+当前配置的主要文件/文本搜索器，也承载通知、状态列、部分小工具和 LazyGit 集成。常用入口：`<leader><space>` / `<leader>ff` 找文件，`<leader>fF` 从 Git 根目录找文件，`<leader>fb` 缓冲区，`<leader>fr` 最近文件，`<leader>fg` 或 `<leader>/` 搜内容，`<leader>fw` 搜光标下单词，`<leader>fh` 帮助，`<leader>fS` Treesitter 符号。picker 中输入查询，Enter 打开，Esc 关闭；`Alt-h` 切换隐藏文件，`Alt-i` 切换忽略文件。若系统装有 `lazygit`，`<leader>gg` 在 Git 根目录启动、`<leader>gG` 在当前目录启动。`<leader>gl/gL` 看 Git log，`<leader>gf` 看当前文件历史。
 
 ### dashboard-nvim（公开）
 
@@ -67,9 +67,6 @@
 
 Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着；`<leader>um` 切换预览。它在缓冲区里把标题、列表、代码块等以渲染样式显示，不会改写 Markdown 源文件。关闭后仍可编辑原始文本。
 
-### todo-comments.nvim（公开）
-
-高亮并定位 `FIX`、`TODO`、`HACK`、`WARN`、`PERF`、`NOTE`、`REVIEW`、`TEST` 等注释标签。`]t` 跳到下一个，`[t` 跳到上一个；`<leader>st` 查找全部关键词，`<leader>sT` 只查 TODO/FIX/FIXME（Snacks picker）。直接在代码注释中使用例如 `TODO:` 即可。
 
 ### bookmark.nvim（私有）
 
@@ -117,9 +114,6 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 取色和颜色格式转换。光标位于颜色值时按 `<leader>cp` / `:CccPick` 打开交互式颜色滑块，`<leader>cC` / `:CccConvert` 转换当前颜色表示。也可双击十六进制颜色唤起取色器。常驻颜色文本高亮由 mini.hipatterns 处理，ccc 自身高亮默认关闭。
 
-### yanky.nvim（公开）
-
-替代默认 yank/put 映射并保存最近 100 条复制内容，使用 Shada 持久化。`y`、`p`、`P`、`gp`、`gP` 为增强复制/粘贴；`[p` / `]p` 在粘贴历史中切换前后项；`<leader>fy` 打开历史选择器。若粘贴后发现内容不对，用 `[p` 或 `]p` 切换历史并观察缓冲区。
 
 ### smart-paste.nvim（私有）
 
@@ -128,6 +122,10 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 ### vim-visual-multi（公开）
 
 多光标同时编辑。Normal/Visual 模式 `<C-n>` 选择光标下单词并逐个增加匹配；再次按 `<C-n>` 选择下一匹配，`q` 跳过匹配，`Q` 回到上一个，Esc 退出多光标。`<C-j>` / `<C-k>` 在下方/上方增加光标。Insert 模式 `<C-n>` 按当前行首尾状态增加/扩展纵向光标。可用来批量改同名字段或多行相同位置文本。
+
+### multicursor.nvim（公开）
+
+Normal/Visual 模式把光标放在单词或选区上，按 `<leader>mn` / `<leader>mN` 逐个添加下一个/上一个匹配；`<leader>ms` / `<leader>mS` 跳过匹配。`<C-q>` 暂停或恢复多光标；左右方向键在多光标启用时切换主光标；Esc 清除光标（暂停状态下则恢复）。添加光标后可照常使用 Vim 编辑命令同步修改。与 vim-visual-multi 并存，入口分开。
 
 ### nvim-ufo（公开）+ promise-async（依赖）
 
@@ -210,7 +208,7 @@ Windows Batch 文件结构解析与导航。支持 `:BatchCheck` 检查、`:Batc
 ## 建议清理顺序与目前发现
 
 1. **Oil 已按要求删除**：`config/nvim/lua/plugins/oil.lua` 已移除；运行时规格核对也不再出现 `oil.nvim`。重启 Neovim 后可用 `:Lazy clean` 清理缓存。插件清单中不再把它列为当前插件。
-2. **插件统计**：当前插件目录列出公开 41 个、私有 6 个；依赖和 lazy 管理器也计入数量。
+2. **插件统计**：插件手册统计需随插件增删同步；独立插件仓库和依赖项不计入该分类数量。
 3. **发现 `[b` / `]b` 冲突**：私有书签把它们用于前/后书签，公开默认映射此前又用于前/后缓冲区。已删除默认缓冲区映射；请用 `Shift+h/l` 或 `<leader>bh/bl` 切换缓冲区。
 4. **自动格式化默认关闭**，所以 Conform 并非每次保存都会执行；手动 `<leader>F` 是明确入口。
 5. **诊断显示被配置关闭**，尽管 LSP 仍能提供跳转、补全和重命名。若要依赖诊断列表，应单独评估 `disable-diagnostics.lua` 的行为。

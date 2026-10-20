@@ -87,6 +87,17 @@ map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 ------------------- Clear search on escape -----------------------------------
 map({ "i", "n", "s" }, "<esc>", function()
   vim.cmd("noh")
+  if vim.b.visual_multi == 1 or vim.fn.exists("b:visual_multi") == 1 then
+    pcall(function()
+      local ok, m = pcall(require, "multicursor-line")
+      if ok then
+        m.clear()
+      else
+        pcall(vim.fn["vm#reset"])
+      end
+    end)
+    return "<esc>"
+  end
   -- Noice's bottom popup is independent of the native command line. Hide
   -- messages after this expression mapping finishes (outside textlock).
   if package.loaded.noice then
