@@ -1198,25 +1198,28 @@ return {
         interactive(component)
       end
       local PositionInfo = {
-        condition = function()
-          local ok, ruler = pcall(require, "position-ruler")
-          return ok and ruler.config.enabled and ruler.config.show_position
-            and vim.tbl_contains(ruler.config.filetypes, vim.bo.filetype)
-        end,
+        update = { "CursorMoved", "BufEnter", "WinEnter", "WinScrolled" },
         provider = function()
-          local ok, ruler = pcall(require, "position-ruler")
-          if not ok then return "" end
-          return "  " .. ruler.position_text(vim.api.nvim_get_current_win())
+          local win = get_active_editor_win()
+          local cursor = vim.api.nvim_win_get_cursor(win)
+          local line = cursor[1]
+          local col = vim.api.nvim_win_call(win, function()
+            return vim.fn.virtcol(".")
+          end)
+          return string.format("Ln %d  Col %d  Pos %d ", line, col, col)
+        end,
+        hl = function()
+          return { fg = statusline_colors.text }
         end,
       }
       local RightInfo = {
+        PositionInfo,
         Venv,
         FileMeta,
         LspName,
         RemainingPercent,
         CapsState,
         Mode,
-        PositionInfo,
       }
 
 
