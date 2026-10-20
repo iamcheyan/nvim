@@ -111,7 +111,7 @@ return {
       },
     },
     opts = {
-      backend = "vm",
+      backend = "native",
       alternate_start = "tail",
     },
     config = function(_, opts)
