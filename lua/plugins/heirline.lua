@@ -1197,6 +1197,18 @@ return {
       for _, component in ipairs({ GitBranch, FileName, FileFormat, Encoding, LspName, RemainingPercent, Mode }) do
         interactive(component)
       end
+      local PositionInfo = {
+        condition = function()
+          local ok, ruler = pcall(require, "position-ruler")
+          return ok and ruler.config.enabled and ruler.config.show_position
+            and vim.tbl_contains(ruler.config.filetypes, vim.bo.filetype)
+        end,
+        provider = function()
+          local ok, ruler = pcall(require, "position-ruler")
+          if not ok then return "" end
+          return "  " .. ruler.position_text(vim.api.nvim_get_current_win())
+        end,
+      }
       local RightInfo = {
         Venv,
         FileMeta,
@@ -1204,6 +1216,7 @@ return {
         RemainingPercent,
         CapsState,
         Mode,
+        PositionInfo,
       }
 
 
