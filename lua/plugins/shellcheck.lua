@@ -7,14 +7,16 @@ return {
       lint.linters_by_ft = {
         sh = { "shellcheck" },
         bash = { "shellcheck" },
+        python = { "ruff" },
       }
 
-      local group = vim.api.nvim_create_augroup("ShellCheckLint", { clear = true })
-      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+      local group = vim.api.nvim_create_augroup("NvimLintOnWrite", { clear = true })
+      vim.api.nvim_create_autocmd("BufWritePost", {
         group = group,
         callback = function(args)
-          if vim.tbl_contains({ "sh", "bash" }, vim.bo[args.buf].filetype) then
-            lint.try_lint("shellcheck")
+          local ft = vim.bo[args.buf].filetype
+          if lint.linters_by_ft[ft] then
+            lint.try_lint()
           end
         end,
       })

@@ -60,6 +60,14 @@ local function find_saved_session(session_name)
   end
 end
 
+-- mksession writes `set winwidth=1` and then restores whatever 'winminwidth'
+-- was when the script started. A value above 1 aborts the whole restore with
+-- E592, which is the startup error and leaves the which-key popup unreachable.
+local function relax_window_minimums()
+  vim.o.winminwidth = 0
+  vim.o.winminheight = 0
+end
+
 local function restore_missing_session_paths(session_name)
   local session_path, lib = find_saved_session(session_name)
   if not session_path then
@@ -169,7 +177,7 @@ return {
       auto_restore_last_session = false,
       args_allow_files_auto_save = true,
 
-      pre_restore_cmds = { restore_missing_session_paths },
+      pre_restore_cmds = { relax_window_minimums, restore_missing_session_paths },
       restore_error_handler = handle_missing_restore_error,
 
       suppressed_dirs = { "/", "~/.cache/*" },
@@ -231,8 +239,8 @@ return {
       post_restore_cmds = {
         function()
           vim.o.equalalways = false
-          vim.o.winwidth = 1
-          vim.o.winminwidth = 1
+          vim.o.winwidth = 10
+          vim.o.winminwidth = 10
           local state = (captured and sidebars.has_sidebars(captured)) and captured or sidebars.read()
           schedule_restore(state)
         end,

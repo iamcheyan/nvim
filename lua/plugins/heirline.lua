@@ -210,6 +210,13 @@ return {
         _G._active_statusline_menu = menu_id
         local saved_mousemove = vim.o.mousemoveevent
         vim.o.mousemoveevent = true
+        -- If window creation throws before close() exists, put the option back.
+        -- Native confirm treats MouseMove as an invalid answer.
+        vim.schedule(function()
+          if not _G._statusline_menu_close then
+            vim.o.mousemoveevent = saved_mousemove
+          end
+        end)
 
         local comp_col = get_comp_col(click_name)
         if not comp_col then

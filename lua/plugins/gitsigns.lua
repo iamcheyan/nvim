@@ -67,10 +67,10 @@ return {
         map({ "n", "v" }, "<leader>gy", ":Gitsigns yank_hunk<CR>", "Yank Hunk")
       end,
     },
-  },
-  {
-    "lewis6991/gitsigns.nvim",
-    opts = function()
+    config = function(_, opts)
+      require("gitsigns").setup(opts)
+      local snacks_ok, Snacks = pcall(require, "snacks")
+      if not snacks_ok then return end
       Snacks.toggle({
         name = "Git Signs",
         get = function()

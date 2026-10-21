@@ -62,8 +62,10 @@ return {
           event = "neo_tree_buffer_enter",
           handler = function()
             -- Editing windows reserve a fold column; the tree needs no gutter.
+            -- winfixwidth keeps a restored tree from being squeezed by 'winwidth'.
             vim.wo.foldcolumn = "0"
             vim.wo.statuscolumn = ""
+            vim.wo.winfixwidth = true
           end,
         },
       },

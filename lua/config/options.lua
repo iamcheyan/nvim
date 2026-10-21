@@ -81,10 +81,6 @@ vim.api.nvim_create_autocmd("FileType", {
       vim.cmd("normal! gv")
     end
 
-    local function shift_cobol_current(direction)
-      shift_cobol_line(vim.api.nvim_win_get_cursor(0)[1], direction, vim.v.count1 or 1)
-    end
-
     local function format_cobol_buffer()
       local original = vim.api.nvim_buf_get_lines(ev.buf, 0, -1, false)
       local view = vim.fn.winsaveview()
@@ -122,10 +118,8 @@ vim.api.nvim_create_autocmd("FileType", {
       vim.fn.winrestview(view)
     end
 
-    -- VS Code-style indentation keys: whole-line adjustment in Normal mode,
-    -- selected-line adjustment in Visual/Select mode, and Shift-Tab in Insert.
-    vim.keymap.set("n", "<Tab>", function() shift_cobol_current(1) end, { buffer = ev.buf, desc = "Indent COBOL line" })
-    vim.keymap.set("n", "<S-Tab>", function() shift_cobol_current(-1) end, { buffer = ev.buf, desc = "Unindent COBOL line" })
+    -- Visual Tab indents the selection. Normal-mode Tab is left as <C-i>
+    -- (jumplist forward); terminals cannot tell those two keys apart.
     vim.keymap.set({ "x", "s" }, "<Tab>", function() shift_cobol_selection(1) end, { buffer = ev.buf, desc = "Indent COBOL selection" })
     vim.keymap.set({ "x", "s" }, "<S-Tab>", function() shift_cobol_selection(-1) end, { buffer = ev.buf, desc = "Unindent COBOL selection" })
     vim.keymap.set("x", ">", function() shift_cobol_selection(1) end, { buffer = ev.buf, desc = "Indent COBOL selection" })
@@ -146,7 +140,21 @@ vim.api.nvim_create_autocmd("FileType", {
       expr = true,
       desc = "COBOL: open above with current-line indentation",
     })
-    vim.keymap.set("n", "<leader>cO", format_cobol_buffer, { buffer = ev.buf, desc = "Format entire COBOL buffer" })
+    -- <leader>cO is CobolFormatCase. Whole-buffer reindent is <leader>c=.
+    vim.keymap.set("n", "<leader>c=", format_cobol_buffer, { buffer = ev.buf, desc = "Format entire COBOL buffer" })
+
+    -- The COBOL plugin also binds <leader>cr / <leader>cl on the buffer.
+    -- Run after that FileType handler so rename and LSP info keep those keys.
+    vim.schedule(function()
+      if not vim.api.nvim_buf_is_valid(ev.buf) then return end
+      pcall(vim.keymap.del, "n", "<leader>cr", { buffer = ev.buf })
+      pcall(vim.keymap.del, "n", "<leader>cl", { buffer = ev.buf })
+      vim.keymap.set("n", "<leader>cL", "<cmd>CobolCalcRecord<cr>", { buffer = ev.buf, desc = "Calculate Record Layout" })
+      vim.keymap.set("n", "<leader>cK", function()
+        local ok, diag = pcall(require, "cobol.diagnostics")
+        if ok and diag.lint then diag.lint(ev.buf, { interactive = true }) end
+      end, { buffer = ev.buf, desc = "COBOL syntax check" })
+    end)
 
     -- A period terminates COBOL words/sentences; hide any completion menu it triggers.
     local group = vim.api.nvim_create_augroup("CobolNoPeriodCompletion_" .. ev.buf, { clear = true })
@@ -244,27 +252,34 @@ vim.opt.cursorline = true
 vim.opt.cursorcolumn = false
 vim.opt.splitbelow = true
 vim.opt.splitright = true
--- Keep sidebar splits from being equalized or stolen down to 1 column.
--- Vim's default winwidth=20 is why a restored file-tree can collapse to icons.
+-- equalalways off, and sidebars set winfixwidth (neo-tree, aerial).
+-- winminwidth stops a normal split from collapsing to a single column.
 vim.opt.equalalways = false
-vim.opt.winwidth = 1
-vim.opt.winminwidth = 1
+vim.opt.winwidth = 10
+vim.opt.winminwidth = 10
 vim.opt.termguicolors = true
-vim.opt.showmode = true
+-- The statusline already draws the mode. showmode would also try to use
+-- the message row, which cmdheight=0 does not have.
+vim.opt.showmode = false
 vim.opt.laststatus = 3
+-- heirline draws the real statusline on VeryLazy. A blank line keeps the
+-- default filename ruler from flashing in that gap.
+vim.opt.statusline = " "
 -- Keep the command line merged with the global statusline while idle; active
 -- commands temporarily overlay this row.
 if vim.fn.exists("&cmdheight") == 1 then
   vim.opt.cmdheight = 0
 end
-vim.opt.statusline = " "
+
 vim.opt.incsearch = true
 vim.opt.hlsearch = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
 -- 告诉 Neovim 自动尝试这些编码
-vim.opt.fileencodings = "ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,default,latin1"
+-- UTF-8 first. cp932/euc-jp were tried after a UTF-8 failure and could
+-- reopen a damaged file as Japanese and save it back wrong.
+vim.opt.fileencodings = "ucs-bom,utf-8,default,latin1"
 
 -- ── Case-insensitive extension detection ──
 -- Neovim registers each extension with the exact spelling used in its own
@@ -342,7 +357,7 @@ local function detect_generic_config(_, bufnr)
     end
   end
 
-  if shell >= 5 and shell > ini then
+  if shell >= 8 and shell > ini then
     return "sh"
   end
   if ini >= 1 then
@@ -375,22 +390,18 @@ filetype_patterns[ci_pattern("env")] = { "env", { priority = -1 } }
 
 vim.filetype.add({ pattern = filetype_patterns })
 
--- 禁用诊断图标和诊断功能
 vim.opt.signcolumn = "yes"
 
--- 完全禁用诊断显示
+-- Signs and underlines stay visible. Virtual text is off so the buffer
+-- text is not pushed around by diagnostic messages.
 vim.diagnostic.config({
-	enabled = false,
-	virtual_text = false,
-	signs = false,
-	underline = false,
-	update_in_insert = false,
-	severity_sort = false,
+  virtual_text = false,
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+  severity_sort = true,
 })
--- Neovim 0.10+ 才支持的选项
-if vim.version().minor >= 10 then
-  vim.opt.smoothscroll = false -- 关闭平滑滚动
-end
+vim.opt.smoothscroll = false
 -- 'showtabline' is intentionally not set here. bufferline.nvim renders into the
 -- same tabline slot (vim.o.tabline = "%!v:lua.nvim_bufferline()") and manages
 -- 'showtabline' itself via auto_toggle_bufferline, so any value assigned here is
@@ -409,7 +420,6 @@ vim.opt.listchars = {
   nbsp = "␣",
   extends = "⟩",
   precedes = "⟨",
-  eol = "↴",
 }
 
 -- Spaces and tabs are both ordinary column padding in fixed-format COBOL.
@@ -437,17 +447,6 @@ vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
   callback = update_cobol_whitespace,
 })
 
--- Built-in yaml ftplugin resets indentation to spaces, so force tabs back locally.
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "yaml",
-  callback = function()
-    vim.opt_local.tabstop = 4
-    vim.opt_local.softtabstop = 0
-    vim.opt_local.shiftwidth = 4
-    vim.opt_local.expandtab = false
-  end,
-})
-
 -- ── Colorscheme ──
 -- Primary theme: Neovim's built-in blue colorscheme.
 pcall(vim.cmd.colorscheme, "blue")
@@ -455,7 +454,7 @@ pcall(vim.cmd.colorscheme, "blue")
 -- ── Baseline options previously provided by LazyVim (lazyvim.config.options) ──
 -- Re-declared here so removing LazyVim does not silently revert them to Neovim
 -- defaults. Intentional user overrides (tabstop=4, expandtab=false, laststatus=3,
--- showmode=true, smoothscroll=false, cursorcolumn=true) are left untouched.
+-- showmode=false, smoothscroll=false, cursorcolumn=false) are left untouched.
 vim.opt.undofile = true -- persistent undo
 vim.opt.undolevels = 10000
 vim.opt.swapfile = false -- disable swap files (prevents E325 ATTENTION and lockups in async plugins like diffview)
@@ -463,7 +462,7 @@ vim.opt.updatetime = 200 -- faster CursorHold
 vim.opt.timeoutlen = 300 -- snappier which-key
 vim.opt.scrolloff = 4 -- keep context above/below cursor
 vim.opt.sidescrolloff = 8
-vim.opt.conceallevel = 2 -- hide *markdown* markup, keep markers
+vim.opt.conceallevel = 0 -- markdown ftplugin raises this for Markdown only
 vim.opt.foldmethod = "indent" -- matches prior LazyVim behavior
 vim.opt.foldlevel = 99 -- start with folds open
 vim.opt.foldtext = ""

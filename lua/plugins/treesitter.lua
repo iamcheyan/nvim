@@ -72,8 +72,8 @@ local function enable_treesitter(bufnr)
   end
 
   if pcall(vim.treesitter.start, bufnr) then
-    vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
-    vim.wo[0][0].foldmethod = "expr"
+    -- nvim-ufo reads the Treesitter fold provider itself. Setting foldmethod
+    -- here would take the window away from UFO on every FileType.
     vim.bo[bufnr].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
   end
 end

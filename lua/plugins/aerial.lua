@@ -18,6 +18,7 @@ return {
         win_opts = {
           foldcolumn = "1",
           statuscolumn = " ",
+          winfixwidth = true,
         },
       },
       keymaps = {
@@ -25,8 +26,8 @@ return {
         [">"] = function() require("config.sidebar_tabs").cycle(1) end,
       },
       show_guides = true,
-      manage_folds = true,
-      link_tree_to_folds = true,
+      manage_folds = false,
+      link_tree_to_folds = false,
       link_tree_to_window = true,
       backends = {
         ["_"] = { "treesitter", "lsp", "markdown", "asciidoc", "man" },

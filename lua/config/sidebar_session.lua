@@ -474,8 +474,8 @@ function M.restore(state)
   M.restoring = true
   M.close_sidebars()
   vim.o.equalalways = false
-  vim.o.winwidth = 1
-  vim.o.winminwidth = 1
+  vim.o.winwidth = 10
+  vim.o.winminwidth = 10
 
   local jobs
   if state.tabs and #state.tabs > 0 then

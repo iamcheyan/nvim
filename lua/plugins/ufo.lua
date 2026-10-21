@@ -44,7 +44,15 @@ return {
     },
     config = function(_, opts)
       vim.o.foldcolumn = "1"
-      vim.o.fillchars = [[eob:~,fold: ,foldopen:,foldsep: ,foldclose:]]
+      -- Merge fold glyphs into the fillchars set in options.lua. Assigning the
+      -- whole option would drop vert/horiz.
+      vim.opt.fillchars:append({
+        eob = "~",
+        fold = " ",
+        foldopen = "",
+        foldsep = " ",
+        foldclose = "",
+      })
       vim.o.foldlevel = 99
       vim.o.foldlevelstart = 99
       vim.o.foldenable = true
