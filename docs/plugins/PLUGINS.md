@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，含公开配置与本机私有配置中的 **44 个插件**（公开 38 个、私有 6 个）。私有插件已按要求列入，并在章节标题和目录中标明。依赖库也单独列出；它们通常由上层插件自动调用，不需要手动启动。
+这本书按当前 `lazy.nvim` 注册结果整理，共 **41 章**，覆盖 44 个插件（公开 38 个、私有 6 个）。其中四个依赖库共用一章，因为它们是给其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
 
 ## 怎么使用这本书
 
@@ -51,7 +51,6 @@
 | [markview.nvim](chapters/markview.md) | 公开 | Markdown 等文档预览 |
 | [multicursor.nvim](chapters/multicursor.nvim.md) | 公开 | 多光标匹配与批量编辑 |
 | [nvim-ufo](chapters/nvim-ufo.md) | 公开 | 代码折叠 |
-| [promise-async](chapters/promise-async.md) | 依赖 | nvim-ufo 的异步依赖 |
 
 ## Git 与项目记录
 
@@ -91,9 +90,7 @@
 | 插件 | 类型 | 章节 |
 |---|---|---|
 | [lazy.nvim](chapters/lazy.md) | 管理器 | 插件安装和更新 |
-| [nvim-web-devicons](chapters/nvim-web-devicons.md) | 依赖 | 文件类型图标 |
-| [plenary.nvim](chapters/plenary.md) | 依赖 | Lua 通用工具库 |
-| [nui.nvim](chapters/nui.md) | 依赖 | Neovim UI 组件 |
+| [依赖库](chapters/dependencies.md) | 依赖 | plenary.nvim、nui.nvim、promise-async、nvim-web-devicons |
 
 ## 按键冲突与常见误解
 

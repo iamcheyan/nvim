@@ -73,7 +73,6 @@ CATALOG = [
         ("markview", "markview.nvim", "公开", "Markdown 等文档预览"),
         ("multicursor.nvim", "multicursor.nvim", "公开", "多光标匹配与批量编辑"),
         ("nvim-ufo", "nvim-ufo", "公开", "代码折叠"),
-        ("promise-async", "promise-async", "依赖", "nvim-ufo 的异步依赖"),
     ]),
     ("Git 与项目记录", [
         ("gitsigns", "gitsigns.nvim", "公开", "Git 行变更与 hunk 操作"),
@@ -99,11 +98,9 @@ CATALOG = [
         ("contextline", "contextline.nvim", "私有", "语言结构上下文栏"),
         ("vimquest", "VimQuest.nvim", "私有", "词汇练习"),
     ]),
-    ("管理器、图标与依赖", [
+    ("管理器与依赖", [
         ("lazy", "lazy.nvim", "管理器", "插件安装与更新"),
-        ("nvim-web-devicons", "nvim-web-devicons", "依赖", "文件类型图标"),
-        ("plenary", "plenary.nvim", "依赖", "Lua 通用工具库"),
-        ("nui", "nui.nvim", "依赖", "Neovim UI 组件"),
+        ("dependencies", "依赖库", "依赖", "plenary.nvim、nui.nvim、promise-async、nvim-web-devicons"),
     ]),
 ]
 
