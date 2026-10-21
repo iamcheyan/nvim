@@ -32,17 +32,11 @@ return {
         -- In tmux, SSH_CLIENT/SSH_CONNECTION can be missing from the pane environment when
         -- attaching to an existing session, which causes Snacks to fall back to local file path
         -- mode (t="f"), rendering blank placeholder images in local Kitty.
+        -- Only an actual SSH session, or an explicit SNACKS_SSH=1, opts in.
+        -- A hostname check treated every non-workstation tmux as remote.
         if vim.env.SNACKS_SSH == nil then
           if vim.env.SSH_CLIENT or vim.env.SSH_CONNECTION or vim.env.SSH_TTY then
             vim.env.SNACKS_SSH = "1"
-          elseif vim.env.TMUX and vim.fn.executable("tmux") == 1 then
-            local tmux_ssh = vim.fn.system({ "tmux", "show-environment", "-g", "SSH_CLIENT" })
-            if vim.v.shell_error == 0 and not tmux_ssh:match("^%-") and tmux_ssh:find("=", 1, true) then
-              vim.env.SNACKS_SSH = "1"
-            elseif vim.fn.hostname() ~= "hx90" then
-              -- Fallback for remote hosts (non-workstation)
-              vim.env.SNACKS_SSH = "1"
-            end
           end
         end
 
@@ -55,11 +49,15 @@ return {
             vim.env.SNACKS_KITTY = "1"
           elseif vim.env.TMUX and vim.fn.executable("tmux") == 1 then
             local client = vim.fn.system({ "tmux", "display-message", "-p", "#{client_termname}" })
-            if vim.v.shell_error == 0 and (client:lower():find("kitty", 1, true) or vim.trim(client) == "xterm-256color" or vim.trim(client) == "tmux-256color") then
+            if vim.v.shell_error == 0 and client:lower():find("kitty", 1, true) then
               vim.env.SNACKS_KITTY = "1"
             end
           end
         end
+      end
+      local picker_layout = opts.picker and opts.picker.layout and opts.picker.layout.layout
+      if type(picker_layout) == "table" then
+        picker_layout.min_width = math.min(120, math.max(40, vim.o.columns - 4))
       end
       require("snacks").setup(opts)
 
@@ -101,7 +99,7 @@ return {
             if err:find("file_sep", 1, true) then
               return false
             end
-            return false
+            error(ret)
           end
         end
         return raw_proc(picker_opts, ctx)
