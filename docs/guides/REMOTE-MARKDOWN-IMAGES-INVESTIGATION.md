@@ -13,7 +13,7 @@
 ## 问题现象与排查背景
 
 ### 用户反馈与核心痛点
-- **功能期望**：在本地（NixOS `hx90`）的 Neovim 中，可以流畅预览 Markdown 文档中的图片，并通过快捷键直接粘贴剪贴板中的图片；希望在远程服务器（Debian）上通过 `Kitty -> SSH -> tmux -> Neovim` 时，也能拥有完全一致的体验。
+- **功能期望**：在本地（NixOS 工作站主机名）的 Neovim 中，可以流畅预览 Markdown 文档中的图片，并通过快捷键直接粘贴剪贴板中的图片；希望在远程服务器（Debian）上通过 `Kitty -> SSH -> tmux -> Neovim` 时，也能拥有完全一致的体验。
 - **实际异常**：
   1. 在 Debian tmux 内用 Neovim 打开 Markdown（以 `cobol.nvim/README.md` 和 `README.ja.md` 为例，首图为 `assets/fixed-format-ruler.png`），文档中为图片预留出了很高的垂直空白空间，但**内部完全是一整块刺眼的白色空白，没有任何图片内容**。
   2. 表现极为不稳定：偶尔能显示一次，但绝大多数时候打开都是空白。
@@ -96,12 +96,12 @@ end
 ### 根因 2：本地路径（`t="f"`）与远程二进制流（`t="d"`）传输模式误判
 
 在 `lua/snacks/image/image.lua`（`M:send`）中：
-- 当 `terminal.env().remote == false`（本地模式）：Snacks 发送 `t="f"`，仅把文件路径（如 `/home/tetsuya/development/cobol.nvim/assets/fixed-format-ruler.png`）传给 Kitty，命令 Kitty 直接从本地磁盘读图。
+- 当 `terminal.env().remote == false`（本地模式）：Snacks 发送 `t="f"`，仅把文件路径（如 `~/development/cobol.nvim/assets/fixed-format-ruler.png`）传给 Kitty，命令 Kitty 直接从本地磁盘读图。
 - 当 `terminal.env().remote == true`（远程模式）：Snacks 在 Neovim 内读取二进制图片，Base64 编码后通过 `t="d"` 分块直接推流给 Kitty。
 
 Snacks 仅凭 `SSH_CLIENT` 或 `SSH_CONNECTION` 环境变量来判定 `remote`。
 - **为什么偶尔能显示**：在全新 SSH 会话中直接新建 tmux 时，初始 pane 继承了 `SSH_CLIENT`，走 `t="d"` 流式传输成功。
-- **为什么大部分时候空白**：当用户附着后台长期运行的 tmux 会话、或者新开 window/pane 时，pane 环境变量中常常缺失 `SSH_CLIENT`。Snacks 误判为本地模式（`t="f"`），让本地 Kitty 在本地磁盘寻找 `/home/tetsuya/development/...`，必然报找不到文件而失败！
+- **为什么大部分时候空白**：当用户附着后台长期运行的 tmux 会话、或者新开 window/pane 时，pane 环境变量中常常缺失 `SSH_CLIENT`。Snacks 误判为本地模式（`t="f"`），让本地 Kitty 在本地磁盘寻找 `~/development/...`，必然报找不到文件而失败！
 
 ### 根因 3：Tailscale SSH 与通用终端名导致的能力识别失效
 
@@ -155,8 +155,10 @@ end
 
 ### 2. 自动注入远程状态与 Kitty 能力兜底
 在 `snacks.lua` 中增强检测：
-- 检查 `SSH_CLIENT`、`SSH_CONNECTION`、`SSH_TTY`；若在 tmux 中丢失，自动通过 `tmux show-environment -g SSH_CLIENT` 查询；非本地主机（非 `hx90`）一律保底置位 `SNACKS_SSH="1"`，强制走 `t="d"` 流式二进制推流。
+- 检查 `SSH_CLIENT`、`SSH_CONNECTION`、`SSH_TTY`；若在 tmux 中丢失，自动通过 `tmux show-environment -g SSH_CLIENT` 查询；非本地主机（非 工作站主机名）一律保底置位 `SNACKS_SSH="1"`，强制走 `t="d"` 流式二进制推流。
 - 当 `client_termname` 为通用 `xterm-256color`、`tmux-256color` 或包含 `kitty` 时，默认置位 `SNACKS_KITTY="1"`，杜绝探测时序延迟导致的误判。
+
+上面两条是当时的实现。当前 `lua/plugins/snacks.lua` 不再写主机名，不再用 tmux 反查 `SSH_CLIENT`，也不再把 `xterm-256color` / `tmux-256color` 当成 Kitty。远程只看 `SSH_CONNECTION`、`SSH_CLIENT`、`SSH_TTY` 或显式 `SNACKS_SSH`。Kitty 只在 `TERM` / `TERM_PROGRAM` 或 tmux 的 `client_termname` 含 `kitty`，或已经设置 `SNACKS_KITTY` 时置位。细节见 [CONFIG-CHANGES.md](../CONFIG-CHANGES.md)。
 
 ### 3. tmux 全局穿透与环境更新（`dotfiles/config/tmux/tmux.conf`）
 ```tmux
@@ -178,12 +180,12 @@ set -ga update-environment "SSH_CLIENT SSH_CONNECTION SSH_TTY"
 ## 验证与测试保障
 
 1. **自动化回归测试**：
-   - 编写了 [`tests/snacks_image_terminal_size_spec.lua`](file:///home/tetsuya/nvim/tests/snacks_image_terminal_size_spec.lua)，模拟在 tmux pty 零像素环境下运行：
+   - 编写了 [`tests/snacks_image_terminal_size_spec.lua`](../tests/snacks_image_terminal_size_spec.lua)，模拟在 tmux pty 零像素环境下运行：
      ```bash
      nvim --headless -u NONE -l tests/snacks_image_terminal_size_spec.lua
      # 输出：snacks_image_terminal_size_spec: OK
      ```
-   - 验证了 [`tests/markdown_image_paste_spec.lua`](file:///home/tetsuya/nvim/tests/markdown_image_paste_spec.lua) 剪贴板图片粘贴测试全部通过。
+   - 验证了 [`tests/markdown_image_paste_spec.lua`](../tests/markdown_image_paste_spec.lua) 剪贴板图片粘贴测试全部通过。
 2. **线上活跃环境现场验证**：
    - 在用户正附着的会话 `zircon:2` 中进行动态注入与重新载入；
    - 确认 `loc.width` 从 `nan` 恢复为正常的 `80`（`width=80, height=23`）；
