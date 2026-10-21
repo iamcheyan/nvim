@@ -12,13 +12,15 @@
 
 | 操作 | 键位 | 行为 |
 |---|---|---|
-| 全选文件 | `<C-a>` | Normal/Visual 进入全文件选区；Insert 先离开插入模式再全选 |
+| 全选文件 | `<C-a>` | Normal/Visual 进入全文件选区。Insert `<C-a>` 仍是“插入上次插入的文本” |
+| 视觉块 | `<C-q>` | Normal/Visual 进入 Visual-block。Insert `<C-q>` 仍是字面控制字符 |
 | 复制选区 | Visual `<C-c>` | 复制到系统剪贴板 |
 | 剪切选区 | Visual `<C-x>` 或 `m` | 写入系统剪贴板并删除选区 |
 | 智能粘贴系统剪贴板 | Normal `<C-v>` / `<leader>p`（非 Markdown），Insert `<C-v>`，Visual `<C-v>` | 私有 `smart-paste.nvim` 提供；多行内容按目标缩进调整 |
 | 普通 yank/put | `y`、`p`、`P`、`gp`、`gP` | Neovim 寄存器与系统剪贴板（`clipboard=unnamedplus`） |
 | 纯删除/修改 | `d`、`c`、`x` 等 | 写入黑洞寄存器，不覆盖系统剪贴板 |
-| 专用剪切 | Normal `m` + motion、`mm`、`M`；Visual `m`/`<C-x>` | 剪切到系统剪贴板；原生 mark 改用 `<leader>m` |
+| 专用剪切 | Normal `m` + motion、`mm`、`M`；Visual `m`/`<C-x>` | 剪切到系统剪贴板。设置 mark 用 `<leader>M` 再加字母。`<leader>m` 是书签前缀 |
+| 复制路径 | `<leader>yp` / `<leader>yP` / `<leader>yd` | 相对路径、绝对路径、所在目录，写入系统剪贴板 |
 
 私有 `smart-paste.nvim` 不存在时，系统剪贴板的多行智能缩进映射不可用；公开配置仍通过 Neovim 的 `+` 寄存器和系统剪贴板适配器工作。
 

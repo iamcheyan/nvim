@@ -2,7 +2,7 @@
 
 这份手册按当前 `lazy.nvim` 插件规格编写。插件目录共 **48 个条目**（公开 42 个、私有 6 个）；依赖库和管理器也计入总数。分类目录和逐项练习见 [插件使用书](../plugins/PLUGINS.md)。
 
-插件仍然可以因未安装的外部工具、当前 filetype 或 LSP 服务器能力不同而表现不同。`<leader>` 是空格。`<leader>` 后停顿可看 which-key 提示；`<leader>?` 可查看当前模式的快捷键。
+插件仍然可以因未安装的外部工具、当前 filetype 或 LSP 服务器能力不同而表现不同。`<leader>` 是空格。`<leader>` 后停顿可看 which-key 提示；`<leader>?` 打开帮助搜索，`<leader>hk` 查看当前缓冲的快捷键。
 
 ## 快速入口
 
@@ -20,14 +20,14 @@
 | 查看个人书签 | `<leader>mm` |
 | 包围符号添加/替换/删除 | `gsa` / `gsr` / `gsd` |
 | 打开 quickfix 结果 | `<leader>xq`；列表内 `>` 展开上下文，`<` 收起 |
-| 查看完整命令/快捷键 | `<leader>` 后稍候；使用 `<leader>?` / `:WhichKey` |
+| 查看完整命令/快捷键 | `<leader>` 后稍候；`<leader>hk` 看当前缓冲，`<leader>?` 搜帮助，`:WhichKey` |
 | COBOL 定义跳转与返回 | `gd` 跳转，`Ctrl-o` 返回；`:help jumplist` |
 
 ## 搜索、文件与界面
 
 ### snacks.nvim（公开）
 
-当前配置的主要文件/文本搜索器，也承载通知、状态列、部分小工具和 LazyGit 集成。常用入口：`<leader><space>` / `<leader>ff` 找文件，`<leader>fF` 从 Git 根目录找文件，`<leader>fb` 缓冲区，`<leader>fr` 最近文件，`<leader>fg` 或 `<leader>/` 搜内容，`<leader>fw` 搜光标下单词，`<leader>fh` 帮助，`<leader>fS` Treesitter 符号。picker 中输入查询，Enter 打开，Esc 关闭；`Alt-h` 切换隐藏文件，`Alt-i` 切换忽略文件。若系统装有 `lazygit`，`<leader>gg` 在 Git 根目录启动、`<leader>gG` 在当前目录启动。`<leader>gl/gL` 看 Git log，`<leader>gf` 看当前文件历史。
+当前配置的主要文件/文本搜索器，也承载通知、状态列、部分小工具和 LazyGit 集成。常用入口：`<leader><space>` / `<leader>ff` 找文件，`<leader>fF` 从 Git 根目录找文件，`<leader>fb` 缓冲区，`<leader>fr` 最近文件，`<leader>fg` 在当前目录搜内容，`<leader>fG` 在 Git 根目录搜内容，`<leader>fw` 在当前目录搜光标词，`<leader>fW` 在 Git 根目录搜光标词，`<leader>/` 用 picker 默认目录搜内容，`<leader>fh` 帮助，`<leader>fS` Treesitter 符号。picker 中输入查询，Enter 打开，Esc 关闭；`Alt-h` 切换隐藏文件，`Alt-i` 切换忽略文件。若系统装有 `lazygit`，`<leader>gg` 在 Git 根目录启动、`<leader>gG` 在当前目录启动。`<leader>gl/gL` 看 Git log，`<leader>gf` 看当前文件历史。复制路径用 `<leader>yp`、`<leader>yP`、`<leader>yd`。
 
 ### dashboard-nvim（公开）
 
@@ -80,7 +80,7 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 ### nvim-lspconfig（公开）+ mason-lspconfig.nvim（公开）+ mason.nvim（公开）
 
-这是三项协同工作的 LSP 安装和连接设施。Mason 用 `:Mason` / `<leader>cm` 浏览安装服务器和工具；当前管理 basedpyright、lua_ls、ruff、shellcheck。Ruff 与 ShellCheck 由 nvim-lint 调用。mason-lspconfig 把已安装服务器连接到 Neovim，nvim-lspconfig 提供服务器配置。LSP 附加后：`gd` 定义，`gD` 声明，`K` 悬浮文档，`gI` 实现，`gy` 类型定义，`gK` 签名帮助（插入模式 `<C-k>`），`<leader>ca` 代码操作，`<leader>cr` 重命名，`<leader>co` 整理 imports，`<leader>cl` 查看 LSP 配置。`]d`/`[d` 诊断跳转等是 Neovim 内置映射。当前配置全局关闭诊断显示，所以诊断相关显示/操作可能没有可见结果；这由本地配置主动设置。
+这是三项协同工作的 LSP 安装和连接设施。Mason 用 `:Mason` / `<leader>cm` 浏览安装服务器和工具；当前管理 basedpyright、lua_ls、ruff、shellcheck。Ruff 与 ShellCheck 由 nvim-lint 在写入后检查 Python 与 Shell。mason-lspconfig 把已安装服务器连接到 Neovim，nvim-lspconfig 提供服务器配置。LSP 附加后：`gd` 定义，`gD` 声明，`K` 悬浮文档，`gI` 实现，`gy` 类型定义，`gK` 签名帮助（插入模式 `<C-S-k>`，`<C-k>` 留给 digraph），`<leader>ca` 代码操作，`<leader>cr` 重命名，`<leader>co` 整理 imports，`<leader>cl` 查看 LSP 配置。诊断有下划线和标记列，行内虚拟文本关闭。`<leader>cd` 打开当前行诊断。`]d`/`[d` 仍是诊断跳转。
 
 ### mini.surround（公开）
 
@@ -117,7 +117,7 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 ### multicursor.nvim（公开）
 
-Normal/Visual 模式使用上/下方向键添加相邻行光标，`<leader><up>` / `<leader><down>` 跳过对应行；`<leader>n` / `<leader>N` 添加下一个/上一个匹配，`<leader>s` / `<leader>S` 跳过匹配；VS Code 风格快捷键为 `Ctrl+n` 添加下一个匹配、`Ctrl+Shift+n` 选中全部匹配、`Ctrl+d` 跳过当前匹配。Ctrl 加鼠标左键可添加/移除光标并拖动。`<C-q>` 暂停或恢复多光标；左右方向键切换主光标，`<leader>x` 删除主光标，Esc 清除全部光标。
+`<leader><up>` / `<leader><down>` 跳过相邻行再加光标；`<leader>n` / `<leader>N` 添加下一个/上一个匹配，`Alt+d` / `Alt+Shift+d` 跳过匹配。`Ctrl+n` 添加下一个匹配，`Ctrl+Shift+n` 选中全部匹配。`Ctrl+d` 仍是半页下滚。Ctrl 加鼠标左键可添加/移除光标并拖动。`<leader>mq` 暂停或恢复多光标，`<leader>A` 对齐列，`<leader>gv` 恢复刚清掉的光标。左右方向键切换主光标，`<leader>x` 删除主光标，Esc 清除全部光标。`<C-q>` 是视觉块模式。
 
 ### nvim-ufo（公开）+ promise-async（依赖）
 
@@ -169,7 +169,7 @@ LSP 服务器执行索引、诊断等工作时显示进度通知；自动运行�
 
 ### which-key.nvim（公开）
 
-显示按键组合提示。按 `<leader>` 后稍停显示可用下一键；`<leader>?` 查看当前模式映射，`<C-w>` 后稍停查看窗口操作。提示可帮助探索快捷键，不会改变编辑行为。
+显示按键组合提示。按 `<leader>` 后稍停显示可用下一键；`<leader>hk` 查看当前缓冲映射，`<leader>?` 是帮助搜索，`<C-w>` 后稍停查看窗口操作。提示可帮助探索快捷键，不会改变编辑行为。
 
 ### nvim-web-devicons（公开依赖）
 
@@ -203,7 +203,7 @@ Windows Batch 文件结构解析与导航。支持 `:BatchCheck` 检查、`:Batc
 2. **插件统计**：插件手册统计需随插件增删同步；独立插件仓库和依赖项不计入该分类数量。
 3. **发现 `[b` / `]b` 冲突**：私有书签把它们用于前/后书签，公开默认映射此前又用于前/后缓冲区。已删除默认缓冲区映射；请用 `Shift+h/l` 或 `<leader>bh/bl` 切换缓冲区。
 4. **格式化** 使用 LSP 提供程序格式化能力，快捷键为 `<leader>fo`。
-5. **诊断显示被配置关闭**，尽管 LSP 仍能提供跳转、补全和重命名。若要依赖诊断列表，应单独评估 `disable-diagnostics.lua` 的行为。
+5. **诊断**：标记列和下划线打开，行内虚拟文本关闭。Python 用 ruff、Shell 用 shellcheck，都在写入后跑。`disable-diagnostics.lua` 已删除。
 6. **候选取舍**：Oil 已移除后 Neo-tree 是唯一文件侧栏；`ccc.nvim` 是按需取色；`mini.hipatterns` 是颜色值自动高亮；`flash.nvim` 是跳转；`nvim-hlslens` 是搜索命中提示；两者不是完全相同功能。`fidget.nvim`、`satellite.nvim`、`rainbow-delimiters.nvim`、`mini.pairs` 属于自动生效 UI/编辑便利，是否保留按日常感受判断。
 
 ## 怎样确认插件是否真的在运行
