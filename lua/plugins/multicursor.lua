@@ -1,29 +1,12 @@
 return {
   "jake-stewart/multicursor.nvim",
   branch = "1.0",
-  keys = {
-    { "<up>", mode = { "n", "x" }, desc = "Multicursor: Add cursor above" },
-    { "<down>", mode = { "n", "x" }, desc = "Multicursor: Add cursor below" },
-    { "<leader><up>", mode = { "n", "x" }, desc = "Multicursor: Skip line above" },
-    { "<leader><down>", mode = { "n", "x" }, desc = "Multicursor: Skip line below" },
-    { "<leader>n", mode = { "n", "x" }, desc = "Multicursor: Add next match" },
-    { "<leader>N", mode = { "n", "x" }, desc = "Multicursor: Add previous match" },
-    { "<leader>s", mode = { "n", "x" }, desc = "Multicursor: Skip next match" },
-    { "<leader>S", mode = { "n", "x" }, desc = "Multicursor: Skip previous match" },
-    { "<c-leftmouse>", mode = "n", desc = "Multicursor: Add or remove cursor" },
-    { "<c-leftdrag>", mode = "n", desc = "Multicursor: Drag cursor" },
-    { "<c-leftrelease>", mode = "n", desc = "Multicursor: Release cursor" },
-    { "<C-q>", mode = { "n", "x" }, desc = "Multicursor: Toggle cursors" },
-    { "<leader>A", mode = { "n", "x" }, desc = "Multicursor: Add all matches" },
-    -- VS Code style shortcuts.
-    { "<C-n>", mode = { "n", "x" }, desc = "Multicursor: Add next match (VS Code)" },
-    { "<C-S-n>", mode = { "n", "x" }, desc = "Multicursor: Select all matches (VS Code)" },
-    { "<C-d>", mode = { "n", "x" }, desc = "Multicursor: Skip current match (VS Code)" },
-    -- Advanced actions kept from the plugin's recommendations.
-    { "ga", mode = { "n", "x" }, desc = "Multicursor: Add cursor operator (gaip)" },
-    { "<leader>a", mode = "n", desc = "Multicursor: Align cursors" },
-    { "<leader>gv", mode = "n", desc = "Multicursor: Restore cursors" },
-  },
+  -- Load at startup instead of on first keypress. lazy.nvim replays a lazy
+  -- `keys` entry by feeding the raw lhs back into the typeahead; for a
+  -- modified key like <C-S-n> that replay is unreliable, which made the first
+  -- Ctrl+Shift+n do nothing. Loading eagerly means the mappings defined in
+  -- config() already exist when the key is pressed.
+  lazy = false,
   config = function()
     local mc = require("multicursor-nvim")
     mc.setup()
@@ -38,7 +21,6 @@ return {
     set({ "n", "x" }, "<leader>s", function() mc.matchSkipCursor(1) end)
     set({ "n", "x" }, "<leader>N", function() mc.matchAddCursor(-1) end)
     set({ "n", "x" }, "<leader>S", function() mc.matchSkipCursor(-1) end)
-    set({ "n", "x" }, "<leader>A", mc.matchAllAddCursors)
 
     -- VS Code style: Ctrl+n adds the next match, Ctrl+Shift+n selects every
     -- match of the word/selection, Ctrl+d skips the current match. Only

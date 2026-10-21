@@ -20,7 +20,6 @@ VS Code 风格快捷键（Normal / Visual）：
 原有的 `<leader>` 系列仍然保留：
 
 - `<leader>n` / `<leader>N`：添加下一个 / 上一个匹配；`<leader>s` / `<leader>S`：跳过下一个 / 上一个。
-- `<leader>A`：为单词或选区添加缓冲区中的全部匹配。
 - `<up>` / `<down>`：在上下方添加光标；`<leader><up>` / `<leader><down>`：跳过上下行。
 - `<C-q>`：暂停或恢复多光标；`<left>` / `<right>` 切换主光标，`<leader>x` 删除主光标。
 - 鼠标：`Ctrl+左键` 添加或删除光标，拖动可连续添加。
