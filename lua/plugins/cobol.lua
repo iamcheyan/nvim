@@ -56,8 +56,12 @@ return {
       "CobolCalcRecord",
     },
     keys = {
-      { "<leader>uc", "<cmd>CobolGuideToggle<cr>", desc = "Toggle COBOL Guide" },
-      { "<leader>cr", "<cmd>CobolCalcRecord<cr>", desc = "Calculate Record Layout" },
+      { "<leader>cg", "<cmd>CobolGuideToggle<cr>", desc = "Toggle COBOL Guide" },
+      { "<leader>cL", "<cmd>CobolCalcRecord<cr>", desc = "Calculate Record Layout" },
+      { "<leader>cK", function()
+        local ok, diag = pcall(require, "cobol.diagnostics")
+        if ok and diag.lint then diag.lint(0, { interactive = true }) end
+      end, desc = "COBOL syntax check" },
       { "<leader>ch", "<cmd>CobolHex<cr>", desc = "Inspect Hex / EBCDIC / COMP-3" },
       { "<leader>cc", "<cmd>CobolCapsToggle<cr>", desc = "Toggle Smart CAPS" },
     },
@@ -74,6 +78,8 @@ return {
       smart_tab = true,
       smart_comments = true,
       keymaps = true,
+      -- nvim-ufo owns foldmethod. The plugin's expr folds replace it per window.
+      folding = { enable = false, foldtext = "auto" },
     },
     config = function(_, opts)
       require("cobol").setup(opts)

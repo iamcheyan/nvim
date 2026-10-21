@@ -10,15 +10,17 @@ vim.keymap.set("n", "<leader>tb", function()
   vim.cmd("split | terminal")
 end, { desc = "Terminal Bottom" })
 
-vim.keymap.set("n", "<leader>cf", function()
+-- Path yanks live under <leader>y so <leader>c stays code actions.
+-- <leader>cd is line diagnostics (keymaps-defaults.lua).
+vim.keymap.set("n", "<leader>yp", function()
   vim.fn.setreg("+", vim.fn.expand("%"))
 end, { desc = "Copy file (relative path)" })
 
-vim.keymap.set("n", "<leader>cF", function()
+vim.keymap.set("n", "<leader>yP", function()
   vim.fn.setreg("+", vim.fn.expand("%:p"))
 end, { desc = "Copy file (absolute path)" })
 
-vim.keymap.set("n", "<leader>cd", function()
+vim.keymap.set("n", "<leader>yd", function()
   vim.fn.setreg("+", vim.fn.expand("%:p:h"))
 end, { desc = "Copy directory" })
 
@@ -60,22 +62,35 @@ vim.keymap.set("n", "<leader>fu", function()
   vim.notify("dos2unix: " .. vim.fn.fnamemodify(file, ":t"))
 end, { desc = "dos2unix current file" })
 
-vim.keymap.set("n", "<leader>aa", "ggVG", { desc = "CLRT A" })
-vim.keymap.set("n", "<leader>ac", function()
+-- <leader>a is only "increment" (below). A second key on that prefix made it wait.
+vim.keymap.set("n", "<leader>bC", function()
   vim.api.nvim_buf_set_lines(0, 0, -1, false, { "" })
   vim.api.nvim_win_set_cursor(0, { 1, 0 })
-end, { desc = "清空文档(不进寄存器)" })
+end, { desc = "Clear buffer contents" })
 
 -- grug-far:
--- <leader>sr => project search/replace
+-- <leader>sr => project search/replace, filtered to the current extension
 -- <leader>sR => current file search/replace
 -- visual mode uses selected text as Search
+local function current_extension_filter()
+  if vim.bo.buftype ~= "" then return nil end
+  local ext = vim.fn.expand("%:e")
+  if ext == "" then return nil end
+  return "*." .. ext
+end
+
 vim.keymap.set("n", "<leader>sr", function()
-  require("grug-far").open()
+  require("grug-far").open({
+    transient = true,
+    prefills = { filesFilter = current_extension_filter() },
+  })
 end, { desc = "Search/Replace (project)" })
 
 vim.keymap.set("x", "<leader>sr", function()
-  require("grug-far").with_visual_selection()
+  require("grug-far").with_visual_selection({
+    transient = true,
+    prefills = { filesFilter = current_extension_filter() },
+  })
 end, { desc = "Search/Replace selection (project)" })
 
 vim.keymap.set("n", "<leader>sR", function()
@@ -85,11 +100,6 @@ end, { desc = "Search/Replace (current file)" })
 vim.keymap.set("x", "<leader>sR", function()
   require("grug-far").with_visual_selection({ prefills = { paths = vim.fn.expand("%") } })
 end, { desc = "Search/Replace selection (current file)" })
-
--- lua/config/keymaps.lua
-vim.keymap.set("n", "<leader>d", '"_d', { desc = "Delete to blackhole" })
-vim.keymap.set("v", "<leader>d", '"_d', { desc = "Visual delete to blackhole" })
-vim.keymap.set("x", "<leader>ad", '"_d', { desc = "删除选中(不进寄存器)" })
 
 vim.keymap.set("n", "<2-LeftMouse>", function()
   local m = vim.fn.getmousepos()
@@ -168,11 +178,13 @@ vim.keymap.set("n", "<leader><tab>n", "<cmd>tabnew<cr>", { desc = "New Tab" })
 -- 现代编辑器操作流 (AI 协作 / 网页交互友好，兼顾 Vim 模态特性)
 -- =======================================================================
 
--- 1. Ctrl + A: 全选整个文件 (Normal / Visual / Insert 模式均生效)
+-- 1. Ctrl + A selects the file in normal and visual mode.
+-- Insert <C-a> stays "insert previously inserted text".
 vim.keymap.set({ "n", "x" }, "<C-a>", "ggVG", { desc = "Select all lines" })
-vim.keymap.set("i", "<C-a>", "<Esc>ggVG", { desc = "Select all lines" })
--- 若偶尔需要给光标处数字加 1，保留备用快捷键
+-- noremap so this is the builtin increment, not the select-all map above.
 vim.keymap.set("n", "<leader>a", "<C-a>", { desc = "Increment number" })
+-- <C-v> is paste. <C-q> is the terminal-friendly visual-block key.
+vim.keymap.set({ "n", "x" }, "<C-q>", "<C-v>", { desc = "Visual block" })
 
 -- 2. Ctrl + C: 仅在可视模式下生效，复制选区到系统剪贴板 (普通模式保留原生中断/取消)
 vim.keymap.set("x", "<C-c>", '"+y', { desc = "Copy selection to system clipboard" })
@@ -197,7 +209,11 @@ local blackhole_opts = { noremap = true, silent = true }
 -- 1. 所有删除操作 (Delete) -> 黑洞寄存器 ("_)
 -- 覆盖 d + 任意 motion / text-object (dw, d$, di", da", diw, dG 等全部生效)
 vim.keymap.set({ "n", "x" }, "d", '"_d', vim.tbl_extend("force", blackhole_opts, { desc = "Delete (black hole, no yank)" }))
-vim.keymap.set("n", "dd", '"_dd', vim.tbl_extend("force", blackhole_opts, { desc = "Delete line (black hole)" }))
+-- Count is applied after the register. `"_dd` would turn `3dd` into `3"_dd`,
+-- which does not delete three lines. `"_3dd` does.
+vim.keymap.set("n", "dd", function()
+  return '"_' .. vim.v.count1 .. "dd"
+end, vim.tbl_extend("force", blackhole_opts, { expr = true, desc = "Delete line (black hole)" }))
 vim.keymap.set({ "n", "x" }, "D", '"_D', vim.tbl_extend("force", blackhole_opts, { desc = "Delete to end of line (black hole)" }))
 vim.keymap.set({ "n", "x" }, "x", '"_x', vim.tbl_extend("force", blackhole_opts, { desc = "Delete char (black hole)" }))
 vim.keymap.set({ "n", "x" }, "X", '"_X', vim.tbl_extend("force", blackhole_opts, { desc = "Delete char before cursor (black hole)" }))
@@ -207,7 +223,9 @@ vim.keymap.set("x", "<Del>", '"_d', vim.tbl_extend("force", blackhole_opts, { de
 -- 2. 所有修改操作 (Change) -> 黑洞寄存器 ("_)
 -- 彻底解决 ci", ca", ciw, caw, cw, cc, C 等动作把被替换内容塞入剪贴板的问题
 vim.keymap.set({ "n", "x" }, "c", '"_c', vim.tbl_extend("force", blackhole_opts, { desc = "Change (black hole, no yank)" }))
-vim.keymap.set("n", "cc", '"_S', vim.tbl_extend("force", blackhole_opts, { desc = "Change line (black hole)" }))
+vim.keymap.set("n", "cc", function()
+  return '"_' .. vim.v.count1 .. "S"
+end, vim.tbl_extend("force", blackhole_opts, { expr = true, desc = "Change line (black hole)" }))
 vim.keymap.set({ "n", "x" }, "C", '"_C', vim.tbl_extend("force", blackhole_opts, { desc = "Change to end of line (black hole)" }))
 
 -- 3. Select 模式 (如补全/Snippet 占位符被替换) -> 黑洞寄存器 ("_)
@@ -223,8 +241,8 @@ vim.keymap.set("s", "<space>", '<c-o>"_c<space>', blackhole_opts)
 
 -- 4. 专属剪切 (Dedicated Cut) 操作流：
 -- 普通模式下用 m (Move / Cut) 接管原本的剪切操作，明确剪切至系统剪贴板 ("+)；
--- 标记 (mark) 原生功能若需要，使用 <leader>m 触发
-vim.keymap.set("n", "<leader>m", "m", { desc = "Set mark (original m)" })
+-- <leader>m is the bookmark prefix. Set a mark with <leader>M then a letter.
+vim.keymap.set("n", "<leader>M", "m", { desc = "Set mark" })
 vim.keymap.set("n", "m", '"+d', { desc = "Cut to system clipboard" })
 vim.keymap.set("n", "mm", '"+dd', { desc = "Cut line to system clipboard" })
 vim.keymap.set("n", "M", '"+D', { desc = "Cut to end of line to system clipboard" })

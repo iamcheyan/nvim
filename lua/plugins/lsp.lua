@@ -52,9 +52,8 @@ return {
     },
     config = function(_, opts)
       -- on_attach: register LSP keymaps (previously from LazyVim lsp/keymaps.lua).
-      -- Diagnostics are silenced globally by plugins/disable-diagnostics.lua
-      -- (vim.lsp.handlers + vim.diagnostic.config), so no per-client/per-buffer
-      -- suppression is needed here.
+      -- Signs and underlines come from the global vim.diagnostic.config in
+      -- config/options.lua. This callback does not hide them.
       local on_attach = function(client, bufnr)
         -- LSP-powered 'gq' formatting (replaces LazyVim's formatexpr).
         if client.server_capabilities.documentFormattingProvider then
@@ -81,7 +80,8 @@ return {
         end
         if caps.signatureHelpProvider then
           set("gK", vim.lsp.buf.signature_help, "Signature Help")
-          set("<C-k>", vim.lsp.buf.signature_help, "Signature Help", "i")
+          -- <C-k> stays the digraph key. Signature help uses Ctrl-Shift-k.
+          set("<C-S-k>", vim.lsp.buf.signature_help, "Signature Help", "i")
         end
         if caps.codeActionProvider then
           set("<leader>ca", vim.lsp.buf.code_action, "Code Action", { "n", "x" })
@@ -125,22 +125,15 @@ return {
           vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         end
 
-        -- LSP folds
-        if client:supports_method("textDocument/foldingRange", { bufnr = bufnr }) then
-          local win = vim.api.nvim_get_current_win()
-          if vim.wo[win].foldmethod == "manual" then
-            vim.wo[win].foldmethod = "expr"
-            vim.wo[win].foldexpr = "v:lua.vim.lsp.foldexpr()"
-          end
-        end
+        -- Folds belong to nvim-ufo. Do not switch foldmethod to the LSP expr.
 
         -- code lens
         if client:supports_method("textDocument/codeLens", { bufnr = bufnr }) then
           vim.lsp.codelens.enable(true, { bufnr = bufnr })
         end
 
-        -- NOTE: `gr` is intentionally NOT bound here. It is removed on LspAttach by
-        -- plugins/lsp-keymaps.lua to avoid conflicting with substitute.nvim.
+        -- Neovim's built-in grn/grr/gra/gri maps stay. <leader>cr / <leader>ca / gI
+        -- are the leader-prefixed copies used by this config.
       end
 
       -- Register + enable servers via the native LSP API (Nvim 0.11+).
@@ -178,7 +171,7 @@ return {
             analysis = {
               exclude = { "**/venv/**", "**/__pycache__/**", "**/.pytest_cache/**" },
               typeCheckingMode = "off",
-              diagnosticMode = "workspace",
+              diagnosticMode = "openFilesOnly",
               autoSearchPaths = true,
               useLibraryCodeForTypes = true,
               reportMissingImports = false,

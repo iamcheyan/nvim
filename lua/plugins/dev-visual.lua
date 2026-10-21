@@ -15,23 +15,9 @@ return {
     "kevinhwang91/nvim-hlslens",
     event = "VeryLazy",
     opts = {},
+    -- n/N are owned by config/keymaps-defaults.lua so fold-open (`zv`) and
+    -- hlslens stay on one mapping. * / # / g* / g# still start the lens here.
     keys = {
-      {
-        "n",
-        function()
-          pcall(vim.cmd, "normal! n")
-          require("hlslens").start()
-        end,
-        desc = "Next Search Result",
-      },
-      {
-        "N",
-        function()
-          pcall(vim.cmd, "normal! N")
-          require("hlslens").start()
-        end,
-        desc = "Prev Search Result",
-      },
       {
         "*",
         function()

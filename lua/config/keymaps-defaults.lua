@@ -19,6 +19,10 @@ local git_root = function()
   return Snacks.git.get_root() or vim.uv.cwd()
 end
 
+local function picker_git_root()
+  return vim.fs.root(0, ".git") or vim.uv.cwd()
+end
+
 ------------------- Find / Search -------------------------------------------
 -- Provided by snacks picker (our replacement for LazyVim's snacks defaults).
 map("n", "<leader><space>", function() Snacks.picker.pick("files") end, { desc = "Find Files (Root Dir)" })
@@ -30,24 +34,18 @@ end, { desc = "Find Files (Git Root)" })
 map("n", "<leader>fb", function() Snacks.picker.pick("buffers") end, { desc = "Buffers" })
 map("n", "<leader>fr", function() Snacks.picker.pick("recent") end, { desc = "Recent" })
 map("n", "<leader>fR", function() Snacks.picker.resume() end, { desc = "Resume" })
-map("n", "<leader>fg", function() Snacks.picker.pick("grep") end, { desc = "Grep" })
-map("n", "<leader>fG", function() Snacks.picker.pick("grep") end, { desc = "Grep (Root Dir)" })
-map("n", "<leader>fw", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>") }) end, { desc = "Grep Word (cwd)" })
-map("n", "<leader>fW", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>") }) end, { desc = "Grep Word (Root)" })
-map("n", "<leader>fc", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>") }) end, { desc = "Word under Cursor" })
-map("n", "<leader>sg", function() Snacks.picker.pick("grep") end, { desc = "Grep (Root Dir)" })
-map("n", "<leader>sw", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>") }) end, { desc = "Grep Word (Root Dir)" })
+map("n", "<leader>fg", function() Snacks.picker.pick("grep", { dirs = { vim.uv.cwd() } }) end, { desc = "Grep (cwd)" })
+map("n", "<leader>fG", function() Snacks.picker.pick("grep", { dirs = { picker_git_root() } }) end, { desc = "Grep (Git Root)" })
+map("n", "<leader>fw", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>"), dirs = { vim.uv.cwd() } }) end, { desc = "Grep Word (cwd)" })
+map("n", "<leader>fW", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>"), dirs = { picker_git_root() } }) end, { desc = "Grep Word (Git Root)" })
+map("n", "<leader>fc", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>"), dirs = { vim.uv.cwd() } }) end, { desc = "Grep Word (cwd)" })
+map("n", "<leader>sg", function() Snacks.picker.pick("grep", { dirs = { picker_git_root() } }) end, { desc = "Grep (Git Root)" })
+map("n", "<leader>sw", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>"), dirs = { picker_git_root() } }) end, { desc = "Grep Word (Git Root)" })
 map("n", "<leader>fh", function() Snacks.picker.pick("help") end, { desc = "Help Pages" })
 map("n", "<leader>fS", function() Snacks.picker.pick("treesitter") end, { desc = "Treesitter Symbols" })
 map("n", "<leader>/", function() Snacks.picker.pick("grep") end, { desc = "Grep" })
 map("n", "<leader>,", function() Snacks.picker.pick("buffers") end, { desc = "Switch Buffer" })
 map("n", "<leader>?", function() Snacks.picker.pick("help") end, { desc = "Help" })
-
-------------------- Better up/down -------------------------------------------
-map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
-map({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
 
 ------------------- Move to window using <ctrl> hjkl -------------------------
 map("n", "<C-h>", "<C-w>h", { desc = "Go to Left Window", remap = true })
@@ -101,12 +99,32 @@ end, { expr = true, desc = "Escape and Clear messages/hlsearch" })
 map("n", "<leader>ur", "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>", { desc = "Redraw / Clear hlsearch / Diff Update" })
 
 ------------------- saner n/N ------------------------------------------------
-map("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
-map("x", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
-map("o", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
-map("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search Result" })
-map("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
-map("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
+local function search_key(forward)
+  local ahead = vim.v.searchforward ~= 0
+  if forward then
+    return ahead and "n" or "N"
+  end
+  return ahead and "N" or "n"
+end
+
+local function search_result(forward, open_fold)
+  return function()
+    local key = search_key(forward)
+    vim.cmd.normal({ args = { open_fold and (key .. "zv") or key }, bang = true })
+    if open_fold then
+      pcall(function()
+        require("hlslens").start()
+      end)
+    end
+  end
+end
+
+map("n", "n", search_result(true, true), { desc = "Next Search Result" })
+map("x", "n", search_result(true, false), { desc = "Next Search Result" })
+map("o", "n", function() return search_key(true) end, { expr = true, desc = "Next Search Result" })
+map("n", "N", search_result(false, true), { desc = "Prev Search Result" })
+map("x", "N", search_result(false, false), { desc = "Prev Search Result" })
+map("o", "N", function() return search_key(false) end, { expr = true, desc = "Prev Search Result" })
 
 ------------------- Add undo break-points -----------------------------------
 map("i", ",", ",<c-g>u")
@@ -184,6 +202,8 @@ Snacks.toggle.dim():map("<leader>uD")
 Snacks.toggle.animate():map("<leader>ua")
 Snacks.toggle.indent():map("<leader>ug")
 Snacks.toggle.scroll():map("<leader>uS")
+-- <leader>d is only this prefix. The old black-hole <leader>d map made
+-- these wait out timeoutlen on every delete.
 Snacks.toggle.profiler():map("<leader>dpp")
 Snacks.toggle.profiler_highlights():map("<leader>dph")
 if vim.lsp.inlay_hint then
