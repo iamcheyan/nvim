@@ -143,7 +143,7 @@ Normal/Visual 模式使用上/下方向键添加相邻行光标，`<leader><up>`
 
 ### diffview.nvim（公开）
 
-`<leader>gd` / `<leader>gv` 打开当前分支与基线差异视图；`<leader>gD` 查看当前文件历史；`<leader>gV` 查看仓库历史；`<leader>gq` 关闭。`:DiffviewOpen`、`:DiffviewFileHistory`、`:DiffviewClose` 也可直接用。适合成组审查多个文件变更；单个 hunk 快速预览用 Gitsigns。
+`<leader>gd` 打开当前分支与基线差异视图；`<leader>gD` 查看当前文件历史；`<leader>gV` 查看仓库历史；`<leader>gq` 关闭。`<leader>gv` 不再打开差异，已改归 multicursor.nvim 的“恢复光标”。`:DiffviewOpen`、`:DiffviewFileHistory`、`:DiffviewClose` 也可直接用。适合成组审查多个文件变更；单个 hunk 快速预览用 Gitsigns。
 
 ### satellite.nvim（公开）
 

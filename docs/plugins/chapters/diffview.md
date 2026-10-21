@@ -8,7 +8,9 @@
 
 ## 在当前配置里怎么用
 
-`<leader>gd` 或 `<leader>gv` 打开与基线的差异；`<leader>gD` 看当前文件历史；`<leader>gV` 看仓库历史；`<leader>gq` 关闭。命令是 `:DiffviewOpen`、`:DiffviewFileHistory`、`:DiffviewClose`。
+`<leader>gd` 打开与基线的差异；`<leader>gD` 看当前文件历史；`<leader>gV` 看仓库历史；`<leader>gq` 关闭。命令是 `:DiffviewOpen`、`:DiffviewFileHistory`、`:DiffviewClose`。
+
+> `<leader>gv` 曾是打开差异的别名，现已改归 multicursor.nvim 的“恢复光标”；打开差异统一用 `<leader>gd`。
 
 ## 动手练习
 

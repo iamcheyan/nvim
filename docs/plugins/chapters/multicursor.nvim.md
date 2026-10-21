@@ -4,30 +4,51 @@
 
 ## 它解决什么问题
 
-在多个文本位置同时放置光标，像普通 Vim 编辑一样输入、删除或替换，从而一次修改多个匹配项。
+在多个文本位置同时放置光标，像普通 Vim 编辑一样输入、删除或替换，从而一次修改多个匹配项。本仓库现在只用这一个多光标插件（`vim-visual-multi` 已移除）。
 
 ## 在当前配置里怎么用
 
-Normal/Visual 模式中：
+VS Code 风格快捷键（Normal / Visual）：
 
-- `<up>` / `<down>`：在主光标上方 / 下方添加光标。
-- `<leader><up>` / `<leader><down>`：跳过上方 / 下方行。
-- `<leader>n` / `<leader>N`：按光标下单词或选区，添加下一个 / 上一个匹配。
-- `<leader>s` / `<leader>S`：跳过下一个 / 上一个匹配。
-- `<leader>A`：为光标下的单词或 Visual 选区添加当前缓冲区中的全部匹配光标。
-- `<C-q>`：暂停或恢复多光标；暂停时只移动主光标，再按可在当前位置添加光标。
-[docs/plugins/chapters/multicursor.nvim.md#EBF6]
+| 按键 | 作用 | 对应 API |
+|---|---|---|
+| `Ctrl+n` | 添加下一个匹配 | `mc.matchAddCursor(1)` |
+| `Ctrl+Shift+n` | 选中当前单词 / 选区的**全部**匹配 | `mc.matchAllAddCursors()` |
+| `Ctrl+d` | 跳过当前匹配 | `mc.matchSkipCursor(1)` |
+| `Esc` | 存在多光标时清除所有光标；没有多光标时保持默认 Esc 行为 | `mc.clearCursors()` |
 
-有多个光标后照常使用 Vim 操作编辑。左右方向键切换主光标；`<leader>x` 删除当前主光标；Esc 清除光标并退出，若光标暂停则恢复多光标。
+原有的 `<leader>` 系列仍然保留：
+
+- `<leader>n` / `<leader>N`：添加下一个 / 上一个匹配；`<leader>s` / `<leader>S`：跳过下一个 / 上一个。
+- `<leader>A`：为单词或选区添加缓冲区中的全部匹配。
+- `<up>` / `<down>`：在上下方添加光标；`<leader><up>` / `<leader><down>`：跳过上下行。
+- `<C-q>`：暂停或恢复多光标；`<left>` / `<right>` 切换主光标，`<leader>x` 删除主光标。
+- 鼠标：`Ctrl+左键` 添加或删除光标，拖动可连续添加。
+
+保留的高级功能：
+
+| 按键 | 作用 | 对应 API |
+|---|---|---|
+| `ga` | 光标操作符；`gaip` 给段落每一行添加光标，`ga` 后接其它文本对象同理 | `mc.addCursorOperator` |
+| `<leader>a` | 对齐各光标的列 | `mc.alignCursors` |
+| `<leader>gv` | 误清除后恢复光标 | `mc.restoreCursors` |
 
 ## 动手练习
 
-在练习文件里写下几处重复的 `old_name`。光标放在第一个单词上，连续按 `<leader>mn` 选中下一个匹配，按 `c` 输入 `new_name`，最后按 Esc 结束。确认只改动选中的匹配，再用 `u` 撤销练习。
+1. 写下四行相同的 `foo`，光标放在第一个 `foo` 上。
+2. 按 `Ctrl+n` 两次：只应选中前两个匹配。
+3. 按 `Esc` 清除，重新放回第一个 `foo`，按 `Ctrl+Shift+n`：应选中全部 `foo`。
+4. 把光标移到某个段落中间，按 `gaip`：应为该段落每一行创建一个光标。
+5. 用 `c` 输入新内容后 `Esc` 结束，再用 `u` 撤销练习。
 
 ## 注意事项
 
-仓库同时配置了 `vim-visual-multi` 和 `multicursor-line.nvim`，多光标匹配使用 `<leader>mn` 系列入口。批量编辑前确认所有光标位置，避免修改不想要的匹配。
+- `Ctrl+n` / `Ctrl+d` 只在 Normal 与 Visual 模式映射，插入模式下 `Ctrl+n` 仍是关键字补全。
+- `Ctrl+d` 在 Vim 里默认是向下滚动半屏；本配置把它改成了“跳过当前匹配”。需要滚动请用 `Ctrl+f` / `Ctrl+b` 或 `Ctrl+u`。
+- `<leader>gv` 原本是 diffview 打开差异的别名，现已归本插件的“恢复光标”；打开差异仍用 `<leader>gd`。
+- `<leader>a`（对齐光标）只在 Normal 模式生效，避免与 `multicursor-line.nvim` 的可视模式映射冲突。
+- 自研的 `multicursor-line.nvim` 使用独立的 native 后端，不依赖被移除的 `vim-visual-multi`，可继续使用。
 
 ## 查快捷键和帮助
 
-在 Neovim 里用 `:verbose nmap <按键>` 查看最终映射和定义来源；按 `<leader>` 后稍等可看 which-key 提示。可用命令可用 `:command <前缀>` 查询。
+`:verbose nmap <C-n>` 等可查看最终映射和来源；`:help multicursor` 查看插件帮助。

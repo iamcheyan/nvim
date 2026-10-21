@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，含公开配置与本机私有配置中的 **46 个插件**（公开 40 个、私有 6 个）。私有插件已按要求列入，并在章节标题和目录中标明。依赖库也单独列出；它们通常由上层插件自动调用，不需要手动启动。
+这本书按当前 `lazy.nvim` 注册结果整理，含公开配置与本机私有配置中的 **45 个插件**（公开 39 个、私有 6 个）。私有插件已按要求列入，并在章节标题和目录中标明。依赖库也单独列出；它们通常由上层插件自动调用，不需要手动启动。
 
 ## 怎么使用这本书
 
@@ -50,7 +50,6 @@
 | [nvim-lint](chapters/nvim-lint.md) | 公开 | ShellCheck 静态检查 |
 | [markview.nvim](chapters/markview.md) | 公开 | Markdown 等文档预览 |
 | [multicursor.nvim](chapters/multicursor.nvim.md) | 公开 | 多光标匹配与批量编辑 |
-| [vim-visual-multi](chapters/vim-visual-multi.md) | 公开 | 多光标选词、逐个扩展与全选 |
 | [nvim-ufo](chapters/nvim-ufo.md) | 公开 | 代码折叠 |
 | [promise-async](chapters/promise-async.md) | 依赖 | nvim-ufo 的异步依赖 |
 
