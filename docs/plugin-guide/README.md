@@ -125,7 +125,7 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 ### multicursor.nvim（公开）
 
-Normal/Visual 模式把光标放在单词或选区上，按 `<leader>mn` / `<leader>mN` 逐个添加下一个/上一个匹配；`<leader>ms` / `<leader>mS` 跳过匹配。`<C-q>` 暂停或恢复多光标；左右方向键在多光标启用时切换主光标；Esc 清除光标（暂停状态下则恢复）。添加光标后可照常使用 Vim 编辑命令同步修改。与 vim-visual-multi 并存，入口分开。
+Normal/Visual 模式使用上/下方向键添加相邻行光标，`<leader><up>` / `<leader><down>` 跳过对应行；`<leader>n` / `<leader>N` 添加下一个/上一个匹配，`<leader>s` / `<leader>S` 跳过匹配，`<leader>A` 一次添加当前缓冲区中的全部匹配。Ctrl 加鼠标左键可添加/移除光标并拖动。`<C-q>` 暂停或恢复多光标；左右方向键切换主光标，`<leader>x` 删除主光标，Esc 清除全部光标。
 
 ### nvim-ufo（公开）+ promise-async（依赖）
 
