@@ -4,20 +4,53 @@
 
 ## 它解决什么问题
 
-在编辑器里交互选择颜色或转换颜色表示。
+写主题或 CSS 时需要选颜色、看颜色、转格式（hex ↔ rgb ↔ hsl）。
+ccc 提供取色器和转换工具，比在浏览器里试快得多。
 
 ## 在当前配置里怎么用
 
-光标放在颜色值上按 `<leader>cp` 或 `:CccPick` 打开颜色滑块；`<leader>cC` 或 `:CccConvert` 转换颜色格式；也可双击颜色值打开 picker。
+| 按键 | 作用 |
+|---|---|
+| `<leader>cp` | 打开取色器 |
+| `<leader>cC` | 颜色格式转换 |
+
+| 命令 | 作用 |
+|---|---|
+| `:CccPick` | 取色器 |
+| `:CccConvert` | 转换光标下的颜色 |
+
+### 配置的取舍
+
+```lua
+highlighter = {
+  auto_enable = false,  -- 禁用自带 buffer 高亮，避免与 mini.hipatterns 争抢
+  lsp = false,
+}
+```
+
+**它不做高亮**，只做取色和转换。高亮由 [mini.hipatterns](mini-hipatterns.md) 负责。
+这样职责清晰，也不会两个插件抢同一个高亮组。
 
 ## 动手练习
 
-在 CSS 练习文件写 `#4488cc`，把光标放在色值按 `<leader>cp` 调整 RGB/HSV 后确认；再按 `<leader>cC` 查看格式转换。
+1. 光标放在一个 `#3ddc97` 上，`<leader>cp` 打开取色器。
+2. 在取色器里调整色相/明度，观察预览。
+3. 确认后看文本被替换成新值。
+4. 光标放在颜色值上，`<leader>cC` 转换格式（hex → rgb 等）。
+5. 确认颜色块的高亮仍由 hipatterns 提供（没有双色块）。
+
+**验收**：能选色并写回文本，能转换格式，高亮不冲突。
 
 ## 注意事项
 
-会修改光标附近的颜色文字。常驻色块由 mini.hipatterns 提供；本配置关闭了 ccc 常驻高亮。
+- **取色器需要终端支持真彩色**，否则预览颜色不准。
+- **`<leader>cp` 与 `<leader>c` 组共存**，不是 `<leader>c` 的组标题。
+- **转换会改文本**，确认后再保存；用 `u` 可撤销。
+- 它不参与主题渲染，只操作文本里的颜色字面量。
 
 ## 查快捷键和帮助
 
-在 Neovim 里用 `:verbose nmap <按键>` 查看最终映射和定义来源；按 `<leader>` 后稍等可看 which-key 提示。可用命令可用 `:command <前缀>` 查询。
+```vim
+:help ccc
+:CccPick
+```

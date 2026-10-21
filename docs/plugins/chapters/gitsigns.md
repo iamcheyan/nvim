@@ -4,20 +4,65 @@
 
 ## 它解决什么问题
 
-在行号旁显示 Git 新增、修改、删除标记，并提供 hunk 操作。
+改了几行、哪几行是暂存的、这一行上次是谁改的——提交前你需要这些信息。
+gitsigns 把 Git 的行级状态画在行号旁，并提供 hunk 级操作，
+不用离开编辑器就能暂存和重置。
 
 ## 在当前配置里怎么用
 
-`[h`/`]h` 跳前后 hunk；`<leader>gp` 预览，`<leader>gs` 暂存 hunk，`<leader>gr` 重置 hunk；`<leader>gS` 暂存文件，`<leader>gR` 重置文件，`<leader>gu` 取消暂存，`<leader>gb` 当前行 blame，`<leader>gB` 文件 blame。
+### 导航
+
+| 按键 | 作用 |
+|---|---|
+| `]h` / `[h` | 下一个 / 上一个 hunk |
+| `]H` / `[H` | 最后一个 / 第一个 hunk |
+
+在 diff 窗口里这两个键会自动改走 `]c` / `[c`，跟随 diff 的导航语义。
+
+### 操作
+
+| 按键 | 作用 |
+|---|---|
+| `<leader>gp` | 预览当前 hunk |
+| `<leader>gs` | 暂存当前 hunk |
+| `<leader>gr` | 重置当前 hunk |
+| `<leader>gS` | 暂存整个文件 |
+| `<leader>gR` | 重置整个文件 |
+| `<leader>gu` | 撤销暂存 |
+| `<leader>gb` | 当前行 blame |
+| `<leader>gB` | 整个文件 blame |
+
+`gs` / `gr` 在普通和可视模式都可用；可视模式下先选行再操作。
+`gb` / `gB` 的 blame 输出在浮窗里，再次按同一键关闭。
+
+### 符号
+
+行号栏的标记按 hunk 类型区分：新增、修改、删除、顶部删除、修改含删除、未跟踪。
+配置里每种都用 `▎` 或 `` 表示，并在暂存区使用另一套高亮——所以
+**暂存与未暂存的视觉可区分**。
 
 ## 动手练习
 
-在 Git 项目里修改一行并保存，观察行号旁标记；按 `<leader>gp` 预览；用 `<leader>gs` 暂存，再运行 `git diff --cached` 或查看 Neo-tree 状态确认。
+1. 在 Git 仓库里改一个文件的两处内容，保存。
+2. 观察行号旁出现标记，`]h` 在两个 hunk 间跳。
+3. 停在第一个 hunk 上，`<leader>gp` 预览，确认只显示这一处改动。
+4. `<leader>gs` 暂存它，再 `git diff --cached` 确认只有这一处进了暂存区。
+5. `<leader>gb` 看当前行的 blame，再按一次关闭。
+6. `<leader>gr` 重置一个 hunk，确认改动被丢弃（**先确认预览过**）。
+
+**验收**：能只暂存部分改动，这是 hunk 级操作的核心价值。
 
 ## 注意事项
 
-重置会丢弃修改，执行 `<leader>gr`/`<leader>gR` 前检查预览；文件必须位于 Git 仓库。
+- **`<leader>gr` / `<leader>gR` 会丢改动**，执行前一定要 `<leader>gp` 看一眼。
+- **文件必须在 Git 仓库内**，否则没有标记也不报错。
+- **`[h` / `]h` 与 LSP 的 `]d` 不冲突**：一个是 hunk，一个是诊断。
+- **blame 需要完整历史**。浅克隆（`--depth 1`）时 blame 信息不全。
+- 与 Diffview 的分工：gitsigns 看行级改动，Diffview 看完整分支 diff。
 
 ## 查快捷键和帮助
 
-在 Neovim 里用 `:verbose nmap <按键>` 查看最终映射和定义来源；按 `<leader>` 后稍等可看 which-key 提示。可用命令可用 `:command <前缀>` 查询。
+```vim
+:help gitsigns
+:Gitsigns
+```

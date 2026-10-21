@@ -4,20 +4,70 @@
 
 ## 它解决什么问题
 
-文件树、缓冲区清单和 Git 状态侧栏。
+搜索器擅长「我知道我要找什么」，侧栏擅长「我想看看这里有什么」。
+Neo-tree 提供持久的三视图：文件系统、缓冲区、Git 状态。
+
+配置对它的改造主要是**让出空间**：根节点被隐藏、缩进降一级、
+在编辑窗口里不占 gutter。目的是让树在窄侧栏里尽量多显示内容。
 
 ## 在当前配置里怎么用
 
-`<leader>fe` 切换项目根目录文件树；`<leader>fE` 或 `<leader>e` 切换当前工作目录树；`<leader>ge` 打开 Git 状态；`<leader>be` 打开缓冲区列表。树内 Enter 打开，`h`/左方向收起，`l`/右方向展开；按 `?` 看当前视图的操作。Git 视图支持 `ga` 暂存、`gu` 取消暂存、`gr` 撤销文件修改、`gc` 提交、`gp` 推送。
+| 按键 | 视图 |
+|---|---|
+| `<leader>fe` | 文件树（项目根目录） |
+| `<leader>fE` / `<leader>e` | 文件树（当前工作目录） |
+| `<leader>ge` | Git 状态 |
+| `<leader>be` | 缓冲区列表 |
+| `:Neotree` | 直接打开 |
+
+`<leader>fe` 和 `<leader>fE` 的区别在**根目录取哪个**：前者固定用项目根，
+后者跟随 `:cd`。在 monorepo 里切子项目时这个差别很关键。
+
+### 在树里的操作
+
+| 按键 | 作用 |
+|---|---|
+| `Enter` | 打开文件 |
+| `h` / `l` | 收起 / 展开 |
+| `?` | 显示该视图的完整按键表 |
+
+Git 视图额外绑定：`ga` 暂存、`gu` 取消暂存、`gr` 撤销文件修改、`gc` 提交、
+`gp` 推送、`gg` 提交并推送。**这些是真实写操作**，不是预览。
+
+### 与 bufferline 的配合
+
+侧栏顶部没有自己的源切换栏（`source_selector.winbar = false`），
+三个视图的标签由 bufferline 的 offset 区域渲染。这样侧栏和编辑区共用同一行高度，
+不会出现两条标签栏。
 
 ## 动手练习
 
-先按 `<leader>fe` 打开目录树，定位一个文件并按 Enter；再按 `<leader>ge` 查看修改状态，选中一个文件按 `ga` 暂存，切回 Git 状态确认标记变化。
+1. `<leader>fe` 打开文件树，用 `h`/`l` 展开收起两层目录。
+2. 按 `?` 看该视图的按键表，找到「新建文件」的键并试一次。
+3. 改一个已跟踪文件并保存，`<leader>ge` 切到 Git 视图，确认文件出现在 unstaged 区。
+4. 在 Git 视图里 `ga` 暂存，确认文件移到 staged 区。
+5. `<leader>be` 看缓冲区视图，确认当前打开的文件都在。
+
+**验收**：三个视图能互相切换，Git 视图能显示并暂存你的修改。
 
 ## 注意事项
 
-撤销和提交会实际改变 Git 工作区或仓库状态，先确认选中的文件。Neotree 报错时可用 `:Neotree` 重开并查看 `:messages`。
+- **`<leader>fe` 抢回了 Snacks 的 explorer 键**。配置里显式把 Snacks 的
+  `<leader>fe` / `<leader>fE` / `<leader>e` / `<leader>E` 设为 `false`，
+  避免两个插件争同一组键。
+- **Git 视图的操作会真的改仓库状态**。`gr`（撤销文件修改）会丢改动，
+  执行前先看一眼 diff。
+- **根节点隐藏后路径少一级**。看到列表第一行不是项目名，是设计如此，
+  不是加载失败。
+- **树里打开文件不会替换特殊窗口**。terminal、quickfix、Outline 之类不会被顶掉，
+  这是 `open_files_do_not_replace_types` 的作用。
+- 侧栏宽度是固定的（`winfixwidth`），恢复会话时不会被 `winwidth` 压扁。
 
 ## 查快捷键和帮助
 
-在 Neovim 里用 `:verbose nmap <按键>` 查看最终映射和定义来源；按 `<leader>` 后稍等可看 which-key 提示。可用命令可用 `:command <前缀>` 查询。
+```vim
+:help neo-tree
+:Neotree help
+```
+
+`:Neotree help` 会在树里直接打开内置帮助页，比查文档快。

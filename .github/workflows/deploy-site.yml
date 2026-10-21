@@ -1,0 +1,83 @@
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "site/**"
+      - "lua/plugins/**"
+      - ".github/workflows/deploy-site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build dependency
+        run: pip install "Markdown==3.7"
+
+      - name: Build site
+        run: python3 site/build.py
+
+      - name: Verify no broken internal links
+        run: |
+          python3 - <<'PY'
+          import pathlib, sys
+          from html.parser import HTMLParser
+
+          class P(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.refs = []
+              def handle_starttag(self, tag, attrs):
+                  d = dict(attrs)
+                  for k in ("href", "src"):
+                      v = d.get(k, "")
+                      if v and not v.startswith(("http:", "https:", "mailto:", "#", "data:", "file:")):
+                          self.refs.append(v.split("#")[0].split("?")[0])
+
+          root = pathlib.Path("build/site")
+          bad = []
+          for f in root.rglob("*.html"):
+              p = P()
+              p.feed(f.read_text(errors="replace"))
+              for r in set(p.refs):
+                  if r and not (f.parent / r).resolve().exists():
+                      bad.append((str(f.relative_to(root)), r))
+          print(f"pages: {sum(1 for _ in root.rglob('*.html'))}, broken links: {len(bad)}")
+          for b in bad[:20]:
+              print("  ", b)
+          sys.exit(1 if bad else 0)
+          PY
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

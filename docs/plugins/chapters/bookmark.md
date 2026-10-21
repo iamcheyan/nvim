@@ -4,20 +4,50 @@
 
 ## 它解决什么问题
 
-给源码行加书签，并按项目保存，以后快速跳回重要位置。
+`Ctrl-o` 是访问历史，`m` 是手动标记，但都不适合「记住这几个地方，等下回来」。
+bookmark 给行加持久书签，可按项目保存，并且**跨会话保留**。
 
 ## 在当前配置里怎么用
 
-`<leader>mt` 或 `:BookmarkToggle` 切换当前行；`<leader>mm` 或 `:BookmarkList` 打开列表；`]b`/`[b` 下一个/上一个；`<leader>mc` 清当前 buffer，`<leader>mC` 清当前项目。列表使用 Snacks picker。
+| 按键 | 作用 |
+|---|---|
+| `<leader>mt` | 开关当前行书签 |
+| `<leader>mm` | 打开书签列表 |
+| `]b` / `[b` | 下一个 / 上一个书签 |
+| `<leader>mc` | 清除当前 buffer 的书签 |
+| `<leader>mC` | 清除整个项目的书签 |
+
+书签列表由 Snacks picker 提供，所以列表里可以用 picker 的过滤和预览。
+
+### 与缓冲区切换的取舍
+
+`[b` / `]b` 在 Neovim 默认习惯里常用于切换缓冲区。这份配置**把这两个键给了书签**，
+缓冲区切换改用 `Shift+h` / `Shift+l` 或 `<leader>bh` / `<leader>bl`。
+
+如果你习惯用 `[b` 切缓冲区，这是最需要适应的一处改动。
 
 ## 动手练习
 
-在一个项目的重要逻辑行按 `<leader>mt` 加标记；再移动到别处按 `<leader>mm` 选中刚才的书签；按 `]b` 跳转；再次 `<leader>mt` 删除当前行书签。
+1. 在三个不同文件的某几行按 `<leader>mt`，观察行号旁出现书签标记。
+2. `<leader>mm` 打开列表，确认三处都在，且显示文件名和行内容。
+3. 在列表里选中一个，回车跳过去。
+4. `]b` / `[b` 在书签间前后跳。
+5. `<leader>mc` 清掉当前 buffer 的，确认只剩其它文件的。
+6. 退出并重开 Neovim，确认书签还在。
+
+**验收**：书签跨会话保留，且列表能按项目组织。
 
 ## 注意事项
 
-书签保存位置由私有插件管理，项目间分开。`[b`/`]b` 被书签占用；切换 buffer 请用 `Shift+h/l` 或 `<leader>bh/bl`。
+- **`[b` / `]b` 不再是缓冲区切换**，见上文。
+- **`<leader>mc` 只清当前 buffer**，全项目用 `<leader>mC`（大写）。
+- **书签存在 Neovim 数据目录**，删 `~/.local/share/nvim` 会一起清掉。
+- 书签记录**绝对路径**，项目移动位置后旧书签会失效。
+- 支持鼠标点击标记切换（`mouse = true`）。
 
 ## 查快捷键和帮助
 
-在 Neovim 里用 `:verbose nmap <按键>` 查看最终映射和定义来源；按 `<leader>` 后稍等可看 which-key 提示。可用命令可用 `:command <前缀>` 查询。
+```vim
+:help bookmark.nvim
+:BookmarkList
+```

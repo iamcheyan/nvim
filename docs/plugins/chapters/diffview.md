@@ -4,22 +4,52 @@
 
 ## 它解决什么问题
 
-用分屏视图审查分支差异和 Git 文件历史。
+gitsigns 给你行级视角，但「这个分支相对 main 改了哪些文件」需要整体视图。
+Diffview 提供并排 diff、文件列表、以及任意文件/分支的历史浏览。
 
 ## 在当前配置里怎么用
 
-`<leader>gd` 打开与基线的差异；`<leader>gD` 看当前文件历史；`<leader>gV` 看仓库历史；`<leader>gq` 关闭。命令是 `:DiffviewOpen`、`:DiffviewFileHistory`、`:DiffviewClose`。
+| 按键 | 作用 |
+|---|---|
+| `<leader>gd` | 打开 Diffview（工作区改动） |
+| `<leader>gD` | 当前文件的历史 |
+| `<leader>gV` | 分支历史 |
+| `<leader>gq` | 关闭 Diffview |
 
-> `<leader>gv` 曾是打开差异的别名，现已改归 multicursor.nvim 的“恢复光标”；打开差异统一用 `<leader>gd`。
+### 三种视图的差别
+
+| 视图 | 比较对象 | 典型用途 |
+|---|---|---|
+| `<leader>gd` | 工作区 vs HEAD | 提交前看自己改了什么 |
+| `<leader>gD` | 一个文件的历次提交 | 追某个函数怎么演变的 |
+| `<leader>gV` | 分支之间的提交历史 | 合并前确认范围 |
+
+### 视图内的操作
+
+左侧是文件列表，选中文件回车打开并排 diff。左侧窗格显示旧版本，右侧是新版本。
+在文件列表里可以用 `-` 折叠目录、`s` 切换视图模式。
 
 ## 动手练习
 
-在有提交记录的仓库执行 `<leader>gD` 查看当前文件历史；选一条历史记录比较；按 `<leader>gq` 关闭。随后用 `<leader>gd` 查看工作分支差异。
+1. 改两个文件，`<leader>gd` 打开 Diffview。
+2. 在文件列表里逐个查看，确认只显示改动部分。
+3. `<leader>gq` 关闭。
+4. `<leader>gD` 看当前文件历史，选一个较早的提交。
+5. `<leader>gV` 看分支历史，确认能区分「分支独有提交」和「共同历史」。
+
+**验收**：三种视图各自解决不同问题，不会混淆。
 
 ## 注意事项
 
-需要 Git 仓库和可比较的提交。此处 `<leader>gd` 是 Git 差异；不带 leader 的 `gd` 是定义跳转。
+- **`<leader>gv` 不是 Diffview**。那个键属于多光标（恢复光标集合）。
+  Diffview 的分支历史是 `<leader>gV`（大写 V）。
+- **`<leader>gd` 与普通 `gd`（跳转定义）无关**，前缀不同。
+- **大仓库打开慢**。首次索引提交历史需要时间，属正常。
+- 关闭要用 `<leader>gq` 或 `:DiffviewClose`，直接 `:q` 可能留下多余窗口。
 
 ## 查快捷键和帮助
 
-在 Neovim 里用 `:verbose nmap <按键>` 查看最终映射和定义来源；按 `<leader>` 后稍等可看 which-key 提示。可用命令可用 `:command <前缀>` 查询。
+```vim
+:help diffview
+:DiffviewOpen --help
+```

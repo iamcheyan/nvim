@@ -12,3 +12,10 @@ tmp/
 .DS_Store
 sbzr.nvim.im.db/
 lazyvim.json
+
+# site build output
+build/
+
+# python bytecode
+__pycache__/
+*.pyc
