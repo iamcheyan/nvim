@@ -32,8 +32,7 @@ return {
 
     -- Advanced actions. `ga` is an operator, so `gaip` adds a cursor to every
     -- line of the paragraph. <leader>a and <leader>gv are normal mode only,
-    -- which keeps them clear of the visual-mode mappings of
-    -- multicursor-line.nvim and of the diffview mappings.
+    -- which keeps them clear of the diffview mappings.
     set({ "n", "x" }, "ga", mc.addCursorOperator)
     set("n", "<leader>a", mc.alignCursors)
     set("n", "<leader>gv", mc.restoreCursors)

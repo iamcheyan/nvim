@@ -87,12 +87,6 @@ map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 ------------------- Clear search on escape -----------------------------------
 map({ "i", "n", "s" }, "<esc>", function()
   vim.cmd("noh")
-  -- vim-visual-multi has been removed. multicursor-line.nvim runs on its own
-  -- native backend and clears its cursors itself; only ask it to clean up when
-  -- it is already loaded.
-  if package.loaded["multicursor-line"] then
-    pcall(function() require("multicursor-line").clear() end)
-  end
   -- Noice's bottom popup is independent of the native command line. Hide
   -- messages after this expression mapping finishes (outside textlock).
   if package.loaded.noice then

@@ -45,8 +45,7 @@ VS Code 风格快捷键（Normal / Visual）：
 - `Ctrl+n` / `Ctrl+d` 只在 Normal 与 Visual 模式映射，插入模式下 `Ctrl+n` 仍是关键字补全。
 - `Ctrl+d` 在 Vim 里默认是向下滚动半屏；本配置把它改成了“跳过当前匹配”。需要滚动请用 `Ctrl+f` / `Ctrl+b` 或 `Ctrl+u`。
 - `<leader>gv` 原本是 diffview 打开差异的别名，现已归本插件的“恢复光标”；打开差异仍用 `<leader>gd`。
-- `<leader>a`（对齐光标）只在 Normal 模式生效，避免与 `multicursor-line.nvim` 的可视模式映射冲突。
-- 自研的 `multicursor-line.nvim` 使用独立的 native 后端，不依赖被移除的 `vim-visual-multi`，可继续使用。
+- `<leader>a`（对齐光标）只在 Normal 模式生效，避免与可视模式的选择操作冲突。
 
 ## 查快捷键和帮助
 
