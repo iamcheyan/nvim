@@ -50,7 +50,7 @@ Treesitter 类对象会在 COBOL buffer 里抛错。返回空表让这些对象�
 
 - **和 nvim-treesitter-textobjects 有重叠**。`af`/`if` 两边都提供，
   以加载顺序靠后的为准。
-- **COBOL 里 Treesitter 对象不可用**是设计，不要试图打开；
+- **COBOL 里 Treesitter 对象不可用**，不要试图打开；
   需要结构对象时用 `cobol.nvim` 提供的结构移动。
 - `n_lines` 限制意味着超大文件里向上找对象可能失败。
 - 自定义对象改了之后需要重开 buffer 才生效。

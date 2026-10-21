@@ -46,7 +46,7 @@ opts = {
 
 ## 注意事项
 
-- **`map_keys = false`**：找不到按键是设计，用命令或大纲访问。
+- **`map_keys = false`**：没有默认按键，用命令或大纲访问。
 - **只对 `dosbatch` filetype 生效**。`.bat` 扩展名要能被识别成这个 filetype。
 - **诊断来自插件自身规则**，不是编译器。真正的验证要在 `cmd.exe` 里跑。
 - 折叠不依赖 Treesitter（Batch 也没有 parser）。

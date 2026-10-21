@@ -51,7 +51,7 @@ use_treesitter = true
 - **数据源依赖**：没有 LSP 也没有 parser 时路径为空。这是降级，不是坏掉。
 - **COBOL 走的是 cobol.nvim 提供的结构**，不是 LSP。
 - **与 winbar 是两处**：winbar 显示结构摘要，contextline 提供可交互菜单。
-- 不显示文件名是设计，避免和状态栏其它段重复。
+- 不显示文件名，避免和状态栏其它段重复。
 
 ## 查快捷键和帮助
 

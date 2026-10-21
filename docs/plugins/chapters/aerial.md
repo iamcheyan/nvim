@@ -36,7 +36,7 @@
 
 ## 注意事项
 
-- **没装 LSP / 没有 parser 时大纲为空**。这不是故障，`:AerialInfo` 会说明原因。
+- **没装 LSP / 没有 parser 时大纲为空**，`:AerialInfo` 会说明原因。
 - **COBOL 后端来自私有插件**。只装公开配置的话，COBOL 大纲不可用。
 - `<leader>cs` 不是插件的 `AerialToggle`，两者行为在侧栏管理上不同。
 - 大纲会跟随光标自动高亮当前符号，这是默认行为，可以在 `win_opts` 里调。

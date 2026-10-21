@@ -513,8 +513,8 @@ def build_home(keymaps: list[dict]) -> str:
     <div class="hero-copy">
       <p class="eyebrow">Neovim 0.12+ · Linux / macOS</p>
       <h1>一套能直接用的<br><em>Neovim 配置</em></h1>
-      <p class="lede">{html_escape(SITE['repo'])} 不是插件清单，是一份完整可用、带 44 章手册的编辑器配置。
-      一条命令装好，之后靠 which-key 和本书逐步上手。</p>
+      <p class="lede">{html_escape(SITE['repo'])}：41 个插件规格、44 章手册，一条命令装好。
+      装完之后靠 which-key 发现按键，按手册逐项上手。</p>
       <div class="hero-cta">
         <a class="btn" href="getting-started.html">开始安装 <span aria-hidden="true">→</span></a>
         <a class="btn ghost" href="keys.html">按场景查按键</a>
@@ -541,11 +541,26 @@ def build_home(keymaps: list[dict]) -> str:
 <section class="preview">
   <div class="preview-inner">
     <h2>按键长什么样</h2>
-    <p class="lede">这些不是截图，是从配置里导出的真实映射。</p>
+    <p class="lede">构建时从运行中的 Neovim 导出，与仓库里的配置一致。</p>
     <div class="preview-grid">{preview_rows}</div>
     <p class="preview-more"><a href="keys.html">查看全部 {len(keymaps)} 个按键 →</a></p>
   </div>
 </section>
+
+<section class="specs">
+  <div class="specs-inner">
+    <h2>仓库里有什么</h2>
+    <dl class="spec-list">
+      <div><dt>41</dt><dd>插件规格，全部在 <code>lua/plugins/</code></dd></div>
+      <div><dt>44</dt><dd>章插件手册，每章指到具体文件</dd></div>
+      <div><dt>{len(keymaps)}</dt><dd>条按键，构建时从运行中的 Neovim 导出</dd></div>
+      <div><dt>0.12+</dt><dd>Neovim 版本下限，Treesitter 走 main 分支</dd></div>
+      <div><dt>3</dt><dd>平台：Linux、macOS、WSL</dd></div>
+      <div><dt>2</dt><dd>装法：独立 clone、dotfiles 子模块</dd></div>
+    </dl>
+  </div>
+</section>
+
 
 <section class="cards">
   <div class="cards-inner">
@@ -577,27 +592,13 @@ def build_home(keymaps: list[dict]) -> str:
 
 <section class="routes">
   <div class="routes-inner">
-    <h2>按你的目的进入</h2>
-    <a class="route" href="getting-started.html">
-      <span class="route-k">01</span>
-      <div><strong>我要装一套</strong><p>依赖清单、安装命令、更新与卸载</p></div>
-      <b aria-hidden="true">→</b>
-    </a>
-    <a class="route" href="keys.html">
-      <span class="route-k">02</span>
-      <div><strong>我要查某个键</strong><p>按场景分组，附完整键位表</p></div>
-      <b aria-hidden="true">→</b>
-    </a>
-    <a class="route" href="plugins.html">
-      <span class="route-k">03</span>
-      <div><strong>我想弄懂某个插件</strong><p>{total_plugins} 章，每章含练习</p></div>
-      <b aria-hidden="true">→</b>
-    </a>
-    <a class="route" href="guides.html">
-      <span class="route-k">04</span>
-      <div><strong>我在排查问题</strong><p>Treesitter、剪贴板、Markdown 等专题</p></div>
-      <b aria-hidden="true">→</b>
-    </a>
+    <h2>从这里开始</h2>
+    <ul class="route-list">
+      <li><a href="getting-started.html">安装与更新</a><span>依赖清单、安装命令、更新与卸载、常见失败</span></li>
+      <li><a href="keys.html">按键速查</a><span>按场景分组，附完整键位表</span></li>
+      <li><a href="plugins.html">插件手册</a><span>44 章，每章解决什么问题、怎么用、练习</span></li>
+      <li><a href="guides.html">指南</a><span>Treesitter、剪贴板、Markdown 等专题记录</span></li>
+    </ul>
   </div>
 </section>
 """
@@ -709,9 +710,9 @@ def build_plugin_index() -> str:
         )
     total = sum(len(e) for _c, e in CATALOG)
     inner = (
-        f'<p class="lede">{total} 章。每章统一结构：解决什么问题 → 本配置里怎么用 → '
-        f"练习 → 注意事项 → 怎么自查。改配置前先看对应章节。</p>" + "".join(sections)
-    )
+        f'<p class="lede">{total} 章，按插件分组。多数章节先说明它解决什么问题，'
+        f'再给本配置里的用法和一组练习。</p>'
+    ) + "".join(sections)
     return article_shell("插件手册", inner, "plugins", '<a href="index.html">首页</a> / 插件手册', "plugins/")
 
 

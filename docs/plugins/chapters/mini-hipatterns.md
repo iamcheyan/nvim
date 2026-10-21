@@ -9,7 +9,7 @@ hipatterns 直接在这些文本上画出对应颜色，改主题配色时不用
 
 ## 在当前配置里怎么用
 
-只启用了一个 highlighter：`hex_color`。也就是说，只有形如 `#RRGGBB` 的
+只启用了一个 highlighter：`hex_color`，只匹配形如 `#RRGGBB` 的
 十六进制颜色值会被着色。
 
 ```lua
