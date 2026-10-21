@@ -164,9 +164,6 @@ end, { desc = "List and switch Tab Pages" })
 -- <leader><tab><tab> 用于 tab 列表；新建 Tab 改用 n
 vim.keymap.set("n", "<leader><tab>n", "<cmd>tabnew<cr>", { desc = "New Tab" })
 
--- 鼠标选中文本自动复制到系统剪贴板 (Copy on select)
-vim.keymap.set({ "x", "s" }, "<LeftRelease>", '"+ygv', { desc = "Auto-copy selection to clipboard", silent = true })
-
 -- =======================================================================
 -- 现代编辑器操作流 (AI 协作 / 网页交互友好，兼顾 Vim 模态特性)
 -- =======================================================================
