@@ -50,6 +50,7 @@
 | [nvim-lint](chapters/nvim-lint.md) | 公开 | ShellCheck 静态检查 |
 | [markview.nvim](chapters/markview.md) | 公开 | Markdown 等文档预览 |
 | [multicursor.nvim](chapters/multicursor.nvim.md) | 公开 | 多光标匹配与批量编辑 |
+| [vim-visual-multi](chapters/vim-visual-multi.md) | 公开 | 多光标选词、逐个扩展与全选 |
 | [nvim-ufo](chapters/nvim-ufo.md) | 公开 | 代码折叠 |
 | [promise-async](chapters/promise-async.md) | 依赖 | nvim-ufo 的异步依赖 |
 
