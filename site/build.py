@@ -494,7 +494,8 @@ HIGHLIGHTS = [
 
 
 def build_home(keymaps: list[dict]) -> str:
-    total_plugins = sum(len(entries) for _c, entries in CATALOG)
+    total_plugins = sum(len(entries) for _c, entries in CATALOG)  # 章节数
+    total_specs = len(list((ROOT / "lua" / "plugins").glob("*.lua")))  # 插件规格文件数
     have = {r["lhs"] for r in keymaps}
     rows = []
     for lhs, name, desc in HIGHLIGHTS:
@@ -510,7 +511,7 @@ def build_home(keymaps: list[dict]) -> str:
     <div class="hero-copy">
       <p class="eyebrow">Neovim 0.12+ · Linux / macOS</p>
       <h1>一套能直接用的<br><em>Neovim 配置</em></h1>
-      <p class="lede">{html_escape(SITE['repo'])}：41 个插件规格、44 章手册，一条命令装好。
+      <p class="lede">{html_escape(SITE['repo'])}：{total_specs} 个插件规格、{total_plugins} 章手册，一条命令装好。
       装完之后靠 which-key 发现按键，按手册逐项上手。</p>
       <div class="hero-cta">
         <a class="btn" href="getting-started.html">开始安装 <span aria-hidden="true">→</span></a>
@@ -548,8 +549,8 @@ def build_home(keymaps: list[dict]) -> str:
   <div class="specs-inner">
     <h2>仓库里有什么</h2>
     <dl class="spec-list">
-      <div><dt>41</dt><dd>插件规格，全部在 <code>lua/plugins/</code></dd></div>
-      <div><dt>44</dt><dd>章插件手册，每章指到具体文件</dd></div>
+      <div><dt>{total_specs}</dt><dd>插件规格，全部在 <code>lua/plugins/</code></dd></div>
+      <div><dt>{total_plugins}</dt><dd>章插件手册</dd></div>
       <div><dt>{len(keymaps)}</dt><dd>条按键，构建时从运行中的 Neovim 导出</dd></div>
       <div><dt>0.12+</dt><dd>Neovim 版本下限，Treesitter 走 main 分支</dd></div>
       <div><dt>3</dt><dd>平台：Linux、macOS、WSL</dd></div>
@@ -593,7 +594,7 @@ def build_home(keymaps: list[dict]) -> str:
     <ul class="route-list">
       <li><a href="getting-started.html">安装与更新</a><span>依赖清单、安装命令、更新与卸载、常见失败</span></li>
       <li><a href="keys.html">按键速查</a><span>按场景分组，附完整键位表</span></li>
-      <li><a href="plugins.html">插件手册</a><span>44 章，每章解决什么问题、怎么用、练习</span></li>
+      <li><a href="plugins.html">插件手册</a><span>{total_plugins} 章，每章解决什么问题、怎么用、练习</span></li>
       <li><a href="guides.html">指南</a><span>Treesitter、剪贴板、Markdown 等专题记录</span></li>
     </ul>
   </div>
