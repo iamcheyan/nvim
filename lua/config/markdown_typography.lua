@@ -310,6 +310,13 @@ local function apply_markview_palette()
 end
 
 function M.setup()
+  if M._ready then
+    if vim.bo.filetype == "markdown" then
+      apply_to_markdown_windows(vim.api.nvim_get_current_buf())
+    end
+    return
+  end
+  M._ready = true
   local group = vim.api.nvim_create_augroup("MarkdownTypographyBlue", { clear = true })
   local colorscheme_group = vim.api.nvim_create_augroup("MarkdownTypographyBlueMarkview", { clear = true })
   vim.api.nvim_create_autocmd("ColorScheme", {

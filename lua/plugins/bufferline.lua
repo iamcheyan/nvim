@@ -1,6 +1,7 @@
 return {
   {
     "akinsho/bufferline.nvim",
+    lazy = false,
     enabled = vim.env.WDIFF_NVIM ~= "1",
     opts = function()
       -- Neovim's tabline click protocol only resolves global functions.

@@ -10,34 +10,40 @@
 -- Keep LazyVim default startup behavior:
 -- restore session when available; otherwise show dashboard.
 
--- Closing the last file leaves Neovim on its unnamed replacement buffer.
--- Re-open the dashboard after the buffer switch settles, rather than leaving
--- an empty editing screen behind.
+-- Closing the last named file leaves Neovim on its unnamed replacement buffer.
+-- :enew / <leader>fn does not delete a named buffer, so a scratch buffer stays.
+local dashboard_after_file_delete = false
+local dashboard_group = vim.api.nvim_create_augroup("DashboardOnLastFile", { clear = true })
+vim.api.nvim_create_autocmd("BufDelete", {
+  group = dashboard_group,
+  callback = function(args)
+    local buf = args.buf
+    if vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= "" then
+      dashboard_after_file_delete = true
+    end
+  end,
+})
 vim.api.nvim_create_autocmd("BufEnter", {
-  group = vim.api.nvim_create_augroup("DashboardOnEmptyBuffer", { clear = true }),
+  group = dashboard_group,
   callback = function(args)
     vim.schedule(function()
+      if not dashboard_after_file_delete then return end
+      dashboard_after_file_delete = false
       if not vim.api.nvim_buf_is_valid(args.buf) or vim.api.nvim_get_current_buf() ~= args.buf then
         return
       end
       if vim.bo[args.buf].buftype ~= "" or vim.bo[args.buf].filetype == "dashboard" then
         return
       end
-      if vim.bo[args.buf].modified or vim.api.nvim_buf_line_count(args.buf) ~= 1
-        or vim.api.nvim_buf_get_lines(args.buf, 0, 1, false)[1] ~= "" then
+      if vim.bo[args.buf].modified or vim.api.nvim_buf_get_name(args.buf) ~= "" then
         return
       end
-      if vim.api.nvim_buf_get_name(args.buf) ~= "" then
-        return
-      end
-
-      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-        local buf = vim.api.nvim_win_get_buf(win)
-        if buf ~= args.buf and vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= "" then
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if buf ~= args.buf and vim.api.nvim_buf_is_loaded(buf)
+          and vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= "" then
           return
         end
       end
-
       pcall(vim.cmd, "Dashboard")
     end)
   end,
@@ -55,39 +61,26 @@ local function set_cmdline_highlights()
   -- here would erase the active theme's UI surface semantics.
 end
 
--- gitsigns line highlight 颜色配置
-local function set_gitsigns_highlights()
-  -- 整行背景高亮（linehl = true 时使用）
-  vim.api.nvim_set_hl(0, "GitSignsAddLn", { bg = "#1a3a1a" })          -- 新增行：深绿色背景
-  vim.api.nvim_set_hl(0, "GitSignsChangeLn", { bg = "#3a3a1a" })       -- 修改行：深黄色背景
-  vim.api.nvim_set_hl(0, "GitSignsDeleteLn", { bg = "#3a1a1a" })       -- 删除行：深红色背景
-  vim.api.nvim_set_hl(0, "GitSignsChangedeleteLn", { bg = "#3a2a1a" }) -- 修改+删除：深橙色背景
-  vim.api.nvim_set_hl(0, "GitSignsTopdeleteLn", { bg = "#3a1a1a" })    -- 顶部删除：深红色背景
-  vim.api.nvim_set_hl(0, "GitSignsUntrackedLn", { bg = "#1a3a3a" })    -- 未跟踪：深青色背景
-
-  -- sign 列符号颜色
-  vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#00ff00", bold = true })
-  vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#ffff00", bold = true })
-  vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#ff0000", bold = true })
-  vim.api.nvim_set_hl(0, "GitSignsChangedelete", { fg = "#ff8800", bold = true })
-  vim.api.nvim_set_hl(0, "GitSignsTopdelete", { fg = "#ff0000", bold = true })
-  vim.api.nvim_set_hl(0, "GitSignsUntracked", { fg = "#00ffff", bold = true })
-end
-
 vim.api.nvim_create_autocmd("ColorScheme", {
-  callback = function()
-    set_cmdline_highlights()
-    set_gitsigns_highlights()
-  end,
+  group = vim.api.nvim_create_augroup("CmdlineHighlights", { clear = true }),
+  callback = set_cmdline_highlights,
 })
 
 set_cmdline_highlights()
-set_gitsigns_highlights()
 
--- 遇到残留交换文件时自动选择继续编辑 (Edit anyway)，防止 Diffview 等异步协程弹窗中断报错
+-- swapfile is off for new buffers. An old swap whose process is gone can be
+-- edited. A live process still gets Neovim's prompt.
 vim.api.nvim_create_autocmd("SwapExists", {
   group = vim.api.nvim_create_augroup("HandleSwapExists", { clear = true }),
   callback = function()
+    local info = vim.fn.swapinfo(vim.v.swapname)
+    local pid = info and info.pid or 0
+    if type(pid) == "number" and pid > 0 then
+      vim.fn.system({ "ps", "-p", tostring(pid) })
+      if vim.v.shell_error == 0 then
+        return
+      end
+    end
     vim.v.swapchoice = "e"
   end,
 })

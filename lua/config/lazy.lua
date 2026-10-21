@@ -68,8 +68,9 @@ require("lazy").setup(vim.tbl_deep_extend("force", {
   -- Don't open lockfile on startup
   open = false,
   defaults = {
-    -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
-    -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.
+    -- Specs with no lazy/event/cmd/keys/ft still load at startup. mason-lspconfig
+    -- and nvim-web-devicons are in that set; flipping this to true would skip
+    -- vim.lsp.enable and the icon overrides until something else required them.
     lazy = false,
     -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
     -- have outdated releases, which may break your Neovim install.
@@ -78,9 +79,9 @@ require("lazy").setup(vim.tbl_deep_extend("force", {
   },
   install = { colorscheme = { "blue" } },
   checker = {
-    enabled = true, -- check for plugin updates periodically
-    notify = false, -- notify on update
-  }, -- automatically check for plugin updates
+    enabled = false, -- :Lazy check is manual; startup no longer calls GitHub
+    notify = false,
+  },
   performance = {
     rtp = {
       -- disable some rtp plugins
@@ -108,9 +109,15 @@ require("config.keymaps-defaults")
 -- mappings when the same lhs is used.
 require("config.keymaps")
 
--- Typography overrides are isolated to Markdown windows and harmonized with
--- the current global colorscheme (Blue); all other buffers retain that theme.
-require("config.markdown_typography").setup()
+-- Delek's palette is thousands of highlight entries. Load it with the first
+-- Markdown buffer instead of at startup.
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("MarkdownTypographySetup", { clear = true }),
+  pattern = "markdown",
+  callback = function()
+    require("config.markdown_typography").setup()
+  end,
+})
 require("config.markdown_image_paste").setup()
 require("config.scrollbar_scroll").setup()
 require("config.autocmds")

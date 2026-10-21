@@ -1,9 +1,7 @@
 return {
   {
     "OXY2DEV/markview.nvim",
-    -- Markview manages its own preview attachment; keep it available after the
-    -- colorscheme has initialized so Markdown opens with rendered elements.
-    lazy = false,
+    -- Load with the first Markdown buffer. lazy=false made the ft field a no-op.
     ft = { "markdown", "markdown.mdx", "quarto", "rmd" },
     opts = {
       preview = {

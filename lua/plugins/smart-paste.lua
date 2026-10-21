@@ -2,6 +2,7 @@
 return {
   {
     "nemanjamalesija/smart-paste.nvim",
+    lazy = false,
     config = function()
       require("smart-paste").setup()
 
