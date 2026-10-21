@@ -26,7 +26,7 @@ Normal/Visual 模式中：
 
 ## 注意事项
 
-仓库同时配置了 `vim-visual-multi` 和 `multicursor-line.nvim`，多光标操作可能重叠；本插件使用 `<leader>mn` 系列入口，避免覆盖现有 `<C-n>` 和 `<leader>m` 书签前缀。批量编辑前确认所有光标位置，避免修改不想要的匹配。
+仓库同时配置了 `vim-visual-multi` 和 `multicursor-line.nvim`，多光标匹配使用 `<leader>mn` 系列入口。批量编辑前确认所有光标位置，避免修改不想要的匹配。
 
 ## 查快捷键和帮助
 

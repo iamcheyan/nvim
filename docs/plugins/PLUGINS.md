@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，含公开配置与本机私有配置中的 **47 个插件**（公开 41 个、私有 6 个）。私有插件已按要求列入，并在章节标题和目录中标明。依赖库也单独列出；它们通常由上层插件自动调用，不需要手动启动。
+这本书按当前 `lazy.nvim` 注册结果整理，含公开配置与本机私有配置中的 **46 个插件**（公开 40 个、私有 6 个）。私有插件已按要求列入，并在章节标题和目录中标明。依赖库也单独列出；它们通常由上层插件自动调用，不需要手动启动。
 
 ## 怎么使用这本书
 
@@ -16,8 +16,8 @@
 可以按这个顺序熟悉：
 
 1. **先熟悉入口与找文件**：Which-key、Dashboard、Snacks、Neo-tree、Bufferline。
-2. **再练编辑**：Flash、mini.ai、mini.pairs、mini.surround、Visual Multi、multicursor.nvim、Smart Paste。
-3. **然后学代码理解与格式化**：LSP、Treesitter、Aerial、Conform、Markview。
+2. **再练编辑**：Flash、mini.ai、mini.pairs、mini.surround、multicursor.nvim、Smart Paste。
+3. **然后学代码理解与格式化**：LSP、Treesitter、Aerial、Markview。
 4. **再练 Git 与会话**：Gitsigns、Diffview、Auto Session。
 5. **最后按需探索语言辅助和视觉插件**：COBOL、Batch、Contextline、VimQuest、颜色、折叠和状态显示。
 
@@ -47,7 +47,6 @@
 | [mini.ai](chapters/mini-ai.md) | 公开 | 代码结构文本对象 |
 | [mini.surround](chapters/mini-surround.md) | 公开 | 添加、删除和替换包围符号 |
 | [flash.nvim](chapters/flash.nvim.md) | 公开 | 屏幕内快速定位 |
-| [conform.nvim](chapters/conform.md) | 公开 | 代码格式化 |
 | [nvim-lint](chapters/nvim-lint.md) | 公开 | ShellCheck 静态检查 |
 | [markview.nvim](chapters/markview.md) | 公开 | Markdown 等文档预览 |
 | [multicursor.nvim](chapters/multicursor.nvim.md) | 公开 | 多光标匹配与批量编辑 |

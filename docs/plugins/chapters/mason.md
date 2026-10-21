@@ -4,15 +4,15 @@
 
 ## 它解决什么问题
 
-在 Neovim 内安装和管理语言服务器、格式化器、调试器等外部工具。
+在 Neovim 内安装和管理语言服务器、LSP 与 lint 工具等外部工具。
 
 ## 在当前配置里怎么用
 
-运行 `:Mason` 或 `<leader>cm` 打开界面；搜索包名，Enter 查看详情，`i` 安装、`X` 卸载、`U` 更新（以界面底部提示为准）。当前配置管理 basedpyright、lua_ls，以及 shfmt、stylua、ruff、shellcheck。ruff 为 Python 格式化服务；shellcheck 供 nvim-lint 检查 Shell 脚本。
+运行 `:Mason` 或 `<leader>cm` 打开界面；搜索包名，Enter 查看详情，`i` 安装、`X` 卸载、`U` 更新（以界面底部提示为准）。当前配置管理 basedpyright、lua_ls，以及 ruff、shellcheck；ruff 与 shellcheck 供 nvim-lint 检查 Python 与 Shell 脚本。
 
 ## 动手练习
 
-运行 `:Mason`，搜索 `lua-language-server`、`stylua`、`ruff` 和 `shellcheck`，查看安装状态。命令行也可用 `ruff check file.py` 和 `shellcheck file.sh` 检查文件；先不要卸载，练习按 Esc 退出并用 `:Mason` 再打开。
+运行 `:Mason`，搜索 `lua-language-server`、`ruff` 和 `shellcheck`，查看安装状态。命令行也可用 `ruff check file.py` 和 `shellcheck file.sh` 检查文件；先不要卸载，练习按 Esc 退出并用 `:Mason` 再打开。
 
 ## 注意事项
 

@@ -15,15 +15,8 @@ return {
     config = function()
       require("mason").setup()
 
-      -- `ensure_installed` is NOT a mason.nvim option (it belongs to
-      -- mason-lspconfig, which only handles servers). Passing it to mason.setup
-      -- was silently ignored, so these formatters were never installed and
-      -- conform had nothing to run.
-      --
-      -- Run this after startup: registry.refresh() performs network I/O and
-      -- would otherwise add ~10ms to every launch. It is also a no-op once the
-      -- tools exist, so it stays cheap on machines that already have them.
-      local wanted = { "stylua", "shfmt", "ruff", "shellcheck" }
+      -- Conform formatters were removed; install linters and language servers only.
+      local wanted = { "ruff", "shellcheck" }
       vim.api.nvim_create_autocmd("User", {
         pattern = "VeryLazy",
         once = true,

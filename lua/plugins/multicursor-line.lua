@@ -1,7 +1,6 @@
 return {
   {
     "iamcheyan/multicursor-line.nvim",
-    dependencies = { "mg979/vim-visual-multi" },
     cmd = {
       "McLineHead",
       "McLineBol",

@@ -4,7 +4,7 @@ Neovim 的说明文档按用途集中放在 `config/nvim/docs/`。配置源文�
 
 ## 插件
 
-- [Neovim 插件使用书](plugins/PLUGINS.md)：48 个公开、私有插件和依赖的分类目录；每一项都链接到独立章节，含操作方法和练习。
+- [Neovim 插件使用书](plugins/PLUGINS.md)：46 个公开、私有插件和依赖的分类目录；每一项都链接到独立章节，含操作方法和练习。
 - [合并版插件手册](plugin-guide/README.md)也保留在仓库；逐插件学习以使用书章节为入口。
 
 ## 参考
@@ -18,7 +18,7 @@ Neovim 的说明文档按用途集中放在 `config/nvim/docs/`。配置源文�
 - [Markdown 图片预览与粘贴](guides/MARKDOWN-IMAGES.md)：Markview、Snacks image、剪贴板图片归档和 Markdown 引用的实现说明。
 - [鼠标与剪贴板](guides/MOUSE-AND-CLIPBOARD.md)。
 - [Caps Lock 状态指示器](guides/CAPS-LOCK.md)。
-- [Visual Multi 多光标逐行扩展](guides/VISUAL-MULTI.md)。
+- [multicursor.nvim 多光标编辑](plugins/chapters/multicursor.nvim.md)。
 
 ## 开发说明
 

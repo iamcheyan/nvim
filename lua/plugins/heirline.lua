@@ -880,10 +880,10 @@ return {
               },
               {
                 icon = "󰉿",
-                label = "Format Buffer (<leader>F)",
+                label = "Format Buffer (<leader>fo)",
                 action = function()
                   pcall(function()
-                    require("conform").format({ async = true, lsp_fallback = true })
+                    vim.lsp.buf.format({ async = true })
                   end)
                 end,
               },

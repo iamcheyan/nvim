@@ -211,11 +211,9 @@ local function run_editor(action, ctx)
   elseif action == "rename" then
     vim.lsp.buf.rename()
   elseif action == "format" then
-    local ok, conform = pcall(require, "conform")
-    if ok then
-      conform.format({ async = true, lsp_fallback = true })
-    else
-      vim.lsp.buf.format({ async = true })
+    local ok, lsp = pcall(vim.lsp.buf.format, { async = true })
+    if not ok then
+      vim.notify(tostring(lsp), vim.log.levels.ERROR)
     end
   elseif action == "diagnostic" then
     vim.diagnostic.open_float()

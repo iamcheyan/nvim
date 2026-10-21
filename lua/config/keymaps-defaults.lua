@@ -6,7 +6,7 @@
 -- builtins. API substitutions for the removed LazyVim runtime:
 --   * LazyVim.safe_keymap_set      -> vim.keymap.set
 --   * LazyVim.root.git() / root()  -> Snacks.git.get_root()
---   * LazyVim.format.snacks_toggle -> Snacks.toggle({...}) (vim.g.autoformat)
+--   * LazyVim.format.snacks_toggle      -> removed with conform.nvim
 --   * Snacks.toggle.relative_number (absent) -> Snacks.toggle.option(...)
 --   * Snacks.toggle.formatexpr (absent)      -> Snacks.toggle({...})
 --   * gitsigns <leader>g* hunk ops stay in plugins/gitsigns.lua (NOT here, to
@@ -157,10 +157,7 @@ map("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix" })
 map("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix" })
 
 ------------------- formatting -------------------------------------------------
--- No <leader>cf binding here. It was ported from LazyVim, but config/keymaps.lua
--- binds <leader>cf to "copy file path" in normal mode, which left the same key
--- meaning "format" in visual/select mode and "copy" in normal mode. Formatting
--- already has two dedicated keys: <leader>F (conform) and <leader>fo.
+-- Format via the LSP mapping in config/keymaps.lua; no formatter plugin is installed.
 
 ------------------- diagnostic -------------------------------------------------
 local diagnostic_goto = function(next, severity)
@@ -185,16 +182,6 @@ local function setup_snacks_keymaps()
 if not Snacks then
   return
 end
-Snacks.toggle({
-  name = "Auto Format",
-  get = function() return vim.g.autoformat == nil or vim.g.autoformat end,
-  set = function(v) vim.g.autoformat = v end,
-}):map("<leader>uf")
-Snacks.toggle({
-  name = "Auto Format (Off)",
-  get = function() return vim.g.autoformat == false end,
-  set = function(v) vim.g.autoformat = not v end,
-}):map("<leader>uF")
 Snacks.toggle.option("spell", { name = "Spelling" }):map("<leader>us")
 Snacks.toggle.option("wrap", { name = "Wrap" }):map("<leader>uw")
 Snacks.toggle.option("relativenumber", { name = "Relative Number" }):map("<leader>uL")

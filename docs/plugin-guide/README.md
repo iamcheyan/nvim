@@ -10,7 +10,7 @@
 |---|---|
 | 搜索文件/内容 | `<leader>ff` / `<leader>fg` |
 | 打开文件侧栏 | `<leader>fe`，当前工作目录用 `<leader>fE` |
-| 格式化 | `<leader>F`；保存时自动格式化默认关闭 |
+| 格式化 | `<leader>fo`（由 LSP 提供） |
 | Git 行修改 | `<leader>gp` 预览，`<leader>gs` 暂存，`<leader>gb` blame |
 | Git 完整差异 | `<leader>gd`；关闭 `<leader>gq` |
 | 查看符号大纲 | `<leader>cs` |
@@ -80,15 +80,11 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 ### nvim-lspconfig（公开）+ mason-lspconfig.nvim（公开）+ mason.nvim（公开）
 
-这是三项协同工作的 LSP 安装和连接设施。Mason 用 `:Mason` / `<leader>cm` 浏览安装服务器和工具；当前管理 basedpyright、lua_ls、shfmt、stylua、ruff、shellcheck。Ruff 用于 Conform 的 Python 格式化，ShellCheck 由 nvim-lint 调用。mason-lspconfig 把已安装服务器连接到 Neovim，nvim-lspconfig 提供服务器配置。LSP 附加后：`gd` 定义，`gD` 声明，`K` 悬浮文档，`gI` 实现，`gy` 类型定义，`gK` 签名帮助（插入模式 `<C-k>`），`<leader>ca` 代码操作，`<leader>cr` 重命名，`<leader>co` 整理 imports，`<leader>cl` 查看 LSP 配置。`]d`/`[d` 诊断跳转等是 Neovim 内置映射。当前配置全局关闭诊断显示，所以诊断相关显示/操作可能没有可见结果；这由本地配置主动设置。
+这是三项协同工作的 LSP 安装和连接设施。Mason 用 `:Mason` / `<leader>cm` 浏览安装服务器和工具；当前管理 basedpyright、lua_ls、ruff、shellcheck。Ruff 与 ShellCheck 由 nvim-lint 调用。mason-lspconfig 把已安装服务器连接到 Neovim，nvim-lspconfig 提供服务器配置。LSP 附加后：`gd` 定义，`gD` 声明，`K` 悬浮文档，`gI` 实现，`gy` 类型定义，`gK` 签名帮助（插入模式 `<C-k>`），`<leader>ca` 代码操作，`<leader>cr` 重命名，`<leader>co` 整理 imports，`<leader>cl` 查看 LSP 配置。`]d`/`[d` 诊断跳转等是 Neovim 内置映射。当前配置全局关闭诊断显示，所以诊断相关显示/操作可能没有可见结果；这由本地配置主动设置。
 
 ### mini.surround（公开）
 
 以 `gs` 前缀操作包围符号：`gsa` 添加，`gsd` 删除，`gsr` 替换，`gsf` / `gsF` 向右/向左查找，`gsh` 高亮范围。例如 `gsaiw)` 给当前单词加括号，`gsr)'` 把括号改成单引号。可用 `:help mini.surround` 查看完整说明。
-
-### conform.nvim（公开）
-
-格式化当前文件或可视选区：`<leader>F`。支持格式按文件类型选择，如 Lua 用 stylua、Shell 用 shfmt、Python 用 Ruff、Web/JSON/Markdown 用 Prettier、Rust 用 rustfmt、Go 用 gofumpt/goimports、C/C++ 用 clang-format。格式化程序需在 PATH 中可用（可由系统包或 Mason 提供）。保存格式化默认关闭；`<leader>uf` 切换自动格式化，`<leader>uF` 切换到相反状态；`:ConformInfo` 查看当前文件选用的 formatter。
 
 ### nvim-treesitter（公开）
 
@@ -118,10 +114,6 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 ### smart-paste.nvim（私有）
 
 智能处理系统剪贴板和多行粘贴缩进。Normal 模式 `<leader>p` 或 `<C-v>` 粘贴系统剪贴板；Insert 模式 `<C-v>` 粘贴；Visual 模式 `<C-v>` 用系统剪贴板替换选区。多行代码会根据目标缩进重新对齐，保留块内相对缩进；在 COBOL 中包含专门的定格式对齐处理。普通 `p/P` 也由插件增强。适合从网页、文档或其他编辑器复制多行代码后粘贴。
-
-### vim-visual-multi（公开）
-
-多光标同时编辑。Normal/Visual 模式 `<C-n>` 选择光标下单词并逐个增加匹配；再次按 `<C-n>` 选择下一匹配，`q` 跳过匹配，`Q` 回到上一个，Esc 退出多光标。`<C-j>` / `<C-k>` 在下方/上方增加光标。Insert 模式 `<C-n>` 按当前行首尾状态增加/扩展纵向光标。可用来批量改同名字段或多行相同位置文本。
 
 ### multicursor.nvim（公开）
 
@@ -210,7 +202,7 @@ Windows Batch 文件结构解析与导航。支持 `:BatchCheck` 检查、`:Batc
 1. **Oil 已按要求删除**：`config/nvim/lua/plugins/oil.lua` 已移除；运行时规格核对也不再出现 `oil.nvim`。重启 Neovim 后可用 `:Lazy clean` 清理缓存。插件清单中不再把它列为当前插件。
 2. **插件统计**：插件手册统计需随插件增删同步；独立插件仓库和依赖项不计入该分类数量。
 3. **发现 `[b` / `]b` 冲突**：私有书签把它们用于前/后书签，公开默认映射此前又用于前/后缓冲区。已删除默认缓冲区映射；请用 `Shift+h/l` 或 `<leader>bh/bl` 切换缓冲区。
-4. **自动格式化默认关闭**，所以 Conform 并非每次保存都会执行；手动 `<leader>F` 是明确入口。
+4. **格式化** 使用 LSP 提供程序格式化能力，快捷键为 `<leader>fo`。
 5. **诊断显示被配置关闭**，尽管 LSP 仍能提供跳转、补全和重命名。若要依赖诊断列表，应单独评估 `disable-diagnostics.lua` 的行为。
 6. **候选取舍**：Oil 已移除后 Neo-tree 是唯一文件侧栏；`ccc.nvim` 是按需取色；`mini.hipatterns` 是颜色值自动高亮；`flash.nvim` 是跳转；`nvim-hlslens` 是搜索命中提示；两者不是完全相同功能。`fidget.nvim`、`satellite.nvim`、`rainbow-delimiters.nvim`、`mini.pairs` 属于自动生效 UI/编辑便利，是否保留按日常感受判断。
 
