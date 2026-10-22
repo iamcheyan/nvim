@@ -4,9 +4,6 @@ return {
     name = "contextline.nvim",
     event = { "BufReadPost", "BufNewFile" },
     cmd = { "ContextlineMenu" },
-    keys = {
-      { "<leader>cb", "<cmd>ContextlineMenu<cr>", desc = "Code Breadcrumbs (Dropdown)" },
-    },
     opts = {
       separator = "  ",
       show_path = false,

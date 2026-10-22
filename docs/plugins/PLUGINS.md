@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，共 **41 章**，覆盖 44 个插件（公开 38 个、私有 6 个）。其中四个依赖库共用一章，因为它们是给其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
+这本书按当前 `lazy.nvim` 注册结果整理，共 **40 章**，覆盖 43 个插件（公开 37 个、私有 6 个）。其中四个依赖库共用一章，因为它们是给其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
 
 ## 怎么使用这本书
 
@@ -47,7 +47,6 @@
 | [mini.ai](chapters/mini-ai.md) | 公开 | 代码结构文本对象 |
 | [mini.surround](chapters/mini-surround.md) | 公开 | 添加、删除和替换包围符号 |
 | [flash.nvim](chapters/flash.nvim.md) | 公开 | 屏幕内快速定位 |
-| [nvim-lint](chapters/nvim-lint.md) | 公开 | ShellCheck 静态检查 |
 | [markview.nvim](chapters/markview.md) | 公开 | Markdown 等文档预览 |
 | [multicursor.nvim](chapters/multicursor.nvim.md) | 公开 | 多光标匹配与批量编辑 |
 | [nvim-ufo](chapters/nvim-ufo.md) | 公开 | 代码折叠 |
@@ -95,7 +94,7 @@
 ## 按键冲突与常见误解
 
 - COBOL 文件中的 `gd` 由私有 `cobol.nvim` 接管；普通语言中的 `gd` 通常由 LSP 提供。跳转后按 `Ctrl-o` 返回、`Ctrl-i` 前进。参见 [COBOL 章节](chapters/cobol.md) 和 `:help jumplist`。
-- 缓冲区切换用 `Shift+h` / `Shift+l` 或 `<leader>bh` / `<leader>bl`。`[b` / `]b` 留给私有书签。
+- 缓冲区切换使用 `Shift+h` / `Shift+l`。`[b` / `]b` 留给私有书签。
 - `<leader>gd` 是打开 Git 差异视图；普通 `gd` 是跳到定义，两者不是同一个映射。
 - Snacks Dashboard 已关闭，启动页由 `dashboard-nvim` 提供；Snacks 本体仍用于搜索器、工具和私有插件集成。
 

@@ -7,7 +7,6 @@
 <leader>be	n	Buffer Explorer
 <leader>cC	n	Color Convert (ccc)
 <leader>cO	n	Format COBOL reserved words
-<leader>cb	n	Code Breadcrumbs (Dropdown)
 <leader>cc	n	Toggle Smart CAPS
 <leader>ch	n	Inspect Hex / EBCDIC / COMP-3
 <leader>cm	n	Mason

@@ -14,8 +14,6 @@ Neovim 的 buffer 和 window 是两回事，但多数人需要的是「像浏览
 | 操作 | 按键 / 动作 |
 |---|---|
 | 下一个 / 上一个缓冲区 | `Shift+l` / `Shift+h` |
-| 同上（备用键） | `<leader>bl` / `<leader>bh` |
-| 上一个访问过的缓冲区 | `<leader>bb` |
 | 关闭当前标签 | 点标签上的关闭图标，或中键点击 |
 | 新建空缓冲区 | 点右侧 `+` |
 | 右键标签 | 打开缓冲区菜单 |
@@ -35,10 +33,9 @@ Neovim 的 buffer 和 window 是两回事，但多数人需要的是「像浏览
 ## 动手练习
 
 1. 打开 5 个文件，用 `Shift+l` / `Shift+h` 循环。
-2. 按 `<leader>bb` 在两个文件间来回跳，感受「最近访问」和「列表顺序」的差别。
-3. 右键一个标签，用菜单关闭它。
-4. 点右侧 `+`，确认新建了一个空缓冲区。
-5. `<leader><tab><tab>` 看真正的 tab page 列表，确认和标签栏不是一回事。
+2. 右键一个标签，用菜单关闭它。
+3. 点右侧 `+`，确认新建了一个空缓冲区。
+4. `<leader><tab><tab>` 看真正的 tab page 列表，确认和标签栏不是一回事。
 
 **验收**：能区分 buffer（标签栏）和 tab page 两组概念，切换都不出错。
 
@@ -56,5 +53,5 @@ Neovim 的 buffer 和 window 是两回事，但多数人需要的是「像浏览
 
 ```vim
 :help bufferline
-:verbose nmap <leader>bb
+:verbose nmap <S-l>
 ```

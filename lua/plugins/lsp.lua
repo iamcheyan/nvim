@@ -15,28 +15,7 @@ return {
     config = function()
       require("mason").setup()
 
-      -- Conform formatters were removed; install linters and language servers only.
-      local wanted = { "ruff", "shellcheck" }
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "VeryLazy",
-        once = true,
-        callback = function()
-          local ok, registry = pcall(require, "mason-registry")
-          if not ok then
-            return
-          end
-          registry.refresh(function()
-            for _, name in ipairs(wanted) do
-              if registry.has_package(name) then
-                local pkg = registry.get_package(name)
-                if not pkg:is_installed() then
-                  pkg:install()
-                end
-              end
-            end
-          end)
-        end,
-      })
+      -- Mason installs the language servers used below.
     end,
   },
 

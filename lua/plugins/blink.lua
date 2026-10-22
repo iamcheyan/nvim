@@ -190,6 +190,7 @@ return {
       keymap = {
         preset = "enter",
         ["<C-y>"] = { "select_and_accept" },
+        ["<C-space>"] = false,
         ["<CR>"] = { "select_and_accept", "fallback" },
         ["<Up>"] = { "select_prev", "fallback" },
         ["<Down>"] = { "select_next", "fallback" },

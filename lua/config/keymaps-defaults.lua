@@ -70,15 +70,11 @@ map("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", {
 ------------------- Buffers ---------------------------------------------------
 map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
-map("n", "<leader>bb", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
 map("n", "<leader>`", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
 map("n", "<leader>bd", function() Snacks.bufdelete() end, { desc = "Delete Buffer" })
 map("n", "<leader>bo", function() Snacks.bufdelete.other() end, { desc = "Delete Other Buffers" })
 map("n", "<leader>bi", function() Snacks.bufdelete.invisible() end, { desc = "Delete Invisible Buffers" })
 map("n", "<leader>bD", "<cmd>:bd<cr>", { desc = "Delete Buffer and Window" })
--- convenience (non-LazyVim) linear buffer navigation
-map("n", "<leader>bl", "<cmd>bnext<cr>", { desc = "Next Buffer" })
-map("n", "<leader>bh", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 map("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "Next Buffer" })
 map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 

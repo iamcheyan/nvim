@@ -27,7 +27,6 @@
 | `tree-sitter` CLI **0.26.1+** | 编译 grammar | parser 装不上 |
 | `unzip` `tar` | 解包语言服务器 | Mason 安装失败 |
 | **可选**：`lazygit` | `<leader>gg` 打开 Git 界面 | 该键无反应 |
-| **可选**：`shellcheck` | Shell 脚本诊断 | 只有 `.sh` 检查缺失 |
 
 安装脚本会自己检查这些工具，缺了就用 `apt` / `pacman` / `brew` 装上。
 **NixOS 是例外**：脚本不会改系统状态，只报出缺了哪些，需要你自己写进系统配置。

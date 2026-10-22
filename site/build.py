@@ -70,7 +70,6 @@ CATALOG = [
         ("mini-ai", "mini.ai", "公开", "代码结构文本对象"),
         ("mini-surround", "mini.surround", "公开", "添加、删除、替换包围符号"),
         ("flash.nvim", "flash.nvim", "公开", "屏幕内快速定位"),
-        ("nvim-lint", "nvim-lint", "公开", "ShellCheck 静态检查"),
         ("markview", "markview.nvim", "公开", "Markdown 等文档预览"),
         ("multicursor.nvim", "multicursor.nvim", "公开", "多光标匹配与批量编辑"),
         ("nvim-ufo", "nvim-ufo", "公开", "代码折叠"),

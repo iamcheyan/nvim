@@ -188,7 +188,7 @@ hlslens 不再绑定 `n` / `N`。`*` `#` `g*` `g#` 仍调用 `hlslens.start()`�
 - `docs/plugin-guide/README.md`：搜索目录、诊断、多光标、which-key、路径复制。
 - `docs/plugins/chapters/multicursor.nvim.md`、`which-key.md`、`cobol.md`、`grug-far.nvim.md`、`snacks.nvim.md`。
 - `docs/guides/REMOTE-MARKDOWN-IMAGES-INVESTIGATION.md` 保留当时的探测描述，并加了一段说明当前代码已经不再那样做。
-- hlslens、lspconfig、mason、diffview、nvim-lint、nvim-ufo 章节在这次改键之前已经写成与新行为一致，没有再改段落。
+- `nvim-lint` 章节在这次改键之前已经写成与新行为一致，没有再改段落。
 - `docs/plugins/chapters/` 里相对 HEAD 还有一批更早的教程体扩写。这次没有回退它们，只改正了仍写着旧键的 COBOL、多光标、which-key、snacks、grug-far。
 
 `docs/CONFIG-REVIEW.md` 开头加了指向本文的一句。正文仍是审查时的判断，不是现状。
