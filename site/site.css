@@ -602,10 +602,48 @@ kbd {
 .pcard strong { color: var(--ink); font: 600 14px/1.4 var(--mono); }
 .pcard em { color: var(--muted); font-style: normal; font-size: 12.5px; line-height: 1.55; }
 
+/* chapter pager: previous / next across the whole handbook */
+.pager {
+  margin: 48px 0 0;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--line);
+}
+.pager-pos {
+  margin: 0 0 14px;
+  color: var(--dim);
+  font: 11px var(--mono);
+  letter-spacing: .06em;
+}
+.pager-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pager-link {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--body);
+  text-decoration: none;
+  min-width: 0;
+}
+.pager-link:hover {
+  border-color: var(--green-dim);
+  background: var(--panel);
+  text-decoration: none;
+}
+.pager-link.next { text-align: right; align-items: flex-end; }
+.pager-link.disabled { border: 0; background: none; pointer-events: none; }
+.pager-dir { color: var(--green); font: 10.5px var(--mono); letter-spacing: .06em; }
+.pager-link strong {
+  color: var(--ink);
+  font: 600 13.5px/1.4 var(--mono);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 100%;
+}
+.pager-link:hover strong { color: var(--green); }
+
 .pnav {
   display: flex; justify-content: space-between; gap: 16px;
-  margin-top: 48px; padding-top: 20px;
-  border-top: 1px solid var(--line);
+  margin-top: 28px; padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
   font: 12.5px var(--mono);
 }
 
@@ -846,4 +884,10 @@ body { font-size: 15px; }
   padding: 1px 5px; background: var(--panel-2);
   border: 1px solid var(--line-soft); border-radius: 3px;
   color: var(--green); font: .88em var(--mono);
+}
+
+@media (max-width: 640px) {
+  .pager-row { grid-template-columns: 1fr; }
+  .pager-link.next { text-align: left; align-items: flex-start; }
+  .pager-link.disabled { display: none; }
 }

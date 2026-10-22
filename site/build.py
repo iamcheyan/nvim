@@ -746,6 +746,60 @@ def build_plugin_index() -> str:
     return article_shell("插件手册", inner, "plugins", '<a href="index.html">首页</a> / 插件手册', "plugins/")
 
 
+
+def plugin_sequence() -> list[tuple[str, str, str, str]]:
+    """Flat reading order of the plugin chapters: catalogue order, as listed.
+
+    The sidebar groups by topic; the pager walks the same list end to end so
+    "next" always means the next chapter in the book, not the next in a group.
+    """
+    flat: list[tuple[str, str, str, str]] = []
+    for category, entries in CATALOG:
+        for slug, name, kind, desc in entries:
+            flat.append((slug, name, kind, category))
+    return flat
+
+
+def plugin_pager(slug: str) -> str:
+    """Previous/next links for a plugin chapter, or nothing when alone."""
+    seq = plugin_sequence()
+    index = next((i for i, item in enumerate(seq) if item[0] == slug), None)
+    if index is None:
+        return ""
+
+    parts: list[str] = []
+    if index > 0:
+        prev_slug, prev_name, _k, _c = seq[index - 1]
+        parts.append(
+            f'<a class="pager-link prev" href="{prev_slug}.html">'
+            f'<span class="pager-dir">← 上一篇</span>'
+            f'<strong>{html_escape(prev_name)}</strong></a>'
+        )
+    else:
+        parts.append('<span class="pager-link disabled"></span>')
+
+    if index < len(seq) - 1:
+        next_slug, next_name, _k, _c = seq[index + 1]
+        parts.append(
+            f'<a class="pager-link next" href="{next_slug}.html">'
+            f'<span class="pager-dir">下一篇 →</span>'
+            f'<strong>{html_escape(next_name)}</strong></a>'
+        )
+    else:
+        parts.append(
+            '<a class="pager-link next" href="../plugins.html">'
+            '<span class="pager-dir">读完 →</span><strong>回到插件手册</strong></a>'
+        )
+
+    position = f'{index + 1} / {len(seq)}'
+    return (
+        f'<nav class="pager" aria-label="章节翻页">'
+        f'<p class="pager-pos">{position}</p>'
+        f'<div class="pager-row">{"".join(parts)}</div>'
+        f'</nav>'
+    )
+
+
 def build_plugin_pages() -> int:
     count = 0
     for category, entries in CATALOG:
@@ -767,6 +821,7 @@ def build_plugin_pages() -> int:
     <h1>{html_escape(name)}</h1>
     <p class="pmeta"><span>{html_escape(kind)}</span> {html_escape(desc)}</p>
     {html}
+    {plugin_pager(slug)}
     <p class="pnav"><a href="../plugins.html">← 全部插件</a><a href="https://github.com/{SITE['repo']}/blob/main/docs/plugins/chapters/{slug}.md">在 GitHub 上编辑</a></p>
   </article>
 </div>
