@@ -32,8 +32,35 @@ jobs:
       - name: Install build dependency
         run: pip install "Markdown==3.7"
 
+      # The keymap page is generated from a running Neovim. That needs the
+      # plugins actually installed, so restore them from the committed lockfile
+      # before building. Without this the build would fall back to the cached
+      # site/keymaps.tsv and silently go stale.
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: v0.12.5
+
+      - name: Cache plugins
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/nvim/lazy
+          key: lazy-${{ hashFiles('lazy-lock.json') }}
+
+      - name: Install plugins
+        run: |
+          nvim --headless --cmd 'let g:mapleader = " "' \
+               '+Lazy! restore' +qa || nvim --headless '+Lazy! sync' +qa
+
+      - name: Refresh keymap dump
+        run: python3 site/build.py --refresh-keys
+
       - name: Build site
         run: python3 site/build.py
+        env:
+          # Fail rather than quietly shipping a stale reference table.
+          KEYMAP_STRICT: "1"
 
       - uses: actions/configure-pages@v5
 

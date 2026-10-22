@@ -50,7 +50,7 @@ GnuCOBOL 诊断接入。它是这份配置里唯一针对单一语言深度定�
 3. 在一个 01 记录上 `<leader>cL`，看字段偏移和总长度。
 4. 在 `COPY "xxx.CPY".` 上按 `gf` 打开 Copybook，`K` 预览。
 5. 在段落名上 `gd`，`Ctrl-o` 返回。
-6. `<leader>cK` 运行编译器检查，`<leader>cq` 打开 quickfix。
+6. `<leader>cK` 运行编译器检查；诊断进 quickfix 后按 `<leader>xq` 打开。
 
 **验收**：列跳转准确，布局估算有数字，Copybook 能打开。
 

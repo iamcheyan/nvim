@@ -1,286 +1,450 @@
-<leader><Down>	n	
-<leader><Up>	n	
-<leader>?	n	Buffer Keymaps (which-key)
-<leader>N	n	
-<leader>S	n	
-<leader>a	n	
-<leader>be	n	Buffer Explorer
-<leader>cC	n	Color Convert (ccc)
+<Esc>	n	Escape and Clear messages/hlsearch
 <leader>cO	n	Format COBOL reserved words
-<leader>cc	n	Toggle Smart CAPS
-<leader>ch	n	Inspect Hex / EBCDIC / COMP-3
-<leader>cm	n	Mason
-<leader>cp	n	Color Picker (ccc)
-<leader>cr	n	Calculate Record Layout
 <leader>cs	n	Toggle Aerial Outline
+<leader>cp	n	Color Picker (ccc)
+<leader>cC	n	Color Convert (ccc)
+<leader>ge	n	Git Explorer
+<leader>be	n	Buffer Explorer
 <leader>e	n	Explorer NeoTree (cwd)
 <leader>fE	n	Explorer NeoTree (cwd)
 <leader>fe	n	Explorer NeoTree (Root Dir)
-<leader>gD	n	Diffview File History (Current File)
-<leader>gV	n	Diffview Branch History
-<leader>gd	n	Diffview Open
-<leader>ge	n	Git Explorer
-<leader>gq	n	Diffview Close
-<leader>gv	n	Diffview Open
-<leader>mC	n	Bookmarks: Clear Project
-<leader>mc	n	Bookmarks: Clear Buffer
-<leader>mm	n	Bookmarks: List
-<leader>mt	n	Bookmarks: Toggle Line
-<leader>n	n	
-<leader>p	n	Smart paste system clipboard block
-<leader>qN	n	VimQuest next round
+<leader>uG	n	Toggle Git Signs
+<leader>xt	n	Trouble: TODOs
+<leader>xL	n	Trouble: location list
+<leader>xr	n	Trouble: LSP references
+<leader>xs	n	Trouble: symbols
+<leader>xX	n	Trouble: buffer diagnostics
+<leader>xx	n	Trouble: diagnostics
+<leader>up	n	Toggle Mini Pairs
+<leader>cH	n	Hover: choose source
+<leader>uu	n	Undo tree
 <leader>qS	n	VimQuest stats
-<leader>qc	n	VimQuest check all
 <leader>qd	n	VimQuest select dictionary
+<leader>qw	n	VimQuest words drill
 <leader>qh	n	VimQuest hint
+<leader>qc	n	VimQuest check all
 <leader>ql	n	VimQuest quickfix list
+<leader>qt	n	VimQuest tasks
+<leader>qN	n	VimQuest next round
 <leader>qr	n	VimQuest restart with new tasks
 <leader>qs	n	VimQuest start
-<leader>qt	n	VimQuest tasks
-<leader>qw	n	VimQuest words drill
-<leader>s	n	
-<leader>sr	n	Search and Replace
-<leader>uG	n	Toggle Git Signs
-<leader>uc	n	Toggle COBOL Guide
-<leader>ug	n	Toggle Indent Guides
-<leader>up	n	Toggle Mini Pairs
-<leader>wa	n	Toggle autosave
-<leader>wd	n	Delete session
-<leader>wr	n	Session search
+<leader>hk	n	Buffer Keymaps (which-key)
+<leader>gD	n	Diffview File History (Current File)
+<leader>gd	n	Diffview Open
+<leader>gq	n	Diffview Close
+<leader>gV	n	Diffview Branch History
+<leader>cL	n	Calculate Record Layout
+<leader>cg	n	Toggle COBOL Guide
+<leader>cc	n	Toggle Smart CAPS
+<leader>ch	n	Inspect Hex / EBCDIC / COMP-3
+<leader>cK	n	COBOL syntax check
+<leader>mC	n	Bookmarks: Clear Project
+<leader>mc	n	Bookmarks: Clear Buffer
+<leader>mt	n	Bookmarks: Toggle Line
+<leader>mm	n	Bookmarks: List
+<leader>M	n	Set mark
+<leader>a	n	Increment number
+<leader><Tab>n	n	New Tab
+<leader><Tab><Tab>	n	List and switch Tab Pages
+<leader>sR	n	Search/Replace (current file)
+<leader>sr	n	Search/Replace (project)
+<leader>bC	n	Clear buffer contents
+<leader>fu	n	dos2unix current file
+<leader>fo	n	format this file
+<leader>fC	n	打开常用收藏
+<leader>yd	n	Copy directory
+<leader>yP	n	Copy file (absolute path)
+<leader>yp	n	Copy file (relative path)
+<leader>tb	n	Terminal Bottom
+<leader>tr	n	Terminal Right
+<leader><Tab>[	n	Previous Tab
+<leader><Tab>d	n	Close Tab
+<leader><Tab>]	n	Next Tab
+<leader><Tab>f	n	First Tab
+<leader><Tab>o	n	Close Other Tabs
+<leader><Tab>l	n	Last Tab
+<leader>uz	n	Zen Mode
+<leader>s-	n	Split Below
+<leader>s|	n	Split Right
+<leader>wL	n	Move Window Right
+<leader>wK	n	Move Window Up
+<leader>wJ	n	Move Window Down
+<leader>wH	n	Move Window Left
+<leader>wl	n	Window Right
+<leader>wk	n	Window Up
+<leader>wj	n	Window Down
+<leader>wh	n	Window Left
+<leader>ww	n	Other Window
+<leader>|	n	Split Window Right
+<leader>-	n	Split Window Below
+<leader>ft	n	Terminal (Root Dir)
+<leader>fT	n	Terminal (cwd)
+<leader>ut	n	Theme / Colorscheme
+<leader>uC	n	Colorscheme with Preview
+<leader>uI	n	Inspect Tree
+<leader>ui	n	Inspect Pos
+<leader>qq	n	Quit All
+<leader>gY	n	Git Browse (copy)
+<leader>gf	n	Git Current File History
+<leader>gL	n	Git Log (cwd)
+<leader>gl	n	Git Log
+<leader>gG	n	Lazygit (cwd)
+<leader>gg	n	Lazygit (Root Dir)
+<leader>uZ	n	Toggle Zoom Mode
+<leader>wm	n	Toggle Zoom Mode
+<leader>uh	n	Toggle Inlay Hints
+<leader>dph	n	Toggle Profiler Highlights
+<leader>dpp	n	Toggle Profiler
+<leader>uS	n	Toggle Smooth Scroll
+<leader>ua	n	Toggle Animations
+<leader>uD	n	Toggle Dimming
+<leader>ub	n	Toggle Dark Background
+<leader>uT	n	Toggle Treesitter Highlight
+<leader>uA	n	Toggle Tabline
+<leader>uc	n	Toggle Conceal Level
+<leader>ul	n	Toggle Line Numbers
+<leader>ud	n	Toggle Diagnostics
+<leader>uL	n	Toggle Relative Number
+<leader>uw	n	Toggle Wrap
+<leader>us	n	Toggle Spelling
+<leader>cd	n	Line Diagnostics
+<leader>xq	n	Quickfix List
+<leader>xl	n	Location List
+<leader>fn	n	New File
+<leader>l	n	Lazy
+<leader>K	n	Keywordprg
+<leader>ur	n	Redraw / Clear hlsearch / Diff Update
+<leader>bp	n	Prev Buffer
+<leader>bn	n	Next Buffer
+<leader>bD	n	Delete Buffer and Window
+<leader>bi	n	Delete Invisible Buffers
+<leader>bo	n	Delete Other Buffers
+<leader>bd	n	Delete Buffer
+<leader>`	n	Switch to Other Buffer
+<leader>?	n	Help
+<leader>,	n	Switch Buffer
+<leader>/	n	Grep
+<leader>fS	n	Treesitter Symbols
+<leader>fh	n	Help Pages
+<leader>sw	n	Grep Word (Git Root)
+<leader>sg	n	Grep (Git Root)
+<leader>fc	n	Grep Word (cwd)
+<leader>fW	n	Grep Word (Git Root)
+<leader>fw	n	Grep Word (cwd)
+<leader>fG	n	Grep (Git Root)
+<leader>fg	n	Grep (cwd)
+<leader>fR	n	Resume
+<leader>fr	n	Recent
+<leader>fb	n	Buffers
+<leader>fF	n	Find Files (Git Root)
+<leader>ff	n	Find Files
+<leader> 	n	Find Files (Root Dir)
+<leader>mq	n	
+<leader>gv	n	
+<leader>A	n	
+<leader>N	n	
+<leader>n	n	
+<leader><Down>	n	
+<leader><Up>	n	
+<leader>cm	n	Mason
+<leader>p	n	Smart paste system clipboard block
 <leader>ws	n	Save session
+<leader>wr	n	Session search
+<leader>wd	n	Delete Window
+<leader>wa	n	Toggle autosave
+<leader>ug	n	Toggle Indent Guides
 #	n	Search Word Backward
 %	n	
 &	n	:help &-default
 *	n	Search Word Forward
-<C-D>	n	
-<C-L>	n	:help CTRL-L-default
-<C-LeftDrag>	n	
-<C-LeftMouse>	n	
-<C-LeftRelease>	n	
-<C-N>	n	
-<C-Q>	n	
-<C-S-N>	n	
-<C-V>	n	Smart paste system clipboard block
-<C-W> 	n	Window Hydra Mode (which-key)
-<C-W><C-D>	n	Show diagnostics under the cursor
-<C-W>d	n	Show diagnostics under the cursor
-<Down>	n	
-<LeftMouse>	n	
-<Plug>(MatchitNormalBackward)	n	
-<Plug>(MatchitNormalForward)	n	
-<Plug>(MatchitNormalMultiBackward)	n	
-<Plug>(MatchitNormalMultiForward)	n	
-<Plug>(smart-paste-raw-P)	n	Raw paste before (bypass smart-paste)
-<Plug>(smart-paste-raw-p)	n	Raw paste after (bypass smart-paste)
-<Plug>PlenaryTestFile	n	
-<RightMouse>	n	Open context menu
-<Up>	n	
+C	n	Change to end of line (black hole)
+D	n	Delete to end of line (black hole)
+H	n	Prev Buffer
 K	n	Hover or VimQuest hint
+L	n	Next Buffer
+M	n	Cut to end of line to system clipboard
 N	n	Prev Search Result
 P	n	Smart paste: P
 S	n	Flash Treesitter
+X	n	Delete char before cursor (black hole)
 Y	n	:help Y-default
-[ 	n	Add empty line above cursor
-[%	n	
-[<C-L>	n	:lpfile
-[<C-Q>	n	:cpfile
-[<C-T>	n	:ptprevious
-[A	n	:rewind
-[B	n	:brewind
-[D	n	Jump to the first diagnostic in the current buffer
-[L	n	:lrewind
-[Q	n	:crewind
-[T	n	:trewind
-[a	n	:previous
 [b	n	Bookmarks: Prev
-[d	n	Jump to the previous diagnostic in the current buffer
-[l	n	:lprevious
+[w	n	Prev Warning
+[e	n	Prev Error
+[%	n	
 [p	n	Smart paste: [p
-[q	n	:cprevious
+[ 	n	Add empty line above cursor
+[B	n	:brewind
+[<C-T>	n	:ptprevious
+[T	n	:trewind
 [t	n	:tprevious
-] 	n	Add empty line below cursor
-]%	n	
-]<C-L>	n	:lnfile
-]<C-Q>	n	:cnfile
-]<C-T>	n	:ptnext
-]A	n	:last
-]B	n	:blast
-]D	n	Jump to the last diagnostic in the current buffer
-]L	n	:llast
-]Q	n	:clast
-]T	n	:tlast
-]a	n	:next
+[A	n	:rewind
+[a	n	:previous
+[<C-L>	n	:lpfile
+[L	n	:lrewind
+[l	n	:lprevious
+[<C-Q>	n	:cpfile
+[Q	n	:crewind
+[q	n	Previous Quickfix
+[D	n	Jump to the first diagnostic in the current buffer
+[d	n	Prev Diagnostic
 ]b	n	Bookmarks: Next
-]d	n	Jump to the next diagnostic in the current buffer
-]l	n	:lnext
+]w	n	Next Warning
+]e	n	Next Error
+]%	n	
 ]p	n	Smart paste: ]p
-]q	n	:cnext
+] 	n	Add empty line below cursor
+]B	n	:blast
+]<C-T>	n	:ptnext
+]T	n	:tlast
 ]t	n	:tnext
-g#	n	Search Partial Word Backward
-g%	n	
+]A	n	:last
+]a	n	:next
+]<C-L>	n	:lnfile
+]L	n	:llast
+]l	n	:lnext
+]<C-Q>	n	:cnfile
+]Q	n	:clast
+]q	n	Next Quickfix
+]D	n	Jump to the last diagnostic in the current buffer
+]d	n	Next Diagnostic
+cc	n	Change line (black hole)
+c	n	Change (black hole, no yank)
+dd	n	Delete line (black hole)
+d	n	Delete (black hole, no yank)
 g*	n	Search Partial Word Forward
-gO	n	vim.lsp.buf.document_symbol()
-gP	n	Smart paste: gP
-g[	n	Move to left "around"
+g#	n	Search Partial Word Backward
 g]	n	Move to right "around"
-ga	n	
-gc	n	Toggle comment
-gcc	n	Toggle comment line
-gp	n	Smart paste: gp
-gra	n	vim.lsp.buf.code_action()
-gri	n	vim.lsp.buf.implementation()
-grn	n	vim.lsp.buf.rename()
-grr	n	vim.lsp.buf.references()
-grt	n	vim.lsp.buf.type_definition()
-grx	n	vim.lsp.codelens.run()
-gsF	n	Find left surrounding
-gsFl	n	Find previous left surrounding
-gsFn	n	Find next left surrounding
-gsa	n	Add surrounding
-gsd	n	Delete surrounding
-gsdl	n	Delete previous surrounding
-gsdn	n	Delete next surrounding
-gsf	n	Find right surrounding
-gsfl	n	Find previous right surrounding
-gsfn	n	Find next right surrounding
-gsh	n	Highlight surrounding
-gshl	n	Highlight previous surrounding
+g[	n	Move to left "around"
 gshn	n	Highlight next surrounding
-gsr	n	Replace surrounding
-gsrl	n	Replace previous surrounding
+gshl	n	Highlight previous surrounding
+gsh	n	Highlight surrounding
+gsFn	n	Find next left surrounding
+gsFl	n	Find previous left surrounding
+gsF	n	Find left surrounding
+gsfn	n	Find next right surrounding
+gsfl	n	Find previous right surrounding
+gsf	n	Find right surrounding
 gsrn	n	Replace next surrounding
+gsrl	n	Replace previous surrounding
+gsr	n	Replace surrounding
+gsdn	n	Delete next surrounding
+gsdl	n	Delete previous surrounding
+gsd	n	Delete surrounding
+gsa	n	Add surrounding
+g%	n	
+ga	n	
+gP	n	Smart paste: gP
+gp	n	Smart paste: gp
+gO	n	vim.lsp.buf.document_symbol()
+grt	n	vim.lsp.buf.type_definition()
+gri	n	vim.lsp.buf.implementation()
+grr	n	vim.lsp.buf.references()
+grx	n	vim.lsp.codelens.run()
+gra	n	vim.lsp.buf.code_action()
+grn	n	vim.lsp.buf.rename()
+gcc	n	Toggle comment line
+gc	n	Toggle comment
 gx	n	Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)
+mm	n	Cut line to system clipboard
+m	n	Cut to system clipboard
 n	n	Next Search Result
 p	n	Smart paste: p
-qn	n	VimQuest next
 qp	n	VimQuest prev
+qn	n	VimQuest next
 s	n	Flash
+x	n	Delete char (black hole)
+zp	n	Peek folded lines under cursor
+zm	n	Fold more
+zr	n	Fold less
 zM	n	Close all folds
 zR	n	Open all folds
-zm	n	Fold more
-zp	n	Peek folded lines under cursor
-zr	n	Fold less
+<Plug>PlenaryTestFile	n	
+<ScrollWheelUp>	n	
+<ScrollWheelDown>	n	
+<LeftMouse>	n	
+<C-W> 	n	Window Hydra Mode (which-key)
+<Del>	n	Delete key (black hole)
+<C-Q>	n	Visual block
+<C-A>	n	Select all lines
+<2-LeftMouse>	n	双击颜色弹出 ccc 取色器
+<C-_>	n	which_key_ignore
+<C-/>	n	Terminal (Root Dir)
+<C-S>	n	Save File
+<M-k>	n	Move Up
+<M-j>	n	Move Down
+<C-Right>	n	Increase Window Width
+<C-Left>	n	Decrease Window Width
+<C-Down>	n	Decrease Window Height
+<C-Up>	n	Increase Window Height
+<C-K>	n	Go to Upper Window
+<C-J>	n	Go to Lower Window
+<C-H>	n	Go to Left Window
+<Plug>(MatchitNormalMultiForward)	n	
+<Plug>(MatchitNormalMultiBackward)	n	
+<Plug>(MatchitNormalBackward)	n	
+<Plug>(MatchitNormalForward)	n	
+<C-LeftRelease>	n	
+<C-LeftDrag>	n	
+<C-LeftMouse>	n	
+<C-S-N>	n	
+<C-N>	n	
+<M-D>	n	
+<M-d>	n	
+<C-V>	n	Smart paste system clipboard block
+<Plug>(smart-paste-raw-P)	n	Raw paste before (bypass smart-paste)
+<Plug>(smart-paste-raw-p)	n	Raw paste after (bypass smart-paste)
+<RightMouse>	n	Open context menu
+<C-W><C-D>	n	Show diagnostics under the cursor
+<C-W>d	n	Show diagnostics under the cursor
+<C-L>	n	Go to Right Window
+<leader>sR	x	Search/Replace selection (current file)
+<leader>sr	x	Search/Replace selection (project)
+<leader>gY	x	Git Browse (copy)
+<leader>mq	x	
+<leader>N	x	
+<leader>n	x	
 <leader><Down>	x	
 <leader><Up>	x	
-<leader>N	x	
-<leader>S	x	
-<leader>n	x	
-<leader>s	x	
-<leader>sr	x	Search and Replace
 #	x	:help v_#-default
 %	x	
 *	x	:help v_star-default
-<C-D>	x	
-<C-N>	x	
-<C-Q>	x	
-<C-S-N>	x	
-<Down>	x	
-<LeftMouse>	v	
-<Plug>(MatchitVisualBackward)	x	
-<Plug>(MatchitVisualForward)	x	
-<Plug>(MatchitVisualMultiBackward)	x	
-<Plug>(MatchitVisualMultiForward)	x	
-<Plug>(MatchitVisualTextObject)	x	
-<Plug>(ccc-select-color)	x	
-<Plug>(smart-paste-clipboard-visual)	x	Smart paste clipboard over selection
-<RightMouse>	x	Open context menu
-<Up>	x	
+<lt>	x	
+>	x	
 @	x	:help v_@-default
+C	x	Change to end of line (black hole)
+D	x	Delete to end of line (black hole)
+N	x	Prev Search Result
 P	x	Smart paste: visual P
 Q	x	:help v_Q-default
 S	x	Flash Treesitter
+X	x	Delete char before cursor (black hole)
 [%	x	
 [N	x	Select previous sibling node
 [n	x	Select previous node
 ]%	x	
 ]N	x	Select next sibling node
 ]n	x	Select next node
+al	x	Around last textobject
 a	x	Around textobject
 a%	x	
-al	x	Around last textobject
 an	x	Around next textobject
-g%	x	
-g[	x	Move to left "around"
+c	x	Change (black hole, no yank)
+d	x	Delete (black hole, no yank)
 g]	x	Move to right "around"
-ga	x	
-gc	x	Toggle comment
-gra	x	vim.lsp.buf.code_action()
-gsF	x	Find left surrounding
-gsFl	x	Find previous left surrounding
+g[	x	Move to left "around"
 gsFn	x	Find next left surrounding
-gsa	x	Add surrounding to selection
-gsf	x	Find right surrounding
-gsfl	x	Find previous right surrounding
+gsFl	x	Find previous left surrounding
+gsF	x	Find left surrounding
 gsfn	x	Find next right surrounding
+gsfl	x	Find previous right surrounding
+gsf	x	Find right surrounding
+gsa	x	Add surrounding to selection
+g%	x	
+ga	x	
+gra	x	vim.lsp.buf.code_action()
+gc	x	Toggle comment
 gx	x	Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)
-i	x	Inside textobject
 il	x	Inside last textobject
+i	x	Inside textobject
 in	x	Inside next textobject
+m	x	Cut selection to system clipboard
+n	x	Next Search Result
 p	x	Smart paste: visual p
 s	x	Flash
+x	x	Delete char (black hole)
+<Plug>(ccc-select-color)	x	
+<ScrollWheelUp>	x	
+<ScrollWheelDown>	x	
+<LeftMouse>	v	
+<Del>	x	Delete selection (black hole)
+<C-V>	x	Smart paste clipboard over selection
+<C-X>	x	Cut selection to system clipboard
+<C-C>	x	Copy selection to system clipboard
+<C-Q>	x	Visual block
+<C-A>	x	Select all lines
+<C-S>	x	Save File
+<M-k>	v	Move Up
+<M-j>	v	Move Down
+<Plug>(MatchitVisualTextObject)	x	
+<Plug>(MatchitVisualMultiForward)	x	
+<Plug>(MatchitVisualMultiBackward)	x	
+<Plug>(MatchitVisualBackward)	x	
+<Plug>(MatchitVisualForward)	x	
+<C-S-N>	x	
+<C-N>	x	
+<M-D>	x	
+<M-d>	x	
+<Plug>(smart-paste-clipboard-visual)	x	Smart paste clipboard over selection
+<RightMouse>	x	Open context menu
 %	o	
-<LeftMouse>	o	
-<Plug>(MatchitOperationBackward)	o	
-<Plug>(MatchitOperationForward)	o	
-<Plug>(MatchitOperationMultiBackward)	o	
-<Plug>(MatchitOperationMultiForward)	o	
-<Plug>(ccc-select-color)	o	
+N	o	Prev Search Result
 S	o	Flash Treesitter
 [%	o	
 ]%	o	
-a	o	Around textobject
 al	o	Around last textobject
+a	o	Around textobject
 an	o	Around next textobject
-g%	o	
-g[	o	Move to left "around"
 g]	o	Move to right "around"
-gc	o	Comment textobject
-gsF	o	Find left surrounding
-gsFl	o	Find previous left surrounding
+g[	o	Move to left "around"
 gsFn	o	Find next left surrounding
-gsf	o	Find right surrounding
-gsfl	o	Find previous right surrounding
+gsFl	o	Find previous left surrounding
+gsF	o	Find left surrounding
 gsfn	o	Find next right surrounding
-i	o	Inside textobject
+gsfl	o	Find previous right surrounding
+gsf	o	Find right surrounding
+g%	o	
+gc	o	Comment textobject
 il	o	Inside last textobject
+i	o	Inside textobject
 in	o	Inside next textobject
+n	o	Next Search Result
 s	o	Flash
+<Plug>(ccc-select-color)	o	
+<LeftMouse>	o	
+<Plug>(MatchitOperationMultiForward)	o	
+<Plug>(MatchitOperationMultiBackward)	o	
+<Plug>(MatchitOperationBackward)	o	
+<Plug>(MatchitOperationForward)	o	
+<Plug>(ccc-insert)	i	
+<ScrollWheelUp>	i	
+<ScrollWheelDown>	i	
+<LeftMouse>	i	
+<BS>	i	MiniPairs <BS>
+<C-V>	i	Smart paste from system clipboard
+<M-k>	i	Move Up
+<M-j>	i	Move Down
+<Right>	i	
+<Left>	i	
+<Plug>(smart-paste-clipboard-insert)	i	Smart paste system clipboard block
+<RightMouse>	i	Open context menu
+<S-Tab>	i	vim.snippet.jump if active, otherwise <S-Tab>
+<C-S>	i	Save File
+<C-W>	i	:help i_CTRL-W-default
+<C-U>	i	:help i_CTRL-U-default
+<Tab>	i	vim.snippet.jump if active, otherwise <Tab>
+<CR>	i	MiniPairs <CR>
+<Esc>	i	Escape and Clear messages/hlsearch
 "	i	Closeopen action for '""' pair
 '	i	Closeopen action for "''" pair
 (	i	Open action for "()" pair
 )	i	Close action for "()" pair
-<BS>	i	MiniPairs <BS>
-<C-S>	i	vim.lsp.buf.signature_help()
-<C-U>	i	:help i_CTRL-U-default
-<C-W>	i	:help i_CTRL-W-default
-<CR>	i	MiniPairs <CR>
-<Left>	i	
-<LeftMouse>	i	
-<Plug>(ccc-insert)	i	
-<Plug>(smart-paste-clipboard-insert)	i	Smart paste system clipboard block
-<Right>	i	
-<RightMouse>	i	Open context menu
-<S-Tab>	i	vim.snippet.jump if active, otherwise <S-Tab>
-<Tab>	i	vim.snippet.jump if active, otherwise <Tab>
+,	i	
+.	i	
+;	i	
 [	i	Open action for "[]" pair
 ]	i	Close action for "[]" pair
 `	i	Closeopen action for "``" pair
 {	i	Open action for "{}" pair
 }	i	Close action for "{}" pair
+<C-_>	t	which_key_ignore
+<C-/>	t	Terminal (Root Dir)
+<BS>	c	MiniPairs <BS>
+<C-S>	c	Toggle Flash Search
 "	c	Closeopen action for '""' pair
 '	c	Closeopen action for "''" pair
 (	c	Open action for "()" pair
 )	c	Close action for "()" pair
-<BS>	c	MiniPairs <BS>
-<C-E>	c	blink.cmp: Cancel
-<C-N>	c	blink.cmp: Select Next
-<C-P>	c	blink.cmp: Select Prev
-<C-S>	c	Toggle Flash Search
-<C-Space>	c	blink.cmp: Show
-<C-Y>	c	blink.cmp: Select And Accept
-<End>	c	blink.cmp: Hide
-<S-Tab>	c	blink.cmp: <Custom Fn>, Select Prev
-<Tab>	c	blink.cmp: Show And Insert Or Accept Single, Select Next
 [	c	Open action for "[]" pair
 ]	c	Close action for "[]" pair
 `	c	Closeopen action for "``" pair

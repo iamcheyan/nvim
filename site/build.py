@@ -12,6 +12,7 @@ No frontend toolchain: Markdown in, HTML out, committed as plain files.
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import sys
@@ -127,31 +128,51 @@ CATALOG = [
 KEYMAP_CACHE = ROOT / "site" / "keymaps.tsv"
 
 DUMP_LUA = r"""
-vim.defer_fn(function()
+-- Why this is not just `nvim --headless -u init.lua`.
+--
+-- `-u <file>` does not put the checkout on the runtimepath, so every
+-- require("config.*") fails and config/keymaps-defaults.lua never runs. The
+-- dump then silently loses every <leader> mapping. Prepending the resolved
+-- config directory and requiring the keymap modules explicitly fixes that.
+--
+-- The dump happens synchronously: deferring it made nvim hang in this
+-- environment, and the plugin load above already installs their keymaps.
+local cfg = os.getenv("NVIM_DUMP_CONFIG") or vim.fn.stdpath("config")
+local real = vim.fn.resolve(cfg)
+vim.opt.rtp:prepend(real)
+package.path = real .. "/lua/?.lua;" .. real .. "/lua/?/init.lua;" .. package.path
+
+for _, mod in ipairs({ "config.keymaps-defaults", "config.keymaps" }) do
+  pcall(require, mod)
+end
+
+local ok = pcall(require, "lazy")
+if ok then
   local lazy = require("lazy")
   for _, p in ipairs(lazy.plugins()) do
-    if not p._.loaded then
+    local st = p._ and p._.loaded
+    local is_loaded = (type(st) == "table" and next(st) ~= nil) or st == true
+    if not is_loaded then
       pcall(function() lazy.load({ plugins = { p.name } }) end)
     end
   end
-  vim.defer_fn(function()
-    local out = {}
-    for _, mode in ipairs({ "n", "x", "o", "i", "t", "c" }) do
-      local maps = vim.api.nvim_get_keymap(mode)
-      table.sort(maps, function(a, b) return a.lhs < b.lhs end)
-      for _, m in ipairs(maps) do
-        local lhs = m.lhs
-        local desc = (m.desc or ""):gsub("\t", " ")
-        if lhs:sub(1, 6) == "<Space" and lhs ~= "<Space>" then
-          lhs = "<leader>" .. lhs:sub(7)
-        end
-        out[#out + 1] = table.concat({ lhs, m.mode, desc }, "\t")
-      end
+end
+
+local leader = vim.g.mapleader or " "
+local out = {}
+for _, mode in ipairs({ "n", "x", "o", "i", "t", "c" }) do
+  local maps = vim.api.nvim_get_keymap(mode)
+  table.sort(maps, function(a, b) return a.lhs < b.lhs end)
+  for _, m in ipairs(maps) do
+    local lhs = m.lhs
+    if leader ~= "" and lhs:sub(1, #leader) == leader and lhs ~= leader then
+      lhs = "<leader>" .. lhs:sub(#leader + 1)
     end
-    vim.fn.writefile(out, "/tmp/nvim-keys.tsv")
-    vim.cmd("qa!")
-  end, 6000)
-end, 4000)
+    out[#out + 1] = table.concat({ lhs, m.mode, ((m.desc or ""):gsub("\\t", " ")) }, "\\t")
+  end
+end
+vim.fn.writefile(vim.env.KEYMAP_DUMP or "/tmp/nvim-keys.tsv", out)
+vim.cmd("qa!")
 """
 
 
@@ -159,6 +180,7 @@ def refresh_keymaps() -> list[dict]:
     """Run a headless Neovim and capture the real keymap set."""
     import subprocess
     import tempfile
+    import os
 
     with tempfile.NamedTemporaryFile("w", suffix=".lua", delete=False) as fh:
         fh.write(DUMP_LUA)
@@ -171,7 +193,13 @@ def refresh_keymaps() -> list[dict]:
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            timeout=240,
+            timeout=300,
+            env={
+                **os.environ,
+                "KEYMAP_DUMP": "/tmp/nvim-keys.tsv",
+                # stdpath("config") is unreliable here; point at the checkout.
+                "NVIM_DUMP_CONFIG": str(ROOT),
+            },
         )
     finally:
         Path(script).unlink(missing_ok=True)
@@ -198,14 +226,20 @@ def refresh_keymaps() -> list[dict]:
 def load_keymaps(refresh: bool = False) -> list[dict]:
     if refresh:
         rows = refresh_keymaps()
-        if not rows:
-            print(
-                "warning: keymap refresh produced nothing; keeping site/keymaps.tsv.\n"
-                "         regeneration needs a working plugin install (Lazy load all).",
-                file=sys.stderr,
-            )
-        elif rows:
+        if rows:
             return rows
+        # In CI a failed dump means the plugins did not install. Falling back to
+        # the cache would publish a reference table that no longer matches the
+        # configuration, so fail instead.
+        if os.environ.get("KEYMAP_STRICT") == "1":
+            raise BuildError(
+                "keymap refresh produced nothing; plugins are probably not installed. "
+                "Refusing to fall back to the cached table."
+            )
+        print(
+            "warning: keymap refresh produced nothing; keeping site/keymaps.tsv.",
+            file=sys.stderr,
+        )
     if not KEYMAP_CACHE.exists():
         return []
     rows = []
@@ -971,6 +1005,109 @@ def build_doc_page(slug: str, nav_key: str, title: str, src: Path | None) -> Non
 # not ship and get noticed later.
 # ---------------------------------------------------------------------------
 
+
+# --- P1: the catalogue must match the configuration ------------------------
+#
+# CATALOG is written by hand and docs/plugins/chapters/ holds one file per
+# chapter. Adding a plugin without a chapter, or deleting a plugin while its
+# chapter remains, both used to pass silently. Compare the three sources and
+# report the difference.
+
+REPO_SPEC = re.compile(r'^\s{2,8}"([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)"', re.M)
+
+
+def declared_plugins() -> dict[str, set[str]]:
+    """repo -> spec files, as declared in lua/plugins/*.lua."""
+    found: dict[str, set[str]] = {}
+    for path in sorted((ROOT / "lua" / "plugins").glob("*.lua")):
+        text = path.read_text(encoding="utf-8")
+        for repo in REPO_SPEC.findall(text):
+            found.setdefault(repo, set()).add(path.stem)
+    return found
+
+
+def check_catalogue() -> None:
+    chapters = {p.stem for p in (DOCS / "plugins" / "chapters").glob("*.md")}
+    catalogue = {slug for _c, entries in CATALOG for slug, *_ in entries}
+
+    problems: list[str] = []
+
+    missing_chapter = sorted(catalogue - chapters)
+    if missing_chapter:
+        problems.append(
+            "CATALOG lists chapters with no file in docs/plugins/chapters/: "
+            + ", ".join(missing_chapter)
+        )
+
+    orphan_chapter = sorted(chapters - catalogue)
+    if orphan_chapter:
+        problems.append(
+            "docs/plugins/chapters/ has files not listed in CATALOG (they would "
+            "never be published): " + ", ".join(orphan_chapter)
+        )
+
+    # Chapters whose declared source file has been deleted or renamed.
+    for path in sorted((DOCS / "plugins" / "chapters").glob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        m = re.search(r"<!--\s*source:\s*(lua/plugins/[\w.-]+\.lua)\s*-->", text)
+        if m and not (ROOT / m.group(1)).exists():
+            problems.append(f"{path.name} declares source {m.group(1)}, which no longer exists")
+
+    if problems:
+        raise BuildError("\n".join(problems))
+
+
+
+# --- P2: keys cited in chapters must exist in the configuration ------------
+#
+# The runtime dump only contains global mappings: keys registered in on_attach
+# or after FileType are buffer-local and never appear in a headless dump with no
+# files open. So the check also scans the Lua sources for string key
+# definitions. Both sources are unioned before deciding a key is unknown.
+
+KEY_STRING = re.compile(r'["\'](<leader>[A-Za-z0-9<>_.\-]*)["\']')
+CITED = re.compile(r'`(<leader>[A-Za-z0-9<>_.\-]+)`')
+
+
+def config_keys() -> set[str]:
+    """Keys the configuration can produce: runtime dump plus source strings."""
+    keys: set[str] = set()
+
+    if KEYMAP_CACHE.exists():
+        for line in KEYMAP_CACHE.read_text(encoding="utf-8").splitlines():
+            parts = line.split("\t")
+            if parts and parts[0]:
+                keys.add(parts[0])
+
+    for path in (ROOT / "lua").rglob("*.lua"):
+        text = path.read_text(encoding="utf-8")
+        for m in KEY_STRING.finditer(text):
+            keys.add(m.group(1))
+    return keys
+
+
+def check_cited_keys() -> None:
+    """Report chapter references to keys the configuration never defines."""
+    keys = config_keys()
+    # A bare prefix like <leader>c is a group, not a binding; skip anything
+    # whose full form is a prefix of a real key.
+    groups = {k[:i] for k in keys for i in range(2, len(k))}
+    unknown: dict[str, set[str]] = {}
+    for path in sorted((DOCS / "plugins" / "chapters").glob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        for key in set(CITED.findall(text)):
+            if key in keys or key in groups:
+                continue
+            unknown.setdefault(key, set()).add(path.stem)
+
+    if unknown:
+        lines = [f"{k} (in {', '.join(sorted(v))})" for k, v in sorted(unknown.items())]
+        raise BuildError(
+            f"{len(unknown)} key(s) cited in chapters but not found in the configuration: "
+            + "; ".join(lines[:8])
+        )
+
+
 class BuildError(Exception):
     pass
 
@@ -1168,6 +1305,8 @@ def main() -> int:
     try:
         check_css()
         check_links()
+        check_catalogue()
+        check_cited_keys()
     except BuildError as exc:
         print(f"build check failed: {exc}", file=sys.stderr)
         return 1
