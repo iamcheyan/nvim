@@ -196,7 +196,6 @@ Snacks.toggle.treesitter():map("<leader>uT")
 Snacks.toggle.option("background", { off = "light", on = "dark", name = "Dark Background" }):map("<leader>ub")
 Snacks.toggle.dim():map("<leader>uD")
 Snacks.toggle.animate():map("<leader>ua")
-Snacks.toggle.indent():map("<leader>ug")
 Snacks.toggle.scroll():map("<leader>uS")
 -- <leader>d is only this prefix. The old black-hole <leader>d map made
 -- these wait out timeoutlen on every delete.

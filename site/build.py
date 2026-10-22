@@ -60,7 +60,6 @@ CATALOG = [
         ("grug-far.nvim", "grug-far.nvim", "公开", "跨文件查找替换"),
         ("auto-session", "auto-session", "公开", "按项目保存与恢复会话"),
         ("aerial", "aerial.nvim", "公开", "代码符号大纲"),
-        ("quicker", "quicker.nvim", "公开", "quickfix 上下文与编辑"),
     ]),
     ("编辑、补全与代码导航", [
         ("blink-cmp", "blink.cmp", "公开", "输入补全与代码片段"),
@@ -80,23 +79,18 @@ CATALOG = [
         ("hover-nvim", "hover.nvim", "公开", "统一的悬浮文档窗口"),
         ("trouble-nvim", "trouble.nvim", "公开", "诊断、符号与引用面板"),
         ("nvim-bqf", "nvim-bqf", "公开", "快速修复列表的预览与高亮"),
-        ("undotree", "undotree", "公开", "可视化撤销树"),
     ]),
     ("阅读与上下文", [
         ("vim-illuminate", "vim-illuminate", "公开", "同词引用高亮与跳转"),
         ("nvim-treesitter-context", "nvim-treesitter-context", "公开", "固定在窗口顶部的结构上下文"),
         ("hlchunk.nvim", "hlchunk.nvim", "公开", "当前代码块高亮"),
-        ("nvim-biscuits", "nvim-biscuits", "公开", "行尾显示所属块的结尾"),
-        ("symbol-usage.nvim", "symbol-usage.nvim", "公开", "行尾引用与定义计数"),
     ]),
     ("导航、标记与编辑辅助", [
         ("grapple.nvim", "grapple.nvim", "公开", "按分支保存的文件标签"),
         ("portal.nvim", "portal.nvim", "公开", "可搜索的跳转与改动历史"),
-        ("goto-preview", "goto-preview", "公开", "定义与引用的浮动预览"),
         ("vim-matchup", "vim-matchup", "公开", "增强的 % 匹配与结构选中"),
         ("vim-abolish", "vim-abolish", "公开", "命名风格转换与批量替换"),
         ("dial.nvim", "dial.nvim", "公开", "可扩展的递增与递减"),
-        ("hardtime.nvim", "hardtime.nvim", "公开", "按键习惯训练（默认关闭）"),
     ]),
     ("Git 与项目记录", [
         ("gitsigns", "gitsigns.nvim", "公开", "Git 行变更与 hunk 操作"),

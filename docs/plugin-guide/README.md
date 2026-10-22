@@ -55,7 +55,7 @@
 
 符号大纲侧栏，按函数、类、章节等结构跳转。`<leader>cs` 或 `:AerialToggle` 开关，`:AerialOpen` 打开，`:AerialInfo` 查看支持情况；大纲内选择条目可跳到定义位置。普通语言用 Treesitter/LSP 等后端，Markdown 等也可显示结构；COBOL 与 Batch 后端由私有插件提供。
 
-### quicker.nvim（公开）
+### 原生 quickfix
 
 改善 quickfix 结果列表。用 `<leader>xq` 或 `:copen` 打开结果，在列表中按 `>` 展开结果前后各两行上下文，按 `<` 收起，Enter 跳到对应位置；`[q` / `]q` 切换结果。可用 `:vimgrep /TODO/j **/*` 生成练习结果。位置列表仍可用 `:lopen`。
 
@@ -123,9 +123,9 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 使用 Treesitter/缩进结果管理代码折叠。`zR` 全部展开，`zM` 全部折叠，`zr` 展开一层，`zm` 折叠一层，`zp` 预览光标下折叠内容。`promise-async` 只供 ufo 异步工作，不需要直接调用。
 
-### indent-blankline.nvim（公开）
+### snacks.nvim 缩进线（公开）
 
-显示缩进参考线，便于阅读嵌套代码；`<leader>ug` 开关。COBOL 文件会排除通用缩进线，避免与 COBOL 列标尺重叠。
+显示缩进参考线，便于阅读嵌套代码；参考线常驻显示。COBOL 文件会排除通用缩进线，避免与 COBOL 列标尺重叠。
 
 ### rainbow-delimiters.nvim（公开）
 

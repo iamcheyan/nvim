@@ -13,19 +13,16 @@
 |---|---|
 | `<leader>ja` | 给当前文件加标签（再按一次取消） |
 | `<leader>jt` | 打开标签列表窗口 |
-| `<leader>jn` | 跳到下一个标签 |
-| `<leader>jp` | 跳到上一个标签 |
 | `<leader>js` | 打开作用域列表 |
 
-也可以用命令 `:Grapple toggle`、`:Grapple toggle_tags`、`:Grapple cycle_tags next`。标签按 `scope = "git_branch"` 保存，切分支后自动切换集合。
+也可以用命令 `:Grapple toggle`、`:Grapple toggle_tags`、`:Grapple toggle_scopes`。标签按 `scope = "git_branch"` 保存，切分支后自动切换集合。
 
 ## 动手练习
 
 1. 打开一个项目里的文件，`<leader>ja` 打标签。
 2. 再打开两个文件，同样打标签。
 3. `<leader>jt` 打开标签列表，确认三个文件都在。
-4. `<leader>jn` / `<leader>jp` 在标签之间来回跳。
-5. `<leader>js` 查看作用域，确认当前是 git 分支作用域。
+4. `<leader>js` 查看作用域，确认当前是 git 分支作用域。
 
 **验收**：标签列表包含刚打的文件；切换分支后列表变成该分支自己的。
 
