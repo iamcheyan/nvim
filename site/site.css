@@ -56,8 +56,8 @@
   --muted: #5c6b78;
   --dim: #7d8b97;
 
-  --green: #0f8f5f;
-  --green-dim: #0b6f4a;
+  --green: #0a6b46;
+  --green-dim: #085539;
   --green-glow: rgba(15, 143, 95, .1);
   --blue: #1d6fa8;
   --amber: #96690a;
@@ -257,6 +257,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* routes */
 .routes { border-bottom: 1px solid var(--line); background: var(--bg-soft); }
+.routes-inner { max-width: var(--wrap); margin: auto; padding: 52px 20px 58px; }
 
 /* ------------------------------------------------------------ doc layout -- */
 
@@ -265,6 +266,14 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .doc {
   display: grid;
   grid-template-columns: 264px minmax(0, 1fr);
+}
+.doc:not(:has(.side a)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.doc:not(:has(.side a)) .side {
+  display: none;
+}
+.doc {
   gap: 40px;
   padding-top: 38px;
   padding-bottom: 90px;
@@ -310,6 +319,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .side a:hover { color: var(--green); border-left-color: var(--green-dim); background: var(--panel); text-decoration: none; }
 
 .prose { min-width: 0; max-width: 88ch; }
+.doc:not(:has(.side a)) .prose { max-width: 76ch; }
 
 .crumb {
   margin: 0 0 18px;
@@ -362,7 +372,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .prose h4 { margin: 24px 0 8px; color: var(--body); font: 600 14.5px/1.4 var(--sans); }
 
-.prose p { margin: 0 0 15px; }
+.prose p { margin: 0 0 15px; color: var(--ink); opacity: .88; }
 
 .prose ul, .prose ol { margin: 0 0 16px; padding-left: 22px; }
 .prose li { margin: 5px 0; }
@@ -439,13 +449,15 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* --------------------------------------------------------------- keycaps -- */
 
-.keygrid { display: flex; flex-direction: column; gap: 26px; }
+.keygrid { display: flex; flex-direction: column; gap: 18px; }
+.keygroup { margin: 0; }
+.keygroup + .keygroup { margin-top: 6px; }
 
 .keygroup h2 {
   display: flex; align-items: baseline; gap: 10px;
   margin: 0 0 8px; padding: 0 0 7px;
-  border-bottom: 1px solid var(--line-soft);
   border: 0;
+  border-bottom: 1px solid var(--line-soft);
   color: var(--ink);
   font: 600 15px/1.4 var(--mono);
   letter-spacing: .02em;
@@ -455,14 +467,14 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   font: 11px var(--mono);
 }
 
-table.keys { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.keys { width: 100%; margin: 0; border-collapse: collapse; font-size: 13px; display: table; }
 
 table.keys tr { border-bottom: 1px solid var(--line-soft); }
 table.keys tr:last-child { border-bottom: 0; }
 table.keys tr:hover { background: var(--panel); }
 
 table.keys td { padding: 6px 10px; border: 0; vertical-align: middle; }
-table.keys td.k { width: 34%; white-space: nowrap; }
+table.keys td.k { width: 180px; white-space: nowrap; }
 table.keys td.m {
   width: 70px;
   color: var(--dim);
@@ -493,11 +505,12 @@ kbd {
   letter-spacing: -.01em;
 }
 
-.pgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.pgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
 .pgrid.wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .pcard {
-  display: flex; flex-direction: column; gap: 3px;
+  display: flex; flex-direction: column; gap: 4px;
+  min-height: 92px;
   padding: 14px 16px;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -617,6 +630,7 @@ kbd {
 
 /* in-page table of contents (long documents) */
 .toc {
+  max-width: 46ch;
   margin: 0 0 30px;
   padding: 14px 16px;
   background: var(--panel);
@@ -652,6 +666,7 @@ kbd {
 
 /* ---- route list (replaces numbered routes) ---- */
 .routes { border-bottom: 1px solid var(--line); background: var(--bg-soft); }
+.routes-inner { max-width: var(--wrap); margin: auto; padding: 52px 20px 58px; }
 .routes-inner { max-width: var(--wrap); margin: auto; padding: 52px 20px 58px; }
 .route-list { margin: 0; padding: 0; list-style: none; }
 .route-list li { display: flex; align-items: baseline; gap: 18px; padding: 13px 0; border-top: 1px solid var(--line); }

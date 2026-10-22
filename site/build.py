@@ -802,9 +802,18 @@ def build_guides() -> int:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(page(f"{title} — {SITE['name']}", body, "guide-page"), encoding="utf-8")
 
+    def guide_kind(path: Path) -> str:
+        rel = str(path.relative_to(DOCS))
+        if rel.startswith("reference/"):
+            return "参考"
+        if rel.startswith("development/"):
+            return "实现说明"
+        return "使用指南"
+
     cards = "".join(
-        f'<a class="pcard" href="guides/{slug}.html"><strong>{html_escape(title)}</strong>'
-        f'<em>{html_escape(str(path.relative_to(DOCS)))}</em></a>'
+        f'<a class="pcard" href="guides/{slug}.html">'
+        f'<span class="pcard-k">{guide_kind(path)}</span>'
+        f'<strong>{html_escape(title)}</strong></a>'
         for path, slug, title in entries
     )
     inner = (
@@ -881,12 +890,6 @@ def main() -> int:
     (OUT / "assets").mkdir(exist_ok=True)
     for name in ("site.css", "site.js"):
         shutil.copy(ROOT / "site" / name, OUT / "assets" / name)
-
-    # Redirect legacy paths.
-    (OUT / "tutorials").mkdir(exist_ok=True)
-    (OUT / "tutorials" / "index.html").write_text(
-        '<meta http-equiv="refresh" content="0;url=../plugins.html">', encoding="utf-8"
-    )
 
     print(f"pages: 1 home, 1 keys, 1 plugins, {n_plugins} plugin chapters, {n_guides} guides")
     print(f"keymaps parsed: {len(keymaps)}")
