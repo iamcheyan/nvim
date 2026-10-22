@@ -15,6 +15,7 @@ import json
 import re
 import shutil
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
 
 import markdown
@@ -869,6 +870,93 @@ def build_doc_page(slug: str, nav_key: str, title: str, src: Path | None) -> Non
     )
 
 
+
+# ---------------------------------------------------------------------------
+# Build checks
+#
+# These catch the two classes of mistake that actually happened here: a
+# hand-edited stylesheet that stopped parsing partway through, and links that
+# pointed at files that no longer exist. A broken site should fail the build,
+# not ship and get noticed later.
+# ---------------------------------------------------------------------------
+
+class BuildError(Exception):
+    pass
+
+
+def check_css() -> None:
+    """Braces must balance and no declaration may sit outside a rule block."""
+    path = OUT / "assets" / "site.css"
+    css = path.read_text(encoding="utf-8")
+
+    opens, closes = css.count("{"), css.count("}")
+    if opens != closes:
+        raise BuildError(f"site.css: unbalanced braces ({opens} '{{' vs {closes} '}}')")
+
+    depth = 0
+    stray = []
+    for lineno, line in enumerate(css.splitlines(), 1):
+        if depth == 0 and line.strip().startswith("}"):
+            stray.append(lineno)
+        depth += line.count("{") - line.count("}")
+        if depth < 0:
+            depth = 0
+    if stray:
+        raise BuildError(
+            f"site.css: {len(stray)} closing brace(s) with no open rule at line(s) "
+            + ", ".join(str(n) for n in stray[:5])
+        )
+
+    depth = 0
+    orphans = []
+    for lineno, line in enumerate(css.splitlines(), 1):
+        stripped = line.strip()
+        if depth == 0 and stripped and not stripped.startswith(("/*", "*", "@", "}", ":root")):
+            if ":" in stripped and stripped.endswith(";") and "{" not in stripped:
+                orphans.append((lineno, stripped))
+        depth += line.count("{") - line.count("}")
+    if orphans:
+        detail = ", ".join(f"line {n}: {t[:40]}" for n, t in orphans[:5])
+        raise BuildError(f"site.css: {len(orphans)} declaration(s) outside any rule ({detail})")
+
+
+class _RefCollector(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.refs: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        d = dict(attrs)
+        for key in ("href", "src"):
+            value = d.get(key, "")
+            if value and not value.startswith(("http:", "https:", "mailto:", "#", "data:", "file:")):
+                self.refs.append(value.split("#")[0].split("?")[0])
+
+
+def check_links() -> None:
+    """Every internal link must resolve, and every page needs a title and an h1."""
+    broken: list[tuple[str, str]] = []
+    headless: list[str] = []
+    for page in OUT.rglob("*.html"):
+        text = page.read_text(encoding="utf-8")
+        if "<h1" not in text or "<title>" not in text:
+            headless.append(str(page.relative_to(OUT)))
+        collector = _RefCollector()
+        collector.feed(text)
+        for ref in set(collector.refs):
+            if ref and not (page.parent / ref).resolve().exists():
+                broken.append((str(page.relative_to(OUT)), ref))
+
+    problems = []
+    if broken:
+        sample = "; ".join(f"{f} -> {r}" for f, r in broken[:5])
+        problems.append(f"{len(broken)} broken internal link(s): {sample}")
+    if headless:
+        problems.append(f"{len(headless)} page(s) missing <h1> or <title>: {', '.join(headless[:5])}")
+    if problems:
+        raise BuildError("\n".join(problems))
+
+
 def main() -> int:
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -893,6 +981,15 @@ def main() -> int:
 
     print(f"pages: 1 home, 1 keys, 1 plugins, {n_plugins} plugin chapters, {n_guides} guides")
     print(f"keymaps parsed: {len(keymaps)}")
+
+    # Fail loudly rather than publishing a broken site.
+    try:
+        check_css()
+        check_links()
+    except BuildError as exc:
+        print(f"build check failed: {exc}", file=sys.stderr)
+        return 1
+    print("checks: css ok, links ok")
     print(f"output: {OUT}")
     return 0
 
