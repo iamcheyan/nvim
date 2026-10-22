@@ -1,4 +1,4 @@
-# 10 正则与 `:g`
+# 11 正则与 `:g`
 
 > Vim 的正则和 Perl/Python 的不完全一样，但有 `\v` 可以变过来。`:g` 是批量操作的入口。
 
@@ -171,7 +171,7 @@ Vim 里非贪婪是 `{-}` 或 `{-1,}`，在 `\v` 下 `.-` 也行。
 
 基础十篇完成。接下来是按键背后的语法：
 
-- [11 操作符与动作语法](11-operator-grammar.html)
-- [12 文本对象](12-text-objects.html)
-- [13 宏与重复](13-macros.html)
-- [14 映射与 Leader 设计](14-mappings.html)
+- [12 操作符与动作语法](12-operator-grammar.html)
+- [13 文本对象](13-text-objects.html)
+- [14 宏与重复](14-macros.html)
+- [15 映射与 Leader 设计](15-mappings.html)

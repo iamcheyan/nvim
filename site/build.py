@@ -53,22 +53,22 @@ NAV = [
 
 # Ordered series for the tutorials section: (slug, short title).
 TUTORIALS = [
-    ("01-why-vim", "起步：先把观念摆正"),
-    ("02-moving-around", "光标移动"),
-    ("03-basic-editing", "基本编辑"),
-    ("04-yank-and-registers", "复制与寄存器"),
-    ("05-search-and-replace", "查找与替换"),
-    ("06-files-and-buffers", "文件与缓冲"),
-    ("07-visual-and-windows", "可视模式与窗口"),
-    ("08-cmdline-and-help", "命令行与帮助"),
-    ("09-options", "选项与配置"),
-    ("10-regex-and-global", "正则与 :g"),
-    ("11-operator-grammar", "操作符与动作语法"),
-    ("12-text-objects", "文本对象"),
-    ("13-macros", "宏与重复"),
-    ("14-mappings", "映射与 Leader 设计"),
+    ("01-why-vim", "它是从哪来的：ed → vi → Vim → Neovim"),
+    ("02-why-vim", "先把观念摆正：两种状态"),
+    ("03-moving-around", "光标移动"),
+    ("04-basic-editing", "基本编辑"),
+    ("05-yank-and-registers", "复制与寄存器"),
+    ("06-search-and-replace", "查找与替换"),
+    ("07-files-and-buffers", "文件与缓冲"),
+    ("08-visual-and-windows", "可视模式与窗口"),
+    ("09-cmdline-and-help", "命令行与帮助"),
+    ("10-options", "选项与配置"),
+    ("11-regex-and-global", "正则与 :g"),
+    ("12-operator-grammar", "操作符与动作语法"),
+    ("13-text-objects", "文本对象"),
+    ("14-macros", "宏与重复"),
+    ("15-mappings", "映射与 Leader 设计"),
 ]
-
 WIKI = [
     ("01-architecture", "架构：buffer、window、tab"),
     ("02-clipboard", "剪贴板与系统集成"),

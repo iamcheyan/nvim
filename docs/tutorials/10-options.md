@@ -1,4 +1,4 @@
-# 09 选项与配置
+# 10 选项与配置
 
 > 原书这一章讲 `:set`。今天的 Neovim 有更清楚的写法，但也有必须知道的坑。
 
@@ -134,4 +134,4 @@ vim.opt.shortmess:append("c")
 
 ## 下一步
 
-[10 正则与 `:g`](10-regex-and-global.html)——Vim 里最像「编程」的部分。
+[11 正则与 `:g`](11-regex-and-global.html)——Vim 里最像「编程」的部分。

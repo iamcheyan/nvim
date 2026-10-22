@@ -114,7 +114,7 @@ smart-paste 保留块内相对缩进，但把第一行对齐到当前光标位�
 - 删除后立刻 `"0p`（`"0` 永远指向最近一次 yank）
 - 或者删除时用黑洞寄存器：`"_dd`
 
-这一条在 [04 复制与寄存器](../tutorials/04-yank-and-registers.html) 里详细讲了。
+这一条在 [05 复制与寄存器](../tutorials/05-yank-and-registers.html) 里详细讲了。
 
 ## 下一步
 
