@@ -23,7 +23,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 so /changes.html can read more than the single tip
+      # commit; a shallow clone only sees the last one.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
