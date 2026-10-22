@@ -280,6 +280,20 @@ KEY_ALIAS = {
 # Vim's own mapping descriptions are often raw API names. Translate the ones
 # this configuration actually produces; anything unknown stays verbatim so we
 # never invent behaviour.
+LSP_NAMES = {
+    "code_action": "代码操作",
+    "implementation": "跳到实现",
+    "rename": "重命名符号",
+    "references": "列出引用",
+    "type_definition": "跳到类型定义",
+    "signature_help": "参数提示",
+    "document_symbol": "文档符号列表",
+    "definition": "跳到定义",
+    "declaration": "跳到声明",
+    "hover": "悬停文档",
+    "format": "格式化",
+}
+
 DESC_FIXES = {
     "vim.lsp.buf.code_action()": "代码操作（LSP）",
     "vim.lsp.buf.implementation()": "跳到实现（LSP）",
@@ -295,6 +309,8 @@ DESC_FIXES = {
     "vim.diagnostic.goto_prev()": "上一个诊断",
     "vim.diagnostic.setloclist()": "诊断写入 location list",
     "mapping()": "",
+    "vim.snippet.jump if active, otherwise <Tab>": "跳转 snippet 占位符，否则 Tab",
+    "vim.snippet.jump if active, otherwise <S-Tab>": "跳转上一个 snippet 占位符，否则 Shift-Tab",
 }
 
 
@@ -305,9 +321,17 @@ def fix_desc(desc: str) -> str:
     if d in DESC_FIXES:
         return DESC_FIXES[d]
     # Unwrap common LSP helpers into readable Chinese.
-    m = re.match(r"^vim\.lsp\.buf\.([a-z_]+)\(\)$", d)
+    # Any Lua API description is unreadable to a reader; label it instead.
+    m = re.match(r"^vim\.lsp\.([a-z_]+)\.([a-z_]+)\(\)$", d)
     if m:
-        return f"{m.group(1).replace('_', ' ')}（LSP）"
+        group, action = m.group(1), m.group(2)
+        if group == "codelens":
+            return "执行 CodeLens（LSP）" if action == "run" else f"CodeLens：{action}（LSP）"
+        return f"{LSP_NAMES.get(action, action.replace('_', ' '))}（LSP）"
+    if re.match(r"^vim\.diagnostic\.([a-z_]+)\(\)$", d):
+        return f"诊断：{re.match(r'^vim\.diagnostic\.([a-z_]+)\(\)$', d).group(1).replace('_', ' ')}"
+    if re.match(r"^require\(", d) or d.startswith("vim.treesitter"):
+        return d
     if d.startswith(":help ") or d.endswith("-default"):
         return ""
     return d
@@ -595,34 +619,6 @@ def build_home(keymaps: list[dict]) -> str:
   </div>
 </section>
 
-
-<section class="cards">
-  <div class="cards-inner">
-    <h2>它是什么</h2>
-    <div class="card-grid">
-      <div class="card">
-        <p class="card-k">开箱可用</p>
-        <h3>装好就能写代码</h3>
-        <p>依赖、插件、Treesitter parser 都由安装脚本处理。缺什么会告诉你，不会留一个半成品环境。</p>
-      </div>
-      <div class="card">
-        <p class="card-k">可读可改</p>
-        <h3>41 个插件规格全在仓库里</h3>
-        <p>没有藏在别处的默认值。每章手册都指着具体文件，改配置时知道自己在改什么。</p>
-      </div>
-      <div class="card">
-        <p class="card-k">按键可查</p>
-        <h3>{len(keymaps)} 个按键从源码生成</h3>
-        <p>按键页由构建脚本直接解析配置源生成，不是手抄的表格——它不会和你装的版本不一致。</p>
-      </div>
-      <div class="card">
-        <p class="card-k">两种装法</p>
-        <h3>独立仓库或 dotfiles 子模块</h3>
-        <p>单机用可以独立 clone；多机同步走 dotfiles 子模块，两条路径都保持可用。</p>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section class="routes">
   <div class="routes-inner">
@@ -1055,6 +1051,15 @@ def build_search_page(entries: list[dict]) -> str:
   </div>
   <p class="search-meta" id="search-meta"></p>
   <div id="search-results" class="search-results" aria-live="polite"></div>
+  <div class="search-hints" id="search-hints">
+    <p class="search-hints-title">可以搜什么</p>
+    <ul>
+      <li>插件名，例如 <code>gitsigns</code>、<code>treesitter</code></li>
+      <li>按键，例如 <code>&lt;leader&gt;gd</code>、<code>Ctrl-n</code></li>
+      <li>概念，例如 <code>多光标</code>、<code>折叠</code>、<code>剪贴板</code></li>
+      <li>页面标题，例如 <code>安装与更新</code></li>
+    </ul>
+  </div>
 </div>
 """
     body = f"""

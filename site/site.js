@@ -154,11 +154,14 @@
 
     function render(q) {
       q = q.trim().toLowerCase();
+      var hints = document.getElementById('search-hints');
       if (q === '') {
         results.innerHTML = '';
         if (meta) meta.textContent = docs.length + ' 个页面可搜索';
+        if (hints) hints.hidden = false;
         return;
       }
+      if (hints) hints.hidden = true;
       var scored = [];
       docs.forEach(function (d) {
         var v = score(d, q);

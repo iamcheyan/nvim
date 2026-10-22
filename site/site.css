@@ -71,6 +71,8 @@
 
 html { scroll-behavior: smooth; }
 
+body.home-body { min-height: 100vh; }
+
 body {
   margin: 0;
   background: var(--bg);
@@ -181,6 +183,8 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   text-transform: uppercase;
 }
 
+.hero-copy { max-width: 620px; }
+
 .hero h1 {
   margin: 0;
   color: var(--ink);
@@ -266,18 +270,17 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .doc {
   display: grid;
   grid-template-columns: 264px minmax(0, 1fr);
+  gap: 40px;
+  padding-top: 38px;
+  padding-bottom: 90px;
+  align-items: start;
 }
+/* A page whose sidebar has no links should not reserve the column. */
 .doc:not(:has(.side a)) {
   grid-template-columns: minmax(0, 1fr);
 }
 .doc:not(:has(.side a)) .side {
   display: none;
-}
-.doc {
-  gap: 40px;
-  padding-top: 38px;
-  padding-bottom: 90px;
-  align-items: start;
 }
 
 .side {
@@ -384,8 +387,13 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .side a[hidden], .side-group[hidden] { display: none !important; }
 
-.prose { min-width: 0; max-width: 88ch; }
-.doc:not(:has(.side a)) .prose { max-width: 76ch; }
+.prose { min-width: 0; max-width: 78rem; }
+/* No sidebar: centre the column instead of leaving it pinned left. */
+.doc:not(:has(.side a)) .prose {
+  max-width: 72rem;
+  width: 100%;
+  justify-self: center;
+}
 
 .crumb {
   margin: 0 0 18px;
@@ -627,7 +635,9 @@ kbd {
 }
 
 @media (max-width: 760px) {
-  body { font-size: 15px; }
+  body.home-body { min-height: 100vh; }
+
+body { font-size: 15px; }
 
   .bar-inner { height: auto; min-height: 56px; padding: 9px 16px; flex-wrap: wrap; gap: 10px; }
 
@@ -645,9 +655,11 @@ kbd {
   .theme-btn { margin-left: 0; }
 
   .hero-inner { padding: 40px 16px 44px; }
-  .hero h1 { font-size: 30px; }
+  .hero-copy { max-width: 620px; }
+
+.hero h1 { font-size: 30px; }
   .lede { font-size: 14.5px; }
-  .term-body { font-size: 11px; padding: 14px 12px; }
+  body { font-size: 11px; padding: 14px 12px; }
 
   .facts-inner { grid-template-columns: repeat(2, 1fr); padding: 0 16px; }
   .fact { padding: 16px 12px; border-left: 0; border-top: 1px solid var(--line); }
@@ -731,9 +743,6 @@ kbd {
 .spec-list code { padding: 1px 5px; background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 3px; color: var(--body); font: .88em var(--mono); }
 
 /* ---- route list (replaces numbered routes) ---- */
-.routes { border-bottom: 1px solid var(--line); background: var(--bg-soft); }
-.routes-inner { max-width: var(--wrap); margin: auto; padding: 52px 20px 58px; }
-.routes-inner { max-width: var(--wrap); margin: auto; padding: 52px 20px 58px; }
 .route-list { margin: 0; padding: 0; list-style: none; }
 .route-list li { display: flex; align-items: baseline; gap: 18px; padding: 13px 0; border-top: 1px solid var(--line); }
 .route-list li:last-child { border-bottom: 1px solid var(--line); }
@@ -752,7 +761,7 @@ kbd {
 
 /* ------------------------------------------------------------ search page -- */
 
-.search-page { margin: 0 0 40px; }
+.search-page { margin: 0 0 40px; width: 100%; }
 .search-box {
   display: flex; align-items: center; gap: 10px;
   padding: 0 14px; height: 48px;
@@ -775,7 +784,7 @@ kbd {
 .search-box kbd { flex: 0 0 auto; }
 .search-meta { margin: 12px 0 18px; color: var(--dim); font: 11.5px var(--mono); }
 
-.search-results { display: flex; flex-direction: column; }
+.search-results { display: flex; flex-direction: column; width: 100%; min-height: 1px; }
 .hit {
   display: grid; grid-template-columns: 62px minmax(0, 1fr);
   gap: 4px 14px;
@@ -816,4 +825,25 @@ kbd {
   #site-search { font-size: 14px; }
   .hit { grid-template-columns: 1fr; gap: 3px; }
   .hit-kind { grid-row: auto; }
+}
+
+/* de-emphasised inline text: placeholders, empty values */
+.tdim { color: var(--dim); font-size: .92em; }
+
+/* search page: what you can search for, shown until a query is typed */
+.search-hints { margin: 30px 0 0; padding-top: 22px; border-top: 1px solid var(--line-soft); }
+.search-hints[hidden] { display: none; }
+.search-hints-title {
+  margin: 0 0 10px;
+  color: var(--dim);
+  font: 500 10.5px/1.4 var(--mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.search-hints ul { margin: 0; padding-left: 18px; }
+.search-hints li { margin: 5px 0; color: var(--muted); font-size: 13.5px; }
+.search-hints code {
+  padding: 1px 5px; background: var(--panel-2);
+  border: 1px solid var(--line-soft); border-radius: 3px;
+  color: var(--green); font: .88em var(--mono);
 }
