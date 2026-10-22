@@ -108,6 +108,20 @@ return {
     opts = {
       explorer = { enabled = false },
       scroll = { enabled = false },
+      indent = {
+        enabled = true,
+        char = "│",
+        only_scope = false,
+        only_current = false,
+      },
+      scope = {
+        enabled = true,
+        char = "│",
+        underline = false,
+      },
+      animate = {
+        enabled = false,
+      },
       image = {
         enabled = true,
         doc = {
