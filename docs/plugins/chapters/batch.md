@@ -30,9 +30,9 @@ opts = {
 | 状态栏集成 | 开启 |
 | 按键映射 | **关闭** |
 
-### 与 contextline 的关系
+### 与 dropbar 的关系
 
-它依赖 `contextline.nvim`，所以状态栏的结构上下文（标签层次）由后者提供。
+`batch.dropbar` 将标签解析结果接入官方 `dropbar.nvim` 的顶部栏与原生层级菜单。
 
 ## 动手练习
 

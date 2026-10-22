@@ -10,7 +10,14 @@ local function is_scrollbar_hover(mp)
   local cfg = vim.api.nvim_win_get_config(mp.winid)
   -- 1. Is mp.winid the satellite floating window itself?
   if cfg and cfg.relative == "win" and cfg.win and vim.api.nvim_win_is_valid(cfg.win) then
-    return true, cfg.win
+    -- Relative floats include menus and previews. Only satellite's own view
+    -- carries these window properties and belongs to a registered scrollbar.
+    local satellite = package.loaded["satellite.view"]
+    local props = satellite and satellite.get_props and satellite.get_props(cfg.win)
+    if cfg.focusable == false and props and vim.w[mp.winid].width == props.width
+      and vim.w[mp.winid].height == props.height and vim.w[mp.winid].col == props.col then
+      return true, cfg.win
+    end
   end
   -- 2. Is the mouse hovering on the rightmost column of an ordinary window?
   if cfg and cfg.relative == "" and not cfg.external then
@@ -57,6 +64,20 @@ local function scroll_win(direction)
     if v then lines = tonumber(v) or 3 end
   end
   vim.api.nvim_win_call(win, function()
+    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "dropbar_menu" then
+      -- Ctrl-E permits the last entry to reach the top, leaving empty rows.
+      -- Menus stop as soon as the final page is fully visible.
+      local view = vim.fn.winsaveview()
+      local height = vim.api.nvim_win_get_height(win)
+      local count = vim.api.nvim_buf_line_count(vim.api.nvim_win_get_buf(win))
+      local last_top = math.max(1, count - height + 1)
+      local top = math.max(1, math.min(last_top, view.topline + direction * lines))
+      view.topline = top
+      view.lnum = math.max(top, math.min(top + height - 1, view.lnum))
+      view.skipcol = 0
+      vim.fn.winrestview(view)
+      return
+    end
     local cmd = direction > 0 and ("normal! " .. lines .. "\x05") or ("normal! " .. lines .. "\x19")
     vim.cmd(cmd)
   end)
@@ -72,6 +93,19 @@ function M.setup()
   local kmopts = { silent = true }
   vim.keymap.set({ "n", "i", "v", "x" }, "<ScrollWheelDown>", function() scroll_win(1) end, kmopts)
   vim.keymap.set({ "n", "i", "v", "x" }, "<ScrollWheelUp>", function() scroll_win(-1) end, kmopts)
+
+  -- Native horizontal wheel scrolling can move every menu label off screen.
+  -- Pass the original key through for ordinary editor windows.
+  for _, key in ipairs({ "<ScrollWheelLeft>", "<ScrollWheelRight>" }) do
+    vim.keymap.set({ "n", "i", "v", "x" }, key, function()
+      local _, win = is_scrollbar_hover(vim.fn.getmousepos())
+      if win and vim.api.nvim_win_is_valid(win)
+        and vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "dropbar_menu" then
+        return ""
+      end
+      return key
+    end, { silent = true, expr = true })
+  end
 
   M._namespace = vim.api.nvim_create_namespace("ScrollBarMouseEvents")
   local keycodes = {

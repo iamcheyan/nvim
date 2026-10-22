@@ -11,6 +11,7 @@ tmp/
 .DS_Store
 sbzr.nvim.im.db/
 lazyvim.json
+lazy-lock.json
 
 # site build output
 build/

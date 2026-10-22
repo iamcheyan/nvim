@@ -34,7 +34,7 @@ return {
   {
     "iamcheyan/cobol.nvim",
     build = "bash scripts/build_parser.sh",
-    dependencies = { "iamcheyan/contextline.nvim" },
+    dependencies = { "Bekaboo/dropbar.nvim" },
     ft = { "cobol", "cbl", "cob" },
     cmd = {
       "CobolGuideToggle",
@@ -62,7 +62,8 @@ return {
       columns = { 7, 8, 12, 73 },
       show_lines = true,         -- 启用细标尺线 (│)
       char = "│",
-      show_winbar = true,
+      -- dropbar owns the bracketed chain and waiting closures.
+      show_winbar = false,
       show_colorcolumn = false,  -- 关闭背景粗色块
       highlight_overflow = true,
       overflow_col = 72,

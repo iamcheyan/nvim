@@ -7,7 +7,7 @@ return {
       winblend = 0,
       zindex = 40,
       excluded_filetypes = {
-        "contextline_menu",
+        "local_popup_menu",
         "dropbar_menu",
         "dropbar_menu_fzf",
         "DressingInput",

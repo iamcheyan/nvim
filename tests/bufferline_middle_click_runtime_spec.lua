@@ -7,6 +7,7 @@ assert(_G.___bufferline_private and _G.___bufferline_private.handle_click,
 local buf = vim.api.nvim_create_buf(true, false)
 vim.api.nvim_buf_set_name(buf, vim.fn.tempname() .. ".txt")
 vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "middle-click target" })
+vim.bo[buf].modified = false -- This spec exercises close dispatch, not confirmation.
 vim.api.nvim_set_current_buf(buf)
 assert(vim.bo[buf].buflisted, "test buffer should be listed before the click")
 

@@ -22,7 +22,11 @@ function M.setup()
     -- Noice renders the bottom command line as a borderless popup, and NUI
     -- manages its dialog borders separately. Adding a border here flashes a
     -- frame before command entry is painted.
-    if ft == 'noice' then return open(buf, enter, config) end
+    -- Dropbar calculates submenu and scrollbar geometry from its own border.
+    -- Adding one after that calculation changes its clickable layout.
+    if ft == 'noice' or ft == 'dropbar_menu' or ft == 'dropbar_menu_fzf' then
+      return open(buf, enter, config)
+    end
     local backdrop = float and config.focusable == false and config.border == 'none'
     if float and not backdrop and not ft:match('^snacks_picker') then
       config = vim.tbl_extend('force', {}, config, { border = 'single' })

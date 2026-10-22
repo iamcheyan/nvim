@@ -2,7 +2,7 @@ return {
   {
     "iamcheyan/batch.nvim",
     name = "batch.nvim",
-    dependencies = { "iamcheyan/contextline.nvim" },
+    dependencies = { "Bekaboo/dropbar.nvim" },
     ft = { "dosbatch" },
     opts = {
       enable_diagnostics = true,

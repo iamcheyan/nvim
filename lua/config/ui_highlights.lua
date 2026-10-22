@@ -660,6 +660,9 @@ function M.apply()
     vim.schedule(function() pcall(vim.cmd, "redrawstatus") end)
   end
 
+  local dropbar = package.loaded["config.dropbar"]
+  if dropbar and dropbar.highlights then dropbar.highlights() end
+
   local markdown = package.loaded["config.markdown_typography"]
   if markdown and markdown.refresh then markdown.refresh() end
 end

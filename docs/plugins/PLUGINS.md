@@ -98,13 +98,14 @@
 | [ccc.nvim](chapters/ccc.md) | 公开 | 取色与颜色转换 |
 | [smart-paste.nvim](chapters/smart-paste.md) | 私有 | 系统剪贴板和缩进粘贴 |
 
+| [dropbar.nvim](chapters/dropbar.md) | 公开 | 语言结构上下文栏 |
+
 ## 私有语言工具
 
 | 插件 | 章节 |
 |---|---|
 | [cobol.nvim](chapters/cobol.md) | COBOL 导航、格式和辅助 |
 | [batch.nvim](chapters/batch.md) | Windows Batch 标签导航和分析 |
-| [contextline.nvim](chapters/contextline.md) | 语言结构上下文栏 |
 | [VimQuest.nvim](chapters/vimquest.md) | 词汇练习 |
 
 ## 管理器、图标和内部依赖

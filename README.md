@@ -66,7 +66,7 @@ latest main directly is a separate operation.
 
 ## Independent plugins and local development
 
-VimQuest, contextline.nvim, cobol.nvim, batch.nvim and bookmark.nvim remain
+VimQuest, cobol.nvim, batch.nvim and bookmark.nvim remain
 independent public repositories. lazy.nvim installs them without chezmoi.
 
 Clone the plugins you develop beneath `~/development/nvim-plugins`. Create

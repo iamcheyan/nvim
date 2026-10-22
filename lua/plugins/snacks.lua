@@ -176,6 +176,7 @@ return {
           local win = picker.main
           if win and vim.api.nvim_win_is_valid(win) then
             picker._saved_main_winbar = vim.wo[win].winbar
+            vim.w[win].dropbar_suspended = true
             vim.wo[win].winbar = ""
           end
           -- Snacks maps NormalFloat for the preview, but blank filler lines
@@ -196,8 +197,13 @@ return {
         on_close = function(picker)
           local win = picker.main
           if win and vim.api.nvim_win_is_valid(win) and picker._saved_main_winbar ~= nil then
+            vim.w[win].dropbar_suspended = nil
             vim.wo[win].winbar = picker._saved_main_winbar
             picker._saved_main_winbar = nil
+            local context = package.loaded["config.dropbar"]
+            if context then
+              context.sync(vim.api.nvim_win_get_buf(win), win)
+            end
           end
         end,
         layout = {

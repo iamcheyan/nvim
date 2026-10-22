@@ -24,7 +24,7 @@ function M.open(entries, execute)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   vim.bo[buf].bufhidden = 'wipe'
-  vim.bo[buf].filetype = 'contextline_menu'
+  vim.bo[buf].filetype = 'local_popup_menu'
   vim.bo[buf].modifiable = false
   local win = vim.api.nvim_open_win(buf, false, {
     relative = 'editor', row = math.max(0, math.min(mouse.screenrow, vim.o.lines - height - 3)),

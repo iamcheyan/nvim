@@ -7,24 +7,6 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     opts = function()
-      local function set_contextline_diagnostic_badges()
-        vim.api.nvim_set_hl(0, "ContextlineErrorBadge", {
-          fg = "#ffffff",
-          bg = "#b3261e",
-          bold = true,
-        })
-        vim.api.nvim_set_hl(0, "ContextlineWarningBadge", {
-          fg = "#ffffff",
-          bg = "#8a5a00",
-          bold = true,
-        })
-      end
-      set_contextline_diagnostic_badges()
-      vim.api.nvim_create_autocmd("ColorScheme", {
-        group = vim.api.nvim_create_augroup("ContextlineDiagnosticBadgeColors", { clear = true }),
-        callback = set_contextline_diagnostic_badges,
-      })
-
       local gap = { provider = "  " }
       local pad = { provider = " " }
       local function caps_locked()
@@ -265,7 +247,7 @@ return {
         local buf = vim.api.nvim_create_buf(false, true)
         vim.api.nvim_buf_set_lines(buf, 0, -1, false, final_lines)
         vim.bo[buf].buftype = "nofile"
-        vim.bo[buf].filetype = "contextline_menu"
+        vim.bo[buf].filetype = "statusline_menu"
         vim.bo[buf].bufhidden = "wipe"
         vim.bo[buf].modifiable = false
 
@@ -1219,6 +1201,7 @@ return {
           return { fg = statusline_colors.text }
         end,
       }
+
       local RightInfo = {
         PositionInfo,
         Venv,
@@ -1230,101 +1213,7 @@ return {
       }
 
 
-      local ContextlineWinbar = {
-        hl = "WinBar",
-        condition = function()
-          if vim.bo.buftype ~= "" or vim.bo.filetype == "" or hidden_filetypes[vim.bo.filetype] then
-            return false
-          end
-          local ok, cl = pcall(require, "contextline")
-          if not ok then
-            return false
-          end
-          return cl.get_info() ~= nil
-        end,
-        {
-          provider = function()
-            local ok, cl = pcall(require, "contextline")
-            if not ok then return "" end
-            local feedback = require("config.bar_feedback")
-            _G.contextline_diagnostic_click = function(severity, _, button)
-              if button and button ~= "l" then return end
-              local bufnr = vim.api.nvim_get_current_buf()
-              local diagnostics = vim.diagnostic.get(bufnr, { severity = tonumber(severity) })
-              if #diagnostics == 0 then
-                vim.notify("No matching diagnostics in this buffer", vim.log.levels.INFO)
-                return
-              end
-
-              local title = tonumber(severity) == vim.diagnostic.severity.ERROR
-                  and "Errors in current buffer" or "Warnings in current buffer"
-              vim.fn.setqflist({}, "r", {
-                title = title,
-                items = vim.diagnostic.toqflist(diagnostics),
-              })
-              vim.cmd("copen")
-            end
-            if _G.contextline_click and not cl._bar_feedback_installed then
-              cl._bar_feedback_installed = true
-              local callback = _G.contextline_click
-              _G.contextline_click = function(id, ...)
-                feedback.press("contextline_click", id)
-                return callback(id, ...)
-              end
-            end
-            local line = cl.get({ separator = "", fixed_palette = true })
-            line = line:gsub("(%%(%d+)@v:lua.contextline_click@)(.-)(%%X)", function(marker, id, text, ending)
-              local anchor = tonumber(id) == cl._active_menu_segment and "%#ContextlineActiveMenu#" or ""
-              return marker .. anchor .. " " .. text .. " " .. ending
-            end)
-            line = line:gsub("%%#DiagnosticError#(.-)%%%*", function(text)
-              return "%1@v:lua.contextline_diagnostic_click@%#ContextlineErrorBadge# "
-                .. text .. " %#WinBar#%X"
-            end)
-            line = line:gsub("%%#DiagnosticWarn#(.-)%%%*", function(text)
-              return "%2@v:lua.contextline_diagnostic_click@%#ContextlineWarningBadge# "
-                .. text .. " %#WinBar#%X"
-            end)
-            -- Embedded resets otherwise fall back to the window's default
-            -- surface between icons, labels and padding. Keep every cell on
-            -- the same winbar palette, including while a menu is open.
-            line = line:gsub("%%#([^#]+)#", function(group)
-              if group == "ContextlineActiveMenu" then return "%#ContextlineActiveMenu#" end
-              if group == "ContextlineErrorBadge" or group == "ContextlineWarningBadge" then
-                return "%#" .. group .. "#"
-              end
-              return "%#WinBar#"
-            end)
-            line = line:gsub("%%%*", "%%#WinBar#")
-            vim.api.nvim_set_hl(0, "ContextlineActiveMenu", { link = "WinBar" })
-            return "%#WinBar#" .. line .. "%#WinBar#"
-          end,
-        },
-        -- Do not cache only on CursorMoved: opening the hierarchy menu must
-        -- redraw the active chip on the first click, before any cursor move.
-
-      }
-
       return {
-        opts = {
-          disable_winbar_cb = function(args)
-            local buf = args.buf or 0
-            local ft = vim.bo[buf].filetype
-            local bt = vim.bo[buf].buftype
-            if bt ~= "" or ft == "" or hidden_filetypes[ft] then
-              return true
-            end
-            -- Heirline can keep the winbar row allocated even when the
-            -- context component's condition returns false.  Disable the
-            -- entire winbar when there is no actual context to display.
-            local ok, cl = pcall(require, "contextline")
-            if not ok or cl.get_info({ bufnr = buf, winid = args.win or 0 }) == nil then
-              return true
-            end
-            return false
-          end,
-        },
-        winbar = ContextlineWinbar,
         statusline = {
           hl = function()
             return { fg = statusline_colors.text, bg = statusline_colors.bg, bold = false }
@@ -1345,47 +1234,11 @@ return {
           component._win_cache = nil
           for _, child in ipairs(component) do clear(child) end
         end
-        clear(require("heirline").winbar)
         clear(require("heirline").statusline)
         vim.cmd("redrawstatus")
       end
 
       require("config.caps_lock").start()
-
-      -- Heirline's built-in winbar setup listens to FileType, but a window
-      -- can retain the previous buffer's local winbar across BufEnter. Keep
-      -- the context winbar synchronized when switching between buffers.
-      local heirline_winbar = "%{%v:lua.require'heirline'.eval_winbar()%}"
-      vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
-        group = vim.api.nvim_create_augroup("HeirlineContextWinbarSync", { clear = true }),
-        callback = function(args)
-          local win = vim.api.nvim_get_current_win()
-          local buf = args.buf or vim.api.nvim_win_get_buf(win)
-          local ft = vim.bo[buf].filetype
-          local bt = vim.bo[buf].buftype
-          local hidden = {
-            ["neo-tree"] = true, ["NvimTree"] = true, ["aerial"] = true,
-            ["help"] = true, ["lazy"] = true, ["mason"] = true,
-            ["Trouble"] = true, ["snacks_layout_box"] = true, ["qf"] = true,
-            ["csv"] = true, ["tsv"] = true, ["text"] = true, ["txt"] = true,
-            ["plaintex"] = true, ["log"] = true, ["gitcommit"] = true,
-            ["gitrebase"] = true, ["diff"] = true, ["checkhealth"] = true,
-            ["man"] = true,
-          }
-          local ok, cl = pcall(require, "contextline")
-          local has_context = bt == "" and ft ~= "" and not hidden[ft]
-            and ok and cl.get_info({ bufnr = buf, winid = win }) ~= nil
-          local current = vim.wo[win].winbar
-          if has_context then
-            if current == nil or current == "" or current == heirline_winbar then
-              vim.wo[win].winbar = heirline_winbar
-            end
-          elseif current == heirline_winbar then
-            vim.wo[win].winbar = ""
-          end
-        end,
-        desc = "Sync context winbar when changing buffers",
-      })
 
       -- 解决切换主题后状态栏失去颜色的问题：
       -- 当执行 :colorscheme 时，Vim 会清空所有高亮组 (hi clear)。

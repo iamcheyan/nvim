@@ -126,7 +126,8 @@ CATALOG = [
         ("bookmark", "bookmark.nvim", "私有", "项目书签"),
     ]),
     ("界面、颜色与辅助操作", [
-        ("heirline", "heirline.nvim", "公开", "状态栏与上下文栏"),
+        ("heirline", "heirline.nvim", "公开", "底部状态栏"),
+        ("dropbar", "dropbar.nvim", "公开", "语言结构上下文栏"),
         ("which-key", "which-key.nvim", "公开", "快捷键提示"),
         ("indent-guides", "snacks.nvim 缩进线", "公开", "缩进参考线与范围线"),
         ("rainbow-delimiters", "rainbow-delimiters.nvim", "公开", "成对括号着色"),
@@ -142,7 +143,6 @@ CATALOG = [
     ("私有语言工具", [
         ("cobol", "cobol.nvim", "私有", "COBOL 导航、格式与辅助"),
         ("batch", "batch.nvim", "私有", "Windows Batch 标签导航与分析"),
-        ("contextline", "contextline.nvim", "私有", "语言结构上下文栏"),
         ("vimquest", "VimQuest.nvim", "私有", "词汇练习"),
         ("position-ruler", "position-ruler.nvim", "私有", "定长文件的字符列标尺"),
     ]),
@@ -209,10 +209,10 @@ for _, mode in ipairs({ "n", "x", "o", "i", "t", "c" }) do
     if leader ~= "" and lhs:sub(1, #leader) == leader and lhs ~= leader then
       lhs = "<leader>" .. lhs:sub(#leader + 1)
     end
-    out[#out + 1] = table.concat({ lhs, m.mode, ((m.desc or ""):gsub("\\t", " ")) }, "\\t")
+    out[#out + 1] = table.concat({ lhs, m.mode, ((m.desc or ""):gsub("\t", " "):gsub("\n", " ")) }, "\t")
   end
 end
-vim.fn.writefile(vim.env.KEYMAP_DUMP or "/tmp/nvim-keys.tsv", out)
+vim.fn.writefile(out, vim.env.KEYMAP_DUMP or "/tmp/nvim-keys.tsv")
 vim.cmd("qa!")
 """
 
@@ -254,11 +254,11 @@ def refresh_keymaps() -> list[dict]:
         if len(parts) < 2:
             continue
         lhs, modes, desc = parts[0], parts[1], (parts[2] if len(parts) > 2 else "")
-        if not lhs or lhs.startswith("<Plug>"):
+        if not lhs or lhs.startswith(("<Plug>", "<SNR>")):
             continue
         rows.append({"lhs": lhs, "modes": [modes], "desc": desc, "plugin": "", "source": "dump"})
     KEYMAP_CACHE.write_text(
-        "\n".join(f'{r["lhs"]}\t{",".join(r["modes"])}\t{r["desc"]}' for r in rows) + "\n",
+        "\n".join(f'{r["lhs"]}\t{",".join(r["modes"])}\t{r["desc"]}'.rstrip("\t") for r in rows) + "\n",
         encoding="utf-8",
     )
     return rows
