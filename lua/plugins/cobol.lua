@@ -27,16 +27,8 @@ return {
     end,
   },
 
-  -- 在 COBOL 文件中排除 indent-blankline，隐藏通用的缩进线与 scope 范围线
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    optional = true,
-    opts = function(_, opts)
-      opts.exclude = opts.exclude or {}
-      opts.exclude.filetypes = opts.exclude.filetypes or {}
-      vim.list_extend(opts.exclude.filetypes, { "cobol", "cbl", "cob" })
-    end,
-  },
+  -- Indent guides come from snacks.nvim (see lua/plugins/indent.lua); the old
+  -- indent-blankline exclusion was removed because that plugin is not installed.
 
   -- COBOL guides and development tools.
   {

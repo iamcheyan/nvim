@@ -96,7 +96,7 @@
 |---|---|---|
 | [heirline.nvim](chapters/heirline.md) | 公开 | 状态栏和上下文栏 |
 | [which-key.nvim](chapters/which-key.md) | 公开 | 快捷键提示 |
-| [indent-blankline.nvim](chapters/indent-blankline.md) | 公开 | 缩进参考线 |
+| [snacks.nvim 缩进线](chapters/indent-guides.md) | 公开 | 缩进参考线与范围线 |
 | [rainbow-delimiters.nvim](chapters/rainbow-delimiters.md) | 公开 | 成对括号着色 |
 | [satellite.nvim](chapters/satellite.md) | 公开 | 窗口边缘位置标记 |
 | [nvim-hlslens](chapters/nvim-hlslens.md) | 公开 | 搜索结果位置提示 |

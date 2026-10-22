@@ -106,7 +106,7 @@ CATALOG = [
     ("界面、颜色与辅助操作", [
         ("heirline", "heirline.nvim", "公开", "状态栏与上下文栏"),
         ("which-key", "which-key.nvim", "公开", "快捷键提示"),
-        ("indent-blankline", "indent-blankline.nvim", "公开", "缩进参考线"),
+        ("indent-guides", "snacks.nvim 缩进线", "公开", "缩进参考线与范围线"),
         ("rainbow-delimiters", "rainbow-delimiters.nvim", "公开", "成对括号着色"),
         ("satellite", "satellite.nvim", "公开", "窗口边缘位置标记"),
         ("nvim-hlslens", "nvim-hlslens", "公开", "搜索结果位置提示"),
