@@ -47,6 +47,7 @@ NAV = [
     ("keys", "按键"),
     ("plugins", "插件手册"),
     ("guides", "指南"),
+    ("changes", "最近改动"),
 ]
 
 # Plugin catalogue: category -> [(chapter slug, display name, kind, one-liner)]
@@ -98,12 +99,14 @@ CATALOG = [
         ("mini-hipatterns", "mini.hipatterns", "公开", "颜色值文本高亮"),
         ("ccc", "ccc.nvim", "公开", "取色与颜色转换"),
         ("smart-paste", "smart-paste.nvim", "私有", "系统剪贴板与缩进粘贴"),
+        ("noice", "noice.nvim", "公开", "命令行、消息与确认框浮层"),
     ]),
     ("私有语言工具", [
         ("cobol", "cobol.nvim", "私有", "COBOL 导航、格式与辅助"),
         ("batch", "batch.nvim", "私有", "Windows Batch 标签导航与分析"),
         ("contextline", "contextline.nvim", "私有", "语言结构上下文栏"),
         ("vimquest", "VimQuest.nvim", "私有", "词汇练习"),
+        ("position-ruler", "position-ruler.nvim", "私有", "定长文件的字符列标尺"),
     ]),
     ("管理器与依赖", [
         ("lazy", "lazy.nvim", "管理器", "插件安装与更新"),
@@ -667,6 +670,7 @@ def build_home(keymaps: list[dict]) -> str:
       <li><a href="keys.html">按键速查</a><span>按场景分组，附完整键位表</span></li>
       <li><a href="plugins.html">插件手册</a><span>{total_plugins} 章，每章解决什么问题、怎么用、练习</span></li>
       <li><a href="guides.html">指南</a><span>Treesitter、剪贴板、Markdown 等专题记录</span></li>
+      <li><a href="changes.html">最近改动</a><span>配置和手册最近改了什么</span></li>
     </ul>
   </div>
 </section>
@@ -1126,6 +1130,58 @@ def check_cited_keys() -> None:
         )
 
 
+
+# --- P3: every plugin in the config should be reachable from the handbook ----
+#
+# Plugins get added to lua/plugins/ and the handbook quietly falls behind.
+# This compares the declared repositories against the published chapters and
+# reports anything that has no page, using a normalised name match so
+# "blink.cmp" still matches the blink-cmp chapter.
+
+SKIP_REPOS = {
+    # Covered together on the dependencies page.
+    "MunifTanjim/nui.nvim",
+    "nvim-lua/plenary.nvim",
+    "nvim-tree/nvim-web-devicons",
+    "kevinhwang91/promise-async",
+}
+NOT_REPOS = ("textDocument/", "use/", "diagnostics/", "file/")
+
+
+def _normalise_name(text: str) -> str:
+    return re.sub(r"[-._]", "", text.lower().replace(".nvim", ""))
+
+
+def declared_repositories() -> dict[str, set[str]]:
+    repos: dict[str, set[str]] = {}
+    for path in sorted((ROOT / "lua" / "plugins").glob("*.lua")):
+        text = path.read_text(encoding="utf-8")
+        for repo in re.findall(r'"([A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)"', text):
+            if repo.startswith(NOT_REPOS):
+                continue
+            repos.setdefault(repo, set()).add(path.stem)
+    return repos
+
+
+def check_plugin_coverage() -> None:
+    chapters = {p.stem: _normalise_name(p.stem) for p in (DOCS / "plugins" / "chapters").glob("*.md")}
+    uncovered: list[str] = []
+
+    for repo, spec_files in sorted(declared_repositories().items()):
+        if repo in SKIP_REPOS:
+            continue
+        name = _normalise_name(repo.split("/")[1])
+        if any(name == chap or name in chap or chap in name for chap in chapters.values()):
+            continue
+        uncovered.append(f"{repo} (declared in {', '.join(sorted(spec_files))}.lua)")
+
+    if uncovered:
+        raise BuildError(
+            f"{len(uncovered)} plugin(s) in lua/plugins/ have no handbook chapter: "
+            + "; ".join(uncovered)
+        )
+
+
 class BuildError(Exception):
     pass
 
@@ -1291,6 +1347,86 @@ def build_search_page(entries: list[dict]) -> str:
     return page("搜索 — " + SITE["name"], body, "search")
 
 
+
+# ---------------------------------------------------------------------------
+# Recent changes
+#
+# Visitors cannot tell whether the handbook is current. Read the configuration's
+# own commit history and publish the last few changes. Only commits that touch
+# lua/ or docs/ count; site-only commits are noise to a reader.
+# ---------------------------------------------------------------------------
+
+CHANGELOG_LIMIT = 12
+
+
+def recent_changes() -> list[dict]:
+    import subprocess
+
+    try:
+        out = subprocess.run(
+            [
+                "git", "log", f"-{CHANGELOG_LIMIT * 3}", "--no-merges",
+                "--date=short", "--format=%h|%ad|%s",
+                "--", "lua/", "docs/", "lazy-lock.json",
+            ],
+            cwd=ROOT, capture_output=True, text=True, timeout=30, check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return []
+    if out.returncode != 0:
+        return []
+
+    entries: list[dict] = []
+    for line in out.stdout.splitlines():
+        parts = line.split("|", 2)
+        if len(parts) != 3:
+            continue
+        entries.append({"hash": parts[0], "date": parts[1], "subject": parts[2]})
+        if len(entries) >= CHANGELOG_LIMIT:
+            break
+    return entries
+
+
+def build_changes_page() -> int:
+    entries = recent_changes()
+
+    if entries:
+        rows = "".join(
+            f'<li class="chg"><time>{html_escape(e["date"])}</time>'
+            f'<span>{html_escape(e["subject"])}</span>'
+            f'<code>{html_escape(e["hash"])}</code></li>'
+            for e in entries
+        )
+        body_html = f'<ol class="chg-list">{rows}</ol>'
+        lead = "配置和手册的近期改动，来自仓库的提交历史。只列出动过 <code>lua/</code> 或 <code>docs/</code> 的提交。"
+    else:
+        body_html = "<p>没有可用的提交历史。</p>"
+        lead = ""
+
+    inner = f"""
+<p class="lede">{lead}</p>
+{body_html}
+<p class="chg-foot">
+  完整历史见
+  <a href="https://github.com/{SITE['repo']}/commits/main">GitHub 提交记录</a>。
+</p>
+"""
+    body = f"""
+<div class="wrap doc">
+  <aside class="side"></aside>
+  <article class="prose">
+    <p class="crumb"><a href="index.html">首页</a> / 最近改动</p>
+    <h1>最近改动</h1>
+    {inner}
+  </article>
+</div>
+"""
+    (OUT / "changes.html").write_text(
+        page("最近改动 — " + SITE["name"], body, "changes"), encoding="utf-8"
+    )
+    return len(entries)
+
+
 def main() -> int:
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -1308,6 +1444,8 @@ def main() -> int:
     # Top-level prose pages rendered from docs/.
     build_doc_page("getting-started", "getting-started", "安装与更新", DOCS / "INSTALL.md")
 
+    n_changes = build_changes_page()
+
     search_entries = build_search_index()
     (OUT / "search.html").write_text(build_search_page(search_entries), encoding="utf-8")
 
@@ -1316,7 +1454,7 @@ def main() -> int:
     for name in ("site.css", "site.js"):
         shutil.copy(ROOT / "site" / name, OUT / "assets" / name)
 
-    print(f"pages: 1 home, 1 keys, 1 plugins, {n_plugins} plugin chapters, {n_guides} guides")
+    print(f"pages: 1 home, 1 keys, 1 plugins, {n_plugins} plugin chapters, {n_guides} guides, {n_changes} changes")
     print(f"keymaps parsed: {len(keymaps)}")
 
     # Fail loudly rather than publishing a broken site.
@@ -1326,6 +1464,7 @@ def main() -> int:
         check_catalogue()
         check_keymap_freshness()
         check_cited_keys()
+        check_plugin_coverage()
     except BuildError as exc:
         print(f"build check failed: {exc}", file=sys.stderr)
         return 1
