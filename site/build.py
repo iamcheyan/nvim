@@ -43,11 +43,41 @@ SITE = {
 
 # Top-level navigation. Order is deliberate: install, then use, then go deep.
 NAV = [
-    ("getting-started", "安装与更新"),
-    ("keys", "按键"),
-    ("plugins", "插件手册"),
-    ("guides", "指南"),
+    ("getting-started", "安装"),
+    ("tutorials", "教程"),
+    ("plugins", "插件"),
+    ("wiki", "百科"),
+    ("reference", "知识"),
     ("changes", "最近改动"),
+]
+
+# Ordered series for the tutorials section: (slug, short title).
+TUTORIALS = [
+    ("01-why-vim", "起步：先把观念摆正"),
+    ("02-moving-around", "光标移动"),
+    ("03-basic-editing", "基本编辑"),
+    ("04-yank-and-registers", "复制与寄存器"),
+    ("05-search-and-replace", "查找与替换"),
+    ("06-files-and-buffers", "文件与缓冲"),
+    ("07-visual-and-windows", "可视模式与窗口"),
+    ("08-cmdline-and-help", "命令行与帮助"),
+    ("09-options", "选项与配置"),
+    ("10-regex-and-global", "正则与 :g"),
+    ("11-operator-grammar", "操作符与动作语法"),
+    ("12-text-objects", "文本对象"),
+    ("13-macros", "宏与重复"),
+    ("14-mappings", "映射与 Leader 设计"),
+]
+
+WIKI = [
+    ("01-architecture", "架构：buffer、window、tab"),
+    ("02-clipboard", "剪贴板与系统集成"),
+    ("03-filetypes", "文件类型与语法高亮"),
+    ("04-lsp", "LSP 是什么"),
+    ("05-treesitter", "Treesitter 与正则高亮"),
+    ("06-folding", "折叠机制"),
+    ("07-encoding", "编码与换行符"),
+    ("08-ime-and-cjk", "输入法与中文处理"),
 ]
 
 # Plugin catalogue: category -> [(chapter slug, display name, kind, one-liner)]
@@ -405,7 +435,8 @@ def html_escape(s: str) -> str:
 def nav_html(current: str) -> str:
     items = []
     for slug, label in NAV:
-        cls = "nav-link current" if current == slug else "nav-link"
+        active = current == slug or current == f"{slug}-index"
+        cls = "nav-link current" if active else "nav-link"
         items.append(f'<a class="{cls}" href="{rel_root(current)}{slug}.html">{label}</a>')
     return "\n".join(items)
 
@@ -415,7 +446,9 @@ def rel_root(current: str) -> str:
 
     Top-level pages must not climb; anything under a subdirectory does.
     """
-    return "../" if current in ("guide-page", "plugin-page") else ""
+    # Anything published under a subdirectory needs to climb one level.
+    subdirs = {"guide-page", "plugin-page", "tutorials", "wiki", "reference"}
+    return "../" if current in subdirs else ""
 
 
 def page(title: str, body: str, current: str, *, is_home: bool = False) -> str:
@@ -505,7 +538,7 @@ def side_filter(placeholder: str) -> str:
 
 
 def side_nav(current: str, prefix: str = "", guide_prefix: str = "", current_slug: str = "") -> str:
-    if current == "plugins":
+    if current == "plugins" or current == "plugins-index":
         groups = []
         for category, entries in CATALOG:
             # Mark the group containing the current page so it can start open.
@@ -674,10 +707,11 @@ def build_home(keymaps: list[dict]) -> str:
   <div class="routes-inner">
     <h2>从这里开始</h2>
     <ul class="route-list">
-      <li><a href="getting-started.html">安装与更新</a><span>依赖清单、安装命令、更新与卸载、常见失败</span></li>
-      <li><a href="keys.html">按键速查</a><span>按场景分组，附完整键位表</span></li>
-      <li><a href="plugins.html">插件手册</a><span>{total_plugins} 章，每章解决什么问题、怎么用、练习</span></li>
-      <li><a href="guides.html">指南</a><span>Treesitter、剪贴板、Markdown 等专题记录</span></li>
+      <li><a href="getting-started.html">安装</a><span>依赖清单、安装命令、更新与卸载、常见失败</span></li>
+      <li><a href="tutorials.html">教程</a><span>从零学 Neovim，14 篇，口语讲解，配练习</span></li>
+      <li><a href="plugins.html">插件</a><span>{total_plugins} 章，每个插件解决什么问题、怎么用</span></li>
+      <li><a href="wiki.html">百科</a><span>架构、LSP、Treesitter、编码等概念与机制</span></li>
+      <li><a href="reference.html">知识</a><span>按键速查、选项总表、命令、术语对照</span></li>
       <li><a href="changes.html">最近改动</a><span>配置和手册最近改了什么</span></li>
     </ul>
   </div>
@@ -892,16 +926,20 @@ def rewrite_source_links(html: str, page_dir: str = "guides") -> str:
     def repl(m):
         target = m.group(1)
         # Sibling chapter written as .md
-        mm = re.match(r"^([a-z0-9.\-]+)\.md$", target)
-        if mm and page_dir == "plugins":
-            return f'href="{mm.group(1)}.html"'
+        mm = re.match(r"^([A-Za-z0-9._\-]+)\.md$", target)
+        if mm:
+            return f'href="{mm.group(1).lower()}.html"'
         # Cross-section references
-        for sect in ("reference", "development", "guides"):
+        # Cross-section links: ../wiki/x.md, ../guides/x.md, ../reference/x.md.
+        # Sections published at their own path keep it; development/ lives
+        # under guides/.
+        for sect in ("wiki", "tutorials", "reference", "guides", "development"):
             if target.startswith(f"../{sect}/"):
                 tail = target[len(f"../{sect}/") :].replace(".md", ".html")
-                # reference/ and development/ are published flat under guides/.
-                base = "../guides/" if page_dir == "plugins" else ""
-                return f'href="{base}{tail}"'
+                published = "guides" if sect == "development" else sect
+                if page_dir in ("plugins", "tutorials", "wiki", "reference"):
+                    return f'href="../{published}/{tail}"'
+                return f'href="{published}/{tail}"'
         # Repository files that are not published pages
         if re.match(r"^\.\./\.\./(lua|tests|scripts|docs)/", target) or \
            re.match(r"^\.\./(lua|tests|scripts)/", target) or \
@@ -915,7 +953,7 @@ def rewrite_source_links(html: str, page_dir: str = "guides") -> str:
 def build_guides() -> int:
     global GUIDE_LINKS
     entries: list[tuple[Path, str, str]] = []
-    for sub in ("guides", "reference", "development"):
+    for sub in ("guides", "development"):
         for p in sorted((DOCS / sub).glob("*.md")):
             md_text = p.read_text(encoding="utf-8")
             title = first_h1(md_text, p.stem)
@@ -925,7 +963,7 @@ def build_guides() -> int:
 
     for path, slug, title in entries:
         md_text = path.read_text(encoding="utf-8")
-        html = rewrite_source_links(strip_h1(render_md(md_text)))
+        html = rewrite_source_links(strip_h1(render_md(md_text)), "guides")
         body = f"""
 <div class="wrap doc">
   <aside class="side">{side_nav("guides")}</aside>
@@ -1435,6 +1473,155 @@ def build_changes_page() -> int:
     return len(entries)
 
 
+
+# ---------------------------------------------------------------------------
+# Series sections: tutorials, wiki, reference
+#
+# Each is an ordered list of markdown files in its own docs/ subdirectory. They
+# share one renderer: an index page listing the series, per-page rendering with
+# a pager, and a sidebar showing the whole series.
+# ---------------------------------------------------------------------------
+
+SERIES = {
+    "tutorials": {"dir": DOCS / "tutorials", "label": "教程", "lead":
+        "从零开始学 Neovim。前 10 篇覆盖日常编辑需要的全部基础动作，"
+        "后 4 篇讲按键背后的语法——那是新手真正卡住的第二层。"},
+    "wiki": {"dir": DOCS / "wiki", "label": "百科", "lead":
+        "概念与机制。不属于某一个插件，而是理解整个编辑器怎么工作。"},
+    "reference": {"dir": DOCS / "reference", "label": "知识", "lead":
+        "速查与对照。写东西时随手查，不需要从头读。"},
+}
+
+
+def series_items(kind: str, locale: str = "zh-cn") -> list[tuple[str, str]]:
+    """(slug, title) in reading order for a series."""
+    ordered = TUTORIALS if kind == "tutorials" else WIKI if kind == "wiki" else None
+    if ordered:
+        return list(ordered)
+    # reference: alphabetical by the docs/reference file list
+    result = []
+    for path in sorted((SERIES["reference"]["dir"]).glob("*.md")):
+        title = first_h1(path.read_text(encoding="utf-8"), path.stem)
+        result.append((path.stem.lower(), title))
+    return result
+
+
+def series_sidebar(kind: str, current_slug: str, prefix: str = "") -> str:
+    items = series_items(kind)
+    rows = []
+    for slug, title in items:
+        cls = ' class="current"' if slug == current_slug else ""
+        rows.append(
+            f'<a href="{prefix}{slug}.html" data-side-item '
+            f'data-label="{html_escape(title.lower())}"{cls}><span>{html_escape(title)}</span></a>'
+        )
+    label = SERIES[kind]["label"]
+    return (
+        f'<p class="side-title">{label}</p>'
+        + side_filter(f"筛选{label}…")
+        + f'<div class="side-group open">{"".join(rows)}</div>'
+    )
+
+
+def series_pager(kind: str, slug: str) -> str:
+    items = series_items(kind)
+    idx = next((i for i, (s, _t) in enumerate(items) if s == slug), None)
+    if idx is None:
+        return ""
+    label = SERIES[kind]["label"]
+
+    parts = []
+    if idx > 0:
+        ps, pt = items[idx - 1]
+        parts.append(
+            f'<a class="pager-link prev" href="{ps}.html">'
+            f'<span class="pager-dir">← 上一篇</span><strong>{html_escape(pt)}</strong></a>'
+        )
+    else:
+        parts.append('<span class="pager-link disabled"></span>')
+
+    if idx < len(items) - 1:
+        ns, nt = items[idx + 1]
+        parts.append(
+            f'<a class="pager-link next" href="{ns}.html">'
+            f'<span class="pager-dir">下一篇 →</span><strong>{html_escape(nt)}</strong></a>'
+        )
+    else:
+        parts.append(
+            f'<a class="pager-link next" href="../{kind}.html">'
+            f'<span class="pager-dir">读完了 →</span><strong>回到{label}索引</strong></a>'
+        )
+
+    return (
+        f'<nav class="pager" aria-label="翻页">'
+        f'<p class="pager-pos">{idx + 1} / {len(items)}</p>'
+        f'<div class="pager-row">{"".join(parts)}</div></nav>'
+    )
+
+
+def build_series(kind: str) -> int:
+    cfg = SERIES[kind]
+    src_dir: Path = cfg["dir"]
+    label = cfg["label"]
+    count = 0
+
+    for path in sorted(src_dir.glob("*.md")):
+        slug = path.stem.lower()
+        md_text = path.read_text(encoding="utf-8")
+        title = first_h1(md_text, path.stem)
+        MD.reset()
+        html = MD.convert(md_text)
+        toc_html = getattr(MD, "toc", "")
+        html = rewrite_source_links(strip_h1(html), kind)
+        toc = ""
+        if toc_html and md_text.count("\n## ") >= 3:
+            toc = f'<nav class="toc"><p class="toc-title">本页内容</p>{toc_html}</nav>'
+
+        body = f"""
+<div class="wrap doc">
+  <aside class="side">{series_sidebar(kind, slug, "")}</aside>
+  <article class="prose">
+    <p class="crumb"><a href="../index.html">首页</a> / <a href="../{kind}.html">{label}</a></p>
+    <h1>{html_escape(title)}</h1>
+    {toc}
+    {html}
+    {series_pager(kind, slug)}
+    <p class="pnav"><a href="../{kind}.html">← {label}索引</a>
+    <a href="https://github.com/{SITE['repo']}/blob/main/docs/{kind}/{path.name}">在 GitHub 上编辑</a></p>
+  </article>
+</div>
+"""
+        out = OUT / kind / f"{slug}.html"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(page(f"{title} — {SITE['name']}", body, kind), encoding="utf-8")
+        count += 1
+
+    # index page
+    cards = "".join(
+        f'<a class="pcard" href="{kind}/{slug}.html">'
+        f'<span class="pcard-k">{i + 1:02d}</span><strong>{html_escape(t)}</strong></a>'
+        for i, (slug, t) in enumerate(series_items(kind))
+    )
+    inner = (
+        f'<p class="lede">{cfg["lead"]}</p>'
+        f'<div class="pgrid">{cards}</div>'
+    )
+    body = f"""
+<div class="wrap doc">
+  <aside class="side">{series_sidebar(kind, "", kind + "/")}</aside>
+  <article class="prose">
+    <p class="crumb"><a href="index.html">首页</a> / {label}</p>
+    <h1>{label}</h1>
+    {inner}
+  </article>
+</div>
+"""
+    (OUT / f"{kind}.html").write_text(
+        page(f"{label} — {SITE['name']}", body, f"{kind}-index"), encoding="utf-8"
+    )
+    return count
+
+
 def main() -> int:
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -1448,6 +1635,9 @@ def main() -> int:
 
     n_plugins = build_plugin_pages()
     n_guides = build_guides()
+    n_tutorials = build_series("tutorials")
+    n_wiki = build_series("wiki")
+    n_reference = build_series("reference")
 
     # Top-level prose pages rendered from docs/.
     build_doc_page("getting-started", "getting-started", "安装与更新", DOCS / "INSTALL.md")
@@ -1462,7 +1652,7 @@ def main() -> int:
     for name in ("site.css", "site.js"):
         shutil.copy(ROOT / "site" / name, OUT / "assets" / name)
 
-    print(f"pages: 1 home, 1 keys, 1 plugins, {n_plugins} plugin chapters, {n_guides} guides, {n_changes} changes")
+    print(f"pages: 1 home, 1 keys, 1 plugins, {n_plugins} plugin chapters, {n_guides} guides, {n_tutorials} tutorials, {n_wiki} wiki, {n_reference} reference, {n_changes} changes")
     print(f"keymaps parsed: {len(keymaps)}")
 
     # Fail loudly rather than publishing a broken site.
