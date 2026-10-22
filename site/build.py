@@ -368,6 +368,7 @@ def page(title: str, body: str, current: str, *, is_home: bool = False) -> str:
     </a>
     <nav class="nav" id="site-nav">
       {nav_html(current)}
+      <a class="nav-search" href="{prefix}search.html" title="站内搜索（/）"><span aria-hidden="true">⌕</span>搜索</a>
       <a class="nav-link repo" href="https://github.com/{SITE['repo']}" rel="noopener">GitHub&nbsp;↗</a>
     </nav>
     <button class="theme-btn" id="theme-btn" type="button" aria-label="切换明暗主题">
@@ -416,18 +417,44 @@ def article_shell(title: str, inner: str, current: str, crumb: str = "", prefix:
     return page(title, body, current)
 
 
-def side_nav(current: str, prefix: str = "", guide_prefix: str = "") -> str:
+def side_filter(placeholder: str) -> str:
+    """Client-side filter box for a sidebar; behaviour lives in site.js."""
+    return (
+        '<div class="side-search">'
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/>'
+        '<path d="M20 20l-4.2-4.2"/></svg>'
+        f'<input type="search" class="side-filter" placeholder="{html_escape(placeholder)}" '
+        'aria-label="筛选列表" spellcheck="false">'
+        '<button type="button" class="side-clear" aria-label="清除" hidden>&times;</button>'
+        '</div>'
+    )
+
+
+def side_nav(current: str, prefix: str = "", guide_prefix: str = "", current_slug: str = "") -> str:
     if current == "plugins":
         groups = []
         for category, entries in CATALOG:
+            # Mark the group containing the current page so it can start open.
+            here = any(slug == current_slug for slug, *_ in entries)
+            cls = "side-group open" if here else "side-group"
             links = "".join(
-                f'<a href="{prefix}{slug}.html"><span>{html_escape(name)}</span></a>'
-                for slug, name, _kind, _desc in entries
+                f'<a href="{prefix}{slug}.html" data-side-item '
+                f'data-label="{html_escape((name + " " + desc).lower())}"'
+                f'{" class=current" if slug == current_slug else ""}>'
+                f'<span>{html_escape(name)}</span></a>'
+                for slug, name, _kind, desc in entries
             )
             groups.append(
-                f'<div class="side-group"><p class="side-head">{html_escape(category)}</p>{links}</div>'
+                f'<div class="{cls}">'
+                f'<button class="side-head" type="button" aria-expanded="{str(here).lower()}">'
+                f'<em>{html_escape(category)}</em><i aria-hidden="true">{len(entries)}</i></button>'
+                f'<div class="side-items">{links}</div></div>'
             )
-        return f'<p class="side-title">插件手册</p>' + "".join(groups)
+        return (
+            '<p class="side-title">插件手册</p>'
+            + side_filter("筛选插件…")
+            + "".join(groups)
+        )
     if current == "keys":
         scenes = [
             ("文件与搜索", "文件、内容、最近文件"),
@@ -439,21 +466,29 @@ def side_nav(current: str, prefix: str = "", guide_prefix: str = "") -> str:
             ("界面开关", "侧栏、终端、Markdown 预览"),
         ]
         links = "".join(
-            f'<a href="#g-{html_escape(slug)}"><span>{html_escape(label)}</span></a>'
-            for slug, label in [(_slugify(n), n) for n, _d in scenes]
+            f'<a href="#g-{html_escape(slug)}" data-side-item '
+            f'data-label="{html_escape((label + " " + desc).lower())}">'
+            f'<span>{html_escape(label)}</span></a>'
+            for slug, (label, desc) in [(_slugify(n), (n, d)) for n, d in scenes]
         )
         return (
-            '<p class="side-title">按场景</p><div class="side-group">'
-            + links
+            '<p class="side-title">按场景</p>'
+            + side_filter("筛选场景…")
+            + '<div class="side-group open">' + links
             + '</div><div class="side-group"><a href="#all"><span>完整键位表</span></a>'
             + '<a href="getting-started.html"><span>安装与更新</span></a></div>'
         )
     if current == "guides":
         links = "".join(
-            f'<a href="{guide_prefix}{slug}.html"><span>{html_escape(label)}</span></a>'
+            f'<a href="{guide_prefix}{slug}.html" data-side-item '
+            f'data-label="{html_escape(label.lower())}"><span>{html_escape(label)}</span></a>'
             for slug, label in GUIDE_LINKS
         )
-        return f'<p class="side-title">指南</p><div class="side-group">{links}</div>'
+        return (
+            f'<p class="side-title">指南</p>'
+            + side_filter("筛选指南…")
+            + f'<div class="side-group open">{links}</div>'
+        )
     return ""
 
 
@@ -730,7 +765,7 @@ def build_plugin_pages() -> int:
             html = re.sub(r'href="\.\./PLUGINS\.md"', 'href="plugins.html"', html)
             body = f"""
 <div class="wrap doc">
-  <aside class="side">{side_nav("plugins", "../plugins/")}</aside>
+  <aside class="side">{side_nav("plugins", "../plugins/", current_slug=slug)}</aside>
   <article class="prose">
     <p class="crumb"><a href="../index.html">首页</a> / <a href="../plugins.html">插件手册</a> / {html_escape(category)}</p>
     <h1>{html_escape(name)}</h1>
@@ -957,6 +992,85 @@ def check_links() -> None:
         raise BuildError("\n".join(problems))
 
 
+
+# ---------------------------------------------------------------------------
+# Site-wide search
+#
+# Build a JSON index of every page and ship it; site.js filters it in the
+# browser. No service, no dependency — the index is small enough to inline.
+# ---------------------------------------------------------------------------
+
+def build_search_index() -> list[dict]:
+    entries: list[dict] = []
+
+    def add(title: str, kind: str, href: str, text: str) -> None:
+        # Strip markdown and the boilerplate every chapter shares, so the
+        # snippet shows content rather than "公开插件 · 回到插件目录".
+        plain = re.sub(r"`{1,3}[^`]*`{1,3}", " ", text)
+        plain = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", plain)
+        plain = re.sub(r"^#\s+.*$", " ", plain, flags=re.M)
+        for noise in ("公开插件", "私有插件", "依赖", "管理器", "回到插件目录",
+                      "它解决什么问题", "在当前配置里怎么用", "动手练习",
+                      "注意事项", "查快捷键和帮助"):
+            plain = plain.replace(noise, " ")
+        plain = re.sub(r"[#>*_|\-]{1,}", " ", plain)
+        plain = re.sub(r"\s+", " ", plain).strip()
+        entries.append({
+            "t": title,
+            "k": kind,
+            "u": href,
+            "s": plain[:220],
+        })
+
+    add("首页", "页面", "index.html", "Neovim 配置首页，安装入口、仓库内容、按键预览")
+    add("安装与更新", "页面", "getting-started.html",
+        (DOCS / "INSTALL.md").read_text(encoding="utf-8") if (DOCS / "INSTALL.md").exists() else "")
+    add("按键速查", "页面", "keys.html",
+        "按键速查表，按场景分组：文件搜索、Git、代码与 LSP、搜索替换、多光标、诊断、界面开关")
+
+    for category, items in CATALOG:
+        for slug, name, kind, desc in items:
+            src = DOCS / "plugins" / "chapters" / f"{slug}.md"
+            body = src.read_text(encoding="utf-8") if src.exists() else ""
+            add(f"{name}（{category}）", kind, f"plugins/{slug}.html", desc + " " + body)
+
+    for path in sorted((DOCS / "guides").glob("*.md")) + sorted((DOCS / "reference").glob("*.md")) + sorted((DOCS / "development").glob("*.md")):
+        add(first_h1(path.read_text(encoding="utf-8"), path.stem), "指南",
+            f"guides/{path.stem.lower()}.html", path.read_text(encoding="utf-8"))
+
+    return entries
+
+
+def build_search_page(entries: list[dict]) -> str:
+    payload = json.dumps(entries, ensure_ascii=False, separators=(",", ":"))
+    inner = f"""
+<div class="search-page">
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/>
+    <path d="M20 20l-4.2-4.2"/></svg>
+    <input id="site-search" type="search" autofocus
+           placeholder="搜索插件、按键、指南…（按 / 聚焦）"
+           aria-label="站内搜索" spellcheck="false">
+    <kbd>/</kbd>
+  </div>
+  <p class="search-meta" id="search-meta"></p>
+  <div id="search-results" class="search-results" aria-live="polite"></div>
+</div>
+"""
+    body = f"""
+<div class="wrap doc">
+  <aside class="side"></aside>
+  <article class="prose">
+    <p class="crumb"><a href="index.html">首页</a> / 搜索</p>
+    <h1>搜索</h1>
+    {inner}
+  </article>
+</div>
+<script id="search-data" type="application/json">{payload}</script>
+"""
+    return page("搜索 — " + SITE["name"], body, "search")
+
+
 def main() -> int:
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -973,6 +1087,9 @@ def main() -> int:
 
     # Top-level prose pages rendered from docs/.
     build_doc_page("getting-started", "getting-started", "安装与更新", DOCS / "INSTALL.md")
+
+    search_entries = build_search_index()
+    (OUT / "search.html").write_text(build_search_page(search_entries), encoding="utf-8")
 
     # Static assets.
     (OUT / "assets").mkdir(exist_ok=True)
