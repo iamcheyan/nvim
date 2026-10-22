@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，共 **44 章**，覆盖 47 个插件（公开 41 个、私有 6 个）。其中四个依赖库共用一章，因为它们是给其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
+这本书按当前 `lazy.nvim` 注册结果整理，共 **58 章**，覆盖 61 个插件（公开 55 个、私有 6 个）。其中四个依赖库共用一章，因为它们是给其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
 
 ## 怎么使用这本书
 
@@ -59,6 +59,28 @@
 | [trouble.nvim](chapters/trouble-nvim.md) | 公开 | 诊断、符号与引用面板 |
 | [nvim-bqf](chapters/nvim-bqf.md) | 公开 | 快速修复列表的预览与高亮 |
 | [undotree](chapters/undotree.md) | 公开 | 可视化撤销树 |
+
+## 阅读与上下文
+
+| 插件 | 类型 | 章节 |
+|---|---|---|
+| [vim-illuminate](chapters/vim-illuminate.md) | 公开 | 同词引用高亮与跳转 |
+| [nvim-treesitter-context](chapters/nvim-treesitter-context.md) | 公开 | 固定在窗口顶部的结构上下文 |
+| [hlchunk.nvim](chapters/hlchunk.nvim.md) | 公开 | 当前代码块高亮 |
+| [nvim-biscuits](chapters/nvim-biscuits.md) | 公开 | 行尾显示所属块的结尾 |
+| [symbol-usage.nvim](chapters/symbol-usage.nvim.md) | 公开 | 行尾引用与定义计数 |
+
+## 导航、标记与编辑辅助
+
+| 插件 | 类型 | 章节 |
+|---|---|---|
+| [grapple.nvim](chapters/grapple.nvim.md) | 公开 | 按分支保存的文件标签 |
+| [portal.nvim](chapters/portal.nvim.md) | 公开 | 可搜索的跳转与改动历史 |
+| [goto-preview](chapters/goto-preview.md) | 公开 | 定义与引用的浮动预览 |
+| [vim-matchup](chapters/vim-matchup.md) | 公开 | 增强的 % 匹配与结构选中 |
+| [vim-abolish](chapters/vim-abolish.md) | 公开 | 命名风格转换与批量替换 |
+| [dial.nvim](chapters/dial.nvim.md) | 公开 | 可扩展的递增与递减 |
+| [hardtime.nvim](chapters/hardtime.nvim.md) | 公开 | 按键习惯训练（默认关闭） |
 
 ## Git 与项目记录
 
