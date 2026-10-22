@@ -1086,6 +1086,24 @@ def config_keys() -> set[str]:
     return keys
 
 
+def check_keymap_freshness() -> None:
+    """The committed dump must not predate the configuration it describes."""
+    newest = max(
+        (p.stat().st_mtime for p in (ROOT / "lua").rglob("*.lua")),
+        default=0,
+    )
+    cache = KEYMAP_CACHE.stat().st_mtime if KEYMAP_CACHE.exists() else 0
+    if cache and newest > cache:
+        stale_days = (newest - cache) / 86400
+        msg = (
+            f"site/keymaps.tsv is older than lua/ by {stale_days:.1f} day(s). "
+            "Run: python3 site/build.py --refresh-keys"
+        )
+        if os.environ.get("KEYMAP_REQUIRE_FRESH") == "1":
+            raise BuildError(msg)
+        print(f"warning: {msg}", file=sys.stderr)
+
+
 def check_cited_keys() -> None:
     """Report chapter references to keys the configuration never defines."""
     keys = config_keys()
@@ -1306,6 +1324,7 @@ def main() -> int:
         check_css()
         check_links()
         check_catalogue()
+        check_keymap_freshness()
         check_cited_keys()
     except BuildError as exc:
         print(f"build check failed: {exc}", file=sys.stderr)
