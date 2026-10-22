@@ -74,6 +74,12 @@ CATALOG = [
         ("multicursor.nvim", "multicursor.nvim", "公开", "多光标匹配与批量编辑"),
         ("nvim-ufo", "nvim-ufo", "公开", "代码折叠"),
     ]),
+    ("阅读、诊断与撤销", [
+        ("hover-nvim", "hover.nvim", "公开", "统一的悬浮文档窗口"),
+        ("trouble-nvim", "trouble.nvim", "公开", "诊断、符号与引用面板"),
+        ("nvim-bqf", "nvim-bqf", "公开", "快速修复列表的预览与高亮"),
+        ("undotree", "undotree", "公开", "可视化撤销树"),
+    ]),
     ("Git 与项目记录", [
         ("gitsigns", "gitsigns.nvim", "公开", "Git 行变更与 hunk 操作"),
         ("diffview", "diffview.nvim", "公开", "分支差异与文件历史"),

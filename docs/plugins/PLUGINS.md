@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，共 **40 章**，覆盖 43 个插件（公开 37 个、私有 6 个）。其中四个依赖库共用一章，因为它们是给其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
+这本书按当前 `lazy.nvim` 注册结果整理，共 **44 章**，覆盖 47 个插件（公开 41 个、私有 6 个）。其中四个依赖库共用一章，因为它们是给其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
 
 ## 怎么使用这本书
 
@@ -50,6 +50,15 @@
 | [markview.nvim](chapters/markview.md) | 公开 | Markdown 等文档预览 |
 | [multicursor.nvim](chapters/multicursor.nvim.md) | 公开 | 多光标匹配与批量编辑 |
 | [nvim-ufo](chapters/nvim-ufo.md) | 公开 | 代码折叠 |
+
+## 阅读、诊断与撤销
+
+| 插件 | 类型 | 章节 |
+|---|---|---|
+| [hover.nvim](chapters/hover-nvim.md) | 公开 | 统一的悬浮文档窗口 |
+| [trouble.nvim](chapters/trouble-nvim.md) | 公开 | 诊断、符号与引用面板 |
+| [nvim-bqf](chapters/nvim-bqf.md) | 公开 | 快速修复列表的预览与高亮 |
+| [undotree](chapters/undotree.md) | 公开 | 可视化撤销树 |
 
 ## Git 与项目记录
 

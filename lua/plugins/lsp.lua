@@ -50,7 +50,14 @@ return {
         if caps.declarationProvider then
           set("gD", vim.lsp.buf.declaration, "Goto Declaration")
         end
-        set("K", vim.lsp.buf.hover, "Hover")
+        set("K", function()
+          local ok, hover = pcall(require, "hover")
+          if ok then
+            hover.open()
+          else
+            vim.lsp.buf.hover()
+          end
+        end, "Hover")
         if caps.implementationProvider then
           set("gI", vim.lsp.buf.implementation, "Goto Implementation")
         end
