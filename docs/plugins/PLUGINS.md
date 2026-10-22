@@ -62,7 +62,6 @@
 
 | 插件 | 类型 | 章节 |
 |---|---|---|
-| [vim-illuminate](chapters/vim-illuminate.md) | 公开 | 同词引用高亮与跳转 |
 | [nvim-treesitter-context](chapters/nvim-treesitter-context.md) | 公开 | 固定在窗口顶部的结构上下文 |
 | [hlchunk.nvim](chapters/hlchunk.nvim.md) | 公开 | 当前代码块高亮 |
 
@@ -73,7 +72,6 @@
 | [grapple.nvim](chapters/grapple.nvim.md) | 公开 | 按分支保存的文件标签 |
 | [portal.nvim](chapters/portal.nvim.md) | 公开 | 可搜索的跳转与改动历史 |
 | [vim-matchup](chapters/vim-matchup.md) | 公开 | 增强的 % 匹配与结构选中 |
-| [vim-abolish](chapters/vim-abolish.md) | 公开 | 命名风格转换与批量替换 |
 | [dial.nvim](chapters/dial.nvim.md) | 公开 | 可扩展的递增与递减 |
 
 ## Git 与项目记录

@@ -81,7 +81,6 @@ CATALOG = [
         ("nvim-bqf", "nvim-bqf", "公开", "快速修复列表的预览与高亮"),
     ]),
     ("阅读与上下文", [
-        ("vim-illuminate", "vim-illuminate", "公开", "同词引用高亮与跳转"),
         ("nvim-treesitter-context", "nvim-treesitter-context", "公开", "固定在窗口顶部的结构上下文"),
         ("hlchunk.nvim", "hlchunk.nvim", "公开", "当前代码块高亮"),
     ]),
@@ -89,7 +88,6 @@ CATALOG = [
         ("grapple.nvim", "grapple.nvim", "公开", "按分支保存的文件标签"),
         ("portal.nvim", "portal.nvim", "公开", "可搜索的跳转与改动历史"),
         ("vim-matchup", "vim-matchup", "公开", "增强的 % 匹配与结构选中"),
-        ("vim-abolish", "vim-abolish", "公开", "命名风格转换与批量替换"),
         ("dial.nvim", "dial.nvim", "公开", "可扩展的递增与递减"),
     ]),
     ("Git 与项目记录", [

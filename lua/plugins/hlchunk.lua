@@ -3,8 +3,6 @@ return {
   {
     "shellRaining/hlchunk.nvim",
     event = "UIEnter",
-    -- indent-blankline already draws indent guides, so only the block
-    -- highlight is enabled to avoid two competing visuals.
     opts = {
       chunk = {
         enable = true,
@@ -17,14 +15,11 @@ return {
         },
         style = "#808080",
         textobject = "",
+        duration = 0,
       },
       indent = { enable = false },
       line_num = { enable = false },
       blank = { enable = false },
-    },
-    keys = {
-      { "<leader>uH", "<cmd>DisableHLChunk<cr>", desc = "Disable chunk highlight" },
-      { "<leader>uG", "<cmd>EnableHLChunk<cr>", desc = "Enable chunk highlight" },
     },
   },
 }
