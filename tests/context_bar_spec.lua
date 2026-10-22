@@ -221,4 +221,21 @@ assert(vim.wo.winbar == "", "text buffers must not keep a context winbar, ft=" .
 assert(require("dropbar.configs").opts.bar.render == nil, "must use official symbol API")
 assert(package.loaded["dropbar.context"] == nil, "must not use fork modules")
 assert(package.loaded["contextline"] == nil, "contextline must never load")
+
+-- The native right-click handler creates its menu read-only before invoking
+-- path_menu. Refreshing directory colours must temporarily unlock that buffer.
+local path_menu = require("dropbar.menu").dropbar_menu_t:new({entries={}})
+path_menu.buf = vim.api.nvim_create_buf(false, true)
+path_menu.win_configs = {win=function() return vim.api.nvim_get_current_win() end}
+path_menu._win_configs = {width=24}
+path_menu.entries = {require("dropbar.menu").dropbar_menu_entry_t:new({components={
+  require("dropbar.bar").dropbar_symbol_t:new({name=" ",icon="",data={path=lab}}),
+  require("dropbar.bar").dropbar_symbol_t:new({name="context",data={path=lab}}),
+}})}
+require("dropbar.menu").dropbar_menu_t.fill_buf(path_menu)
+vim.bo[path_menu.buf].modifiable = false
+require("config.dropbar").path_menu(path_menu)
+assert(vim.bo[path_menu.buf].modifiable == false, "path menu refresh must restore the original modifiable state")
+assert(vim.api.nvim_buf_get_lines(path_menu.buf,0,1,false)[1]:find("context",1,true), "path menu refresh must redraw its labels")
+
 print("context_bar_spec: OK")

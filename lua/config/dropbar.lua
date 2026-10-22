@@ -289,7 +289,13 @@ function M.path_menu(menu)
       end
     end
   end
-  if menu and menu.buf then menu:fill_buf() end
+  if menu and menu.buf and vim.api.nvim_buf_is_valid(menu.buf) then
+    local modifiable = vim.bo[menu.buf].modifiable
+    vim.bo[menu.buf].modifiable = true
+    local ok, err = pcall(menu.fill_buf, menu)
+    vim.bo[menu.buf].modifiable = modifiable
+    if not ok then error(err) end
+  end
 end
 function M.sources()
   local left_width = 0
