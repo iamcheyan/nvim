@@ -117,7 +117,7 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 ### multicursor.nvim（公开）
 
-`<leader><up>` / `<leader><down>` 跳过相邻行再加光标；`<leader>n` / `<leader>N` 添加下一个/上一个匹配，`Alt+d` / `Alt+Shift+d` 跳过匹配。`Ctrl+n` 添加下一个匹配，`Ctrl+Shift+n` 选中全部匹配。`Ctrl+d` 仍是半页下滚。Ctrl 加鼠标左键可添加/移除光标并拖动。`<leader>mq` 暂停或恢复多光标，`<leader>A` 对齐列，`<leader>gv` 恢复刚清掉的光标。左右方向键切换主光标，`<leader>x` 删除主光标，Esc 清除全部光标。`<C-q>` 是视觉块模式。
+`<leader><up>` / `<leader><down>` 跳过相邻行再加光标；`<leader>mn` / `<leader>mN` 添加下一个/上一个匹配，`Alt+d` / `Alt+Shift+d` 跳过匹配。`Ctrl+n` 添加下一个匹配，`Ctrl+Shift+n` 选中全部匹配。`Ctrl+d` 仍是半页下滚。Ctrl 加鼠标左键可添加/移除光标并拖动。`<leader>mq` 暂停或恢复多光标，`<leader>A` 对齐列，`<leader>gv` 恢复刚清掉的光标。左右方向键切换主光标，`<leader>x` 删除主光标，Esc 清除全部光标。`<C-q>` 是视觉块模式。
 
 ### nvim-ufo（公开）+ promise-async（依赖）
 

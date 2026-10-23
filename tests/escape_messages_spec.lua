@@ -16,3 +16,15 @@ package.loaded.noice = nil
 assert(escape() == "<esc>", "Escape must work before Noice is loaded")
 vim.wait(20)
 print("escape_messages_spec: OK")
+local search_next = vim.fn.maparg("n", "n", false, true).callback
+local search_previous = vim.fn.maparg("N", "n", false, true).callback
+vim.api.nvim_buf_set_lines(0, 0, -1, false, { "alpha", "beta" })
+vim.fn.setreg("/", "missing-pattern")
+for _, ahead in ipairs({ 0, 1 }) do
+  vim.v.searchforward = ahead
+  local ok, err = pcall(search_next)
+  assert(ok, "n mapping should ignore absent search results: " .. tostring(err))
+  ok, err = pcall(search_previous)
+  assert(ok, "N mapping should ignore absent search results: " .. tostring(err))
+end
+print("search mappings tolerate absent matches: OK")

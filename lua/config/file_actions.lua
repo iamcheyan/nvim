@@ -5,25 +5,73 @@ local function report(ok, err)
   return ok
 end
 
-function M.new_file()
-  vim.ui.input({ prompt = "New file: " }, function(path)
-    if not path or vim.trim(path) == "" then return end
-    path = vim.fn.expand(path)
-    report(pcall(function()
-      vim.fn.mkdir(vim.fn.fnamemodify(path, ":p:h"), "p")
-      if vim.bo.buftype ~= "" and vim.bo.filetype ~= "dashboard" then
-        local target
-        for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-          local buf = vim.api.nvim_win_get_buf(win)
-          if vim.bo[buf].buftype == "" or vim.bo[buf].filetype == "dashboard" then
-            target = win
-            break
-          end
-        end
-        if target then vim.api.nvim_set_current_win(target) else vim.cmd("vsplit | enew") end
+-- New files always get their own tab page. BufferLine remains a global file
+-- list; switching an already-visible file should return to its existing window.
+function M.open_buffer(buf)
+  if not vim.api.nvim_buf_is_valid(buf) then return false end
+  if vim.api.nvim_get_current_buf() == buf and vim.api.nvim_win_get_config(0).relative == "" then return true end
+  local current = vim.api.nvim_get_current_tabpage()
+  local tabs = { current }
+  for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+    if tab ~= current then tabs[#tabs + 1] = tab end
+  end
+  for _, tab in ipairs(tabs) do
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+      if vim.api.nvim_win_get_buf(win) == buf and vim.api.nvim_win_get_config(win).relative == "" then
+        vim.api.nvim_set_current_tabpage(tab)
+        vim.api.nvim_set_current_win(win)
+        return true
       end
-      vim.cmd.edit({ args = { path } })
+    end
+  end
+  require("config.sidebar_tabs").open_buffer(buf)
+  return true
+end
+
+function M.new_file(use_default)
+  local cwd = vim.fn.getcwd()
+  local function absolute(path)
+    path = vim.fn.expand(path)
+    if not path:match("^[/\\]") and not path:match("^%a:[/\\]") then
+      path = cwd .. "/" .. path
+    end
+    return vim.fn.fnamemodify(path, ":p")
+  end
+  local function default_name()
+    local name = "new-file.txt"
+    local suffix = 2
+    local function exists(candidate)
+      local full = absolute(candidate)
+      if vim.uv.fs_lstat(full) then return true end
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_get_name(buf) == full then return true end
+      end
+      return false
+    end
+    while exists(name) do
+      name = "new-file-" .. suffix .. ".txt"
+      suffix = suffix + 1
+    end
+    return name
+  end
+
+  local default = default_name()
+  local function create(path)
+    path = absolute(path)
+    return report(pcall(function()
+      vim.fn.mkdir(vim.fn.fnamemodify(path, ":p:h"), "p")
+      vim.cmd.tabnew({ args = { path } })
     end))
+  end
+
+  if use_default then return create(default_name()) end
+
+  vim.ui.input({ prompt = "New file: ", default = default, completion = "file" }, function(path)
+    if path == nil then return end
+    -- Recheck the suggested name when accepting it: another buffer or file
+    -- may have claimed it while the asynchronous prompt was open.
+    if vim.trim(path) == "" or path == default then path = default_name() end
+    create(path)
   end)
 end
 

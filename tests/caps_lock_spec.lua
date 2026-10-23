@@ -147,28 +147,22 @@ caps.reset()
 local heirline_spec = dofile(nvim_root .. "/lua/plugins/heirline.lua")[1]
 local statusline_opts = heirline_spec.opts().statusline
 
-local right_info
-local function find_right_info(components)
-  for _, component in ipairs(components) do
-    if type(component) == "table" then
-      if #component == 6
-        and component[2][2] and component[2][2].on_click and component[2][2].on_click.name == "heirline_fileformat_menu"
-        and component[2][3] and component[2][3].on_click and component[2][3].on_click.name == "heirline_encoding_menu"
-        and component[3].on_click and component[3].on_click.name == "heirline_lsp_menu"
-        and component[4].on_click and component[4].on_click.name == "heirline_nav_menu" then
-        right_info = component
-        return
-      end
-      find_right_info(component)
-      if right_info then return end
-    end
+local function find_component(component, predicate)
+  if predicate(component) then return component end
+  for _, child in ipairs(component) do
+    local found = find_component(child, predicate)
+    if found then return found end
   end
 end
-find_right_info(statusline_opts)
-assert(right_info, "right_info block must be found")
-
-local caps_component = right_info[5]
-local mode_component = right_info[6]
+local mode_component = assert(find_component(statusline_opts, function(component)
+  return component.on_click and component.on_click.name == "heirline_mode_menu"
+end), "mode segment must be present")
+local caps_component = assert(find_component(statusline_opts, function(component)
+  local text = component[2] and component[2].provider
+  if type(text) ~= "function" then return false end
+  local ok, value = pcall(text)
+  return ok and type(value) == "string" and value:match("^CAPS ")
+end), "Caps Lock segment must be present")
 
 -- State: nil -> CAPS ? (accent hl)
 caps.set_state(nil)

@@ -1,5 +1,16 @@
 # 配置修改记录
 
+## 2026-10-24：日常操作与定向重载
+
+- `<leader>N` 固定为默认命名文件的新 tab page；`<leader>fn`、加号及编辑区/文件条右键菜单共用文件名输入流程。
+- 多光标下一/上一匹配改为 `<leader>mn` / `<leader>mN`，替代下方旧记录中的 `<leader>n` / `<leader>N`；普通和可视模式一致。
+- 文件条保留全局 buffer 列表，显示可点击的 tab page 数字入口；点击已有文件优先返回它所在窗口。
+- 新增 `:ConfigReload`、`<leader>uR` 和底部模式菜单重载入口，支持快捷键、文件操作、状态栏三个范围。
+- 状态栏菜单与 L/C/P 位置组件拆至 `lua/config/statusline/`，保留跳转行/列和复制位置；移除未显示时钟的定时重绘。
+- `:new` / `:tabnew` 均保留原生命令行为。完整使用说明见[新建文件、文件条与配置重载](guides/FILES-TABS-AND-RELOAD.md)。
+
+## 2026-10-21：配置审查落实
+
 日期：2026-10-21。依据是 [CONFIG-REVIEW.md](CONFIG-REVIEW.md)。审查里的建议都已落到源码。给人看的摘要在 [CONFIG-REPORT.md](CONFIG-REPORT.md)。本文按文件记下改了什么、为什么、怎么退回。没有做 git commit。
 
 加载顺序没有变：`lazy.setup()` 先登记插件 `keys` 并执行 `lazy = false` 的 `config`，然后 `lua/config/keymaps-defaults.lua`，最后 `lua/config/keymaps.lua` 覆盖同名全局左键。缓冲局部映射和 `LspAttach` 更晚。
@@ -28,21 +39,24 @@
 
 ### `lua/config/keymaps.lua`
 
-- 复制路径从 `<leader>c*` 挪走：`<leader>yp` 相对路径，`<leader>yP` 绝对路径，`<leader>yd` 目录。都写入 `+` 寄存器。没有用 `<leader>fy`，插件指南把那个键留给剪贴板历史。
-- `<leader>cd` 不再被这里占用，行诊断仍在 `keymaps-defaults.lua`。
-- 删掉 `<leader>aa`（全选）、`<leader>ac`（清空缓冲）、`<leader>ad`（黑洞删除）、普通和可视的 `<leader>d`。`d` / `c` / `x` 本来就进黑洞寄存器。清空缓冲改成 `<leader>bC`。
-- 普通和可视 `<C-a>` 仍是 `ggVG`。插入模式 `<C-a>` 的全选删掉，原生「插入上次插入的文本」回来。`<leader>a` 用 `noremap` 调 `<C-a>`，所以是数字加 1，不会触发全选。
-- 普通和可视 `<C-q>` 映射到 `<C-v>`，默认 `noremap`，所以是内建视觉块，不是 smart-paste。插入 `<C-v>` 仍是智能粘贴，插入 `<C-q>` 仍是字面控制字符。
-- `dd` 和 `cc` 改成表达式：`'"_' .. vim.v.count1 .. "dd"` 和 `'"_' .. vim.v.count1 .. "S"`。`"_" .. "dd"` 会把 `3dd` 变成 `3"_dd`，次数不作用在删除上。
-- `<leader>m` → `m` 删掉。设 mark 用 `<leader>M` 再加一个字母。剪切仍是 `m` / `mm` / `M`（`M` 是 `"+D`）。书签仍是 `<leader>mm` / `mt` / `mc` / `mC`。
+- Path copies moved from `<leader>c*` to `<leader>y*`: `<leader>yp` copies a relative path, `<leader>yP` an absolute path, and `<leader>yd` the directory. All go to the `+` register.
+- `<leader>cd` remains available for line diagnostics.
+- Removed the redundant `<leader>aa`, `<leader>ac`, `<leader>ad`, and `<leader>d` mappings. `d`, `c`, and `x` already use the black-hole register. Clear buffer is now `<leader>bC`.
+- `<C-a>` selects all in Normal and Visual modes. Insert mode keeps its native insert-previous-text behavior. `<leader>a` increments the number without triggering select-all.
+- `<C-q>` maps to native Visual Block mode. Insert `<C-v>` remains smart paste; Insert `<C-q>` inserts the literal control character.
+- `dd` and `cc` use expressions to preserve counts while deleting to the black-hole register.
+- `<leader>M` followed by a letter sets a mark. Bookmarks remain under `<leader>m`; cut mappings remain `m`, `mm`, and `M`.
 
 ### `lua/config/keymaps-defaults.lua`
 
-- 删掉 `j`/`k` 的 `gj`/`gk` 表达式。`wrap = false` 时它们和 `j`/`k` 一样，还干扰宏。
-- `n` / `N`：普通模式按 `vim.v.searchforward` 决定方向，再 `normal` 加 `zv`，然后 `pcall(require("hlslens").start)`。可视模式同样方向，不展开折叠、不启动 lens。操作符待决模式是表达式，只返回 `n` 或 `N`，这样 `dn` 仍是动作。第一次写成 `normal!` 时操作符待决模式不会当成动作，已改掉。
-- grep 的 `dirs` 和描述对齐：`<leader>fg` / `<leader>fw` / `<leader>fc` 用 `vim.uv.cwd()`；`<leader>fG` / `<leader>fW` / `<leader>sg` / `<leader>sw` 用 `vim.fs.root(0, ".git")`，没有 Git 根就退回 cwd。`<leader>ff` 和 `<leader>/` 仍走 picker 默认目录。`<leader>fF` 本来就传 Git 根。
-- `<leader>?` 仍是帮助 picker。缓冲映射改到 which-key 的 `<leader>hk`。
-- profiler 仍是 `<leader>dpp` / `<leader>dph`。没有挪到 `<leader>up`，那个键是 mini.pairs。
+- `n` / `N` follow `vim.v.searchforward`; Normal mode opens folds and starts hlslens only after a successful search, Visual mode does neither, and Operator-pending mode returns a search motion. A missing match ignores E486 while other errors still propagate.
+- Grep pickers use the current directory or Git root according to their descriptions; Git-root searches fall back to the current directory.
+- `<leader>?` remains the Help picker. Buffer keymaps are listed with `<leader>hk`.
+- Profiler toggles are `<leader>dpp` and `<leader>dph`.
+
+### `lua/plugins/which-key.lua`
+
+All root group labels are English. Buffer and window groups expand to entries named from their buffer or window content.
 
 ### `lua/plugins/dev-visual.lua`
 
@@ -178,7 +192,7 @@ hlslens 不再绑定 `n` / `N`。`*` `#` `g*` `g#` 仍调用 `hlslens.start()`�
 
 ### `lua/plugins/neo-tree.lua`
 
-`config.ui_highlights` 将 Neo-tree 的 expander/indent 高亮组背景设为透明，防止组默认链接中的深蓝底色盖住 `CursorLine`，造成展开箭头后的空格颜色断层。
+`config.ui_highlights` 将 Neo-tree 的 expander/indent 高亮组背景设为透明，防止组默认链接中的深蓝底色盖住 `CursorLine`，造成展开箭头后的空格颜色断层。进入 Neo-tree 窗口时也会关闭 fold、sign 和 status gutter，避免选中行高亮前出现多余空格；`winfixwidth` 保持不变。
 
 ## 文档
 

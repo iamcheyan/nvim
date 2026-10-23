@@ -17,6 +17,9 @@ return {
           require("snacks").picker.buffers()
         end
       end
+      local function close_buffer(buf)
+        return require("config.file_actions").close(buf)
+      end
 
       -- The native PopUp menu is installed by config.context_menu.
       return {
@@ -30,7 +33,9 @@ return {
           -- filetype glyph while disabling per-filetype icon colors prevents
           -- selected icons from turning white or retaining stale colors.
           color_icons = false,
-          show_tab_indicators = false,
+          -- File tabs are global buffers. Native numbered indicators separately
+          -- expose the tab pages (window layouts) created by :tabnew.
+          show_tab_indicators = true,
           offsets = {
             {
               filetype = "neo-tree",
@@ -66,13 +71,13 @@ return {
           enforce_regular_tabs = false,
           buffer_close_icon = "",
           modified_icon = "●",
-          close_command = require("config.file_actions").close,
-          middle_mouse_command = require("config.file_actions").close,
+          close_command = close_buffer,
+          middle_mouse_command = close_buffer,
           right_mouse_command = function(buffer_id)
             require("config.context_menu").open_buffer(buffer_id)
           end,
           left_mouse_command = function(buf)
-            require("config.sidebar_tabs").open_buffer(buf)
+            require("config.file_actions").open_buffer(buf)
           end,
           custom_areas = {
             left = function()

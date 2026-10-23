@@ -49,6 +49,9 @@ ignored; keep it to preserve your installed plugin revisions.
 
 The existing `dotfiles/init.sh` installs the nvim submodule and dotlink links
 `~/dotfiles/config/nvim` to `~/.config/nvim`. No separate clone is needed.
+If `~/nvim` is a checkout of `iamcheyan/nvim`, dotlink prefers that development
+checkout instead. Before editing, resolve the active configuration with
+`readlink -f ~/.config/nvim` on Linux or inspect the symlink with `ls -ld ~/.config/nvim`.
 
 Existing users migrating from the former ordinary directory should first commit
 or back up local edits in `config/nvim`, then run:
@@ -92,4 +95,5 @@ updates normally check out a detached revision. Never discard local changes to u
 
 Documentation: [plugin guide](docs/plugin-guide/README.md),
 [Treesitter requirements](docs/reference/TREESITTER.md),
+[files, tabs and configuration reload](docs/guides/FILES-TABS-AND-RELOAD.md),
 [mouse and clipboard](docs/guides/MOUSE-AND-CLIPBOARD.md).

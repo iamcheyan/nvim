@@ -13,7 +13,9 @@
 --     avoid clobbering the user's working blame bindings on <leader>gb/<leader>gB)
 -- Your own custom keymaps live in config/keymaps.lua and are untouched.
 
-local map = vim.keymap.set
+local reload = require("config.reload")
+local map = reload.mapper("defaults")
+reload.setup()
 
 local git_root = function()
   return Snacks.git.get_root() or vim.uv.cwd()
@@ -106,8 +108,9 @@ end
 local function search_result(forward, open_fold)
   return function()
     local key = search_key(forward)
-    vim.cmd.normal({ args = { open_fold and (key .. "zv") or key }, bang = true })
-    if open_fold then
+    local ok, err = pcall(vim.cmd.normal, { args = { open_fold and (key .. "zv") or key }, bang = true })
+    if not ok and not tostring(err):match("E486:") then error(err) end
+    if ok and open_fold then
       pcall(function()
         require("hlslens").start()
       end)
@@ -140,8 +143,18 @@ map("x", ">", ">gv")
 ------------------- lazy ------------------------------------------------------
 map("n", "<leader>l", "<cmd>Lazy<cr>", { desc = "Lazy" })
 
+map("n", "<leader>uR", function()
+  require("config.reload").menu()
+end, { desc = "Reload Configuration" })
+
 ------------------- new file --------------------------------------------------
-map("n", "<leader>fn", "<cmd>enew<cr>", { desc = "New File" })
+map("n", "<leader>fn", function()
+  require("config.file_actions").new_file()
+end, { desc = "New File (Choose Name)" })
+map("n", "<leader>N", function()
+  require("config.file_actions").new_file(true)
+end, { desc = "New File (Default Name)" })
+
 
 ------------------- location / quickfix list ---------------------------------
 map("n", "<leader>xl", function()
@@ -181,36 +194,43 @@ map("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next Warning" })
 map("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Prev Warning" })
 
 ------------------- toggle options (<leader>u) -------------------------------
+local function map_toggle(toggle, lhs, opts)
+  toggle:map(lhs, opts)
+  reload.track("defaults", "n", lhs)
+  return toggle
+end
 local function setup_snacks_keymaps()
 if not Snacks then
   return
 end
-Snacks.toggle.option("spell", { name = "Spelling" }):map("<leader>us")
-Snacks.toggle.option("wrap", { name = "Wrap" }):map("<leader>uw")
-Snacks.toggle.option("relativenumber", { name = "Relative Number" }):map("<leader>uL")
-Snacks.toggle.diagnostics():map("<leader>ud")
-Snacks.toggle.line_number():map("<leader>ul")
-Snacks.toggle.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2, name = "Conceal Level" }):map("<leader>uc")
-Snacks.toggle.option("showtabline", { off = 0, on = vim.o.showtabline > 0 and vim.o.showtabline or 2, name = "Tabline" }):map("<leader>uA")
-Snacks.toggle.treesitter():map("<leader>uT")
-Snacks.toggle.option("background", { off = "light", on = "dark", name = "Dark Background" }):map("<leader>ub")
-Snacks.toggle.dim():map("<leader>uD")
-Snacks.toggle.animate():map("<leader>ua")
-Snacks.toggle.scroll():map("<leader>uS")
+map_toggle(Snacks.toggle.option("spell", { name = "Spelling" }), "<leader>us", { desc = "Toggle Spelling" })
+map_toggle(Snacks.toggle.option("wrap", { name = "Wrap" }), "<leader>uw", { desc = "Toggle Line Wrap" })
+map_toggle(Snacks.toggle.option("relativenumber", { name = "Relative Number" }), "<leader>uL", { desc = "Toggle Relative Line Numbers" })
+map_toggle(Snacks.toggle.diagnostics(), "<leader>ud", { desc = "Toggle Diagnostics" })
+map_toggle(Snacks.toggle.line_number(), "<leader>ul", { desc = "Toggle Line Numbers" })
+map_toggle(Snacks.toggle.option("conceallevel", { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2, name = "Conceal Level" }), "<leader>uc", { desc = "Toggle Conceal Level" })
+map_toggle(Snacks.toggle.option("showtabline", { off = 0, on = vim.o.showtabline > 0 and vim.o.showtabline or 2, name = "Tabline" }), "<leader>uA", { desc = "Toggle Tabline" })
+map_toggle(Snacks.toggle.treesitter(), "<leader>uT", { desc = "Toggle Treesitter Highlighting" })
+map_toggle(Snacks.toggle.option("background", { off = "light", on = "dark", name = "Dark Background" }), "<leader>ub", { desc = "Toggle Dark Background" })
+map_toggle(Snacks.toggle.dim(), "<leader>uD", { desc = "Toggle Dim Mode" })
+map_toggle(Snacks.toggle.animate(), "<leader>ua", { desc = "Toggle Animations" })
+map_toggle(Snacks.toggle.scroll(), "<leader>uS", { desc = "Toggle Smooth Scrolling" })
 -- <leader>d is only this prefix. The old black-hole <leader>d map made
 -- these wait out timeoutlen on every delete.
-Snacks.toggle.profiler():map("<leader>dpp")
-Snacks.toggle.profiler_highlights():map("<leader>dph")
+map_toggle(Snacks.toggle.profiler(), "<leader>dpp", { desc = "Toggle Profiler" })
+map_toggle(Snacks.toggle.profiler_highlights(), "<leader>dph", { desc = "Toggle Profiler Highlights" })
 if vim.lsp.inlay_hint then
-  Snacks.toggle.inlay_hints():map("<leader>uh")
+  map_toggle(Snacks.toggle.inlay_hints(), "<leader>uh", { desc = "Toggle Inlay Hints" })
 end
-Snacks.toggle.zoom():map("<leader>wm"):map("<leader>uZ")
+map_toggle(map_toggle(Snacks.toggle.zoom(), "<leader>wm", { desc = "Toggle Window Zoom" }), "<leader>uZ", { desc = "Toggle Window Zoom" })
 end
 
+local snacks_group = vim.api.nvim_create_augroup("ConfigKeymapsSnacks", { clear = true })
 if Snacks then
   setup_snacks_keymaps()
 else
   vim.api.nvim_create_autocmd("User", {
+    group = snacks_group,
     pattern = "VeryLazy",
     once = true,
     callback = setup_snacks_keymaps,

@@ -42,4 +42,19 @@ vim.fn.delete(vim.fn.fnamemodify(path, ':h:h'), 'rf')
 choice = 2
 actions.close(second)
 assert(removed[2] == second, 'Discard must close the selected buffer')
+local shared = buffer()
+vim.api.nvim_buf_set_name(shared, vim.fn.tempname() .. '.txt')
+vim.api.nvim_set_current_buf(shared)
+vim.cmd('tab sbuffer ' .. shared)
+local shared_tabs = #vim.api.nvim_list_tabpages()
+choice = 3
+actions.close(shared)
+assert(vim.api.nvim_buf_is_valid(shared) and vim.bo[shared].modified,
+  'Cancel must preserve a modified buffer displayed in multiple tabs')
+assert(#vim.api.nvim_list_tabpages() == shared_tabs,
+  'Cancelling close must preserve tab layouts')
+choice = 2
+actions.close(shared)
+assert(not vim.api.nvim_buf_is_valid(shared), 'Discard should remove the shared buffer only after confirmation')
+vim.cmd('tabonly!')
 print('file_actions_spec: OK')

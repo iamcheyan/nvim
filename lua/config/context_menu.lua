@@ -73,7 +73,9 @@ local function run_buffer(action, ctx)
     if e.id == id then index = i; break end
   end
 
-  if action == "close" then
+  if action == "new_file" then
+    require("config.file_actions").new_file()
+  elseif action == "close" then
     delete_buffers({ id })
   elseif action == "close_left" and index then
     delete_buffers(vim.tbl_map(function(e) return e.id end, vim.list_slice(elements, 1, index - 1)))
@@ -185,7 +187,9 @@ local function run_editor(action, ctx)
   local buf  = target_buffer(ctx)
   local path = target_path(ctx)
 
-  if action == "definition" then
+  if action == "new_file" then
+    require("config.file_actions").new_file()
+  elseif action == "definition" then
     local ok, snacks = pcall(require, "snacks.picker")
     if ok and snacks.lsp_definitions then
       snacks.lsp_definitions()
@@ -287,6 +291,8 @@ end
 -- ---------------------------------------------------------------------------
 
 local buffer_entries = {
+  { "󰝰  New File in New Tab",         "new_file" },
+  { separator = true },
   { "󰅖  Close",                      "close" },
   { "󰁍  Close Left",                 "close_left" },
   { "󰁔  Close Right",                "close_right" },
@@ -331,6 +337,8 @@ local neo_entries = {
 }
 
 local editor_entries = {
+  { "󰝰  New File in New Tab",         "new_file" },
+  { separator = true },
   { "󰆒  Select All & Paste",         "paste_all" },
   { "󰅍  Select All & Copy",          "copy_all" },
   { "󰆐  Select All & Cut",           "cut_all" },

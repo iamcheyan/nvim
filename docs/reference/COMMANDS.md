@@ -41,6 +41,7 @@
 | 命令 | 作用 |
 |---|---|
 | `:sp` | 水平分割 |
+| `:new` | 水平分屏并打开新的空 buffer |
 | `:vs` | 垂直分割 |
 | `:resize 20` | 改高度 |
 | `:vertical resize 80` | 改宽度 |
@@ -93,6 +94,14 @@
 | `:command` | 列出用户命令 |
 | `:autocmd` | 列出自动命令 |
 | `:verbose autocmd 事件` | 带来源 |
+
+## 当前配置的重载入口
+
+`:ConfigReload` 或 `<leader>uR` 打开定向重载菜单。
+可用 `:ConfigReload keymaps`、`:ConfigReload files`、`:ConfigReload statusline`
+分别重载快捷键、文件操作和状态栏；`:ConfigReload all` 重载这三个范围。
+插件安装、LSP 与启动设置的变更仍需重启。详见
+[新建文件、文件条与配置重载](../guides/FILES-TABS-AND-RELOAD.md)。
 
 ## 会话
 

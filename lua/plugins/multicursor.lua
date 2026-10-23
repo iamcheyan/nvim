@@ -11,38 +11,12 @@ return {
     local mc = require("multicursor-nvim")
     mc.setup()
 
-    local set = vim.keymap.set
-    -- Plain arrows stay as cursor movement. Adjacent-line cursors use the
-    -- leader form so they do not fight the window-motion maps.
-    set({ "n", "x" }, "<leader><up>", function() mc.lineSkipCursor(-1) end)
-    set({ "n", "x" }, "<leader><down>", function() mc.lineSkipCursor(1) end)
-
-    -- <leader>s is the search prefix. Skip lives on Alt-d so <C-d> can scroll.
-    set({ "n", "x" }, "<leader>n", function() mc.matchAddCursor(1) end)
-    set({ "n", "x" }, "<leader>N", function() mc.matchAddCursor(-1) end)
-    set({ "n", "x" }, "<M-d>", function() mc.matchSkipCursor(1) end)
-    set({ "n", "x" }, "<M-D>", function() mc.matchSkipCursor(-1) end)
-
-    -- Ctrl+n adds the next match. Ctrl+Shift+n selects every match.
-    -- Insert mode is left alone so keyword completion keeps Ctrl+n.
-    set({ "n", "x" }, "<C-n>", function() mc.matchAddCursor(1) end)
-    set({ "n", "x" }, "<C-S-n>", mc.matchAllAddCursors)
-
-    -- <leader>A aligns columns. <leader>a stays "increment number".
-    -- <C-q> is visual-block in keymaps.lua. Toggle cursors with <leader>mq.
-    set({ "n", "x" }, "ga", mc.addCursorOperator)
-    set("n", "<leader>A", mc.alignCursors)
-    set("n", "<leader>gv", mc.restoreCursors)
-    set({ "n", "x" }, "<leader>mq", mc.toggleCursor)
-
-    set("n", "<c-leftmouse>", mc.handleMouse)
-    set("n", "<c-leftdrag>", mc.handleMouseDrag)
-    set("n", "<c-leftrelease>", mc.handleMouseRelease)
+    require("config.multicursor_keymaps").apply(mc)
 
     mc.addKeymapLayer(function(layer_set)
       layer_set({ "n", "x" }, "<left>", mc.prevCursor)
       layer_set({ "n", "x" }, "<right>", mc.nextCursor)
-      layer_set({ "n", "x" }, "<leader>x", mc.deleteCursor)
+      layer_set({ "n", "x" }, "<leader>x", mc.deleteCursor, { desc = "Delete current cursor" })
       -- This layer is only active while cursors exist, so Escape clears them.
       -- With no cursors the layer is inactive and the global <esc> mapping runs
       -- (clear search highlight, dismiss popups). When cursors are merely

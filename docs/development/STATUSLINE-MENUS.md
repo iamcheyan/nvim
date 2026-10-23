@@ -1,9 +1,14 @@
 # Statusline menu behavior
 
-The clickable menus in the bottom statusline share `open_statusline_menu()` in
-`lua/plugins/heirline.lua`. Keep their behavior consistent through that shared
+The clickable menus in the bottom statusline share `open()` in
+`lua/config/statusline/menu.lua`. Keep their behavior consistent through that shared
 entry point so file, encoding, LSP, mode, Git, and navigation menus receive the
 same fixes.
+
+`lua/plugins/heirline.lua` assembles the statusline components.
+`lua/config/statusline/position.lua` owns the compact L/C/P display and its
+description, navigation and copy menu. `menu.close()` restores temporary maps
+and closes an active popup before a targeted configuration reload.
 
 ## Focus and bar colors
 
@@ -35,7 +40,7 @@ the popup should close it and replay the event after restoring source mappings.
 
 ## Regression check
 
-Run `python3 tests/statusline_menu_ui_spec.py` from the dotfiles
+Run `python3 tests/statusline_menu_ui_spec.py` from the Neovim
 repository. The attached-UI check covers unchanged source focus and bar state,
 the absence of the inherited cursor marker, no scrolling for a fitting menu,
 scrolling for an overflowing menu, and mouse selection.

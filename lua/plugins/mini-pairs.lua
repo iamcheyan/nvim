@@ -23,7 +23,7 @@ return {
         set = function(state)
           vim.g.minipairs_disable = not state
         end,
-      }):map("<leader>up")
+      }):map("<leader>up", { desc = "Toggle Automatic Pairing" })
 
       local pairs = require("mini.pairs")
       pairs.setup(opts)

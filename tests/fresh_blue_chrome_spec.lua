@@ -94,27 +94,23 @@ local statusline_style = statusline_opts.hl()
 assert(color_id(statusline_style.bg) == color_id(fresh.status_bar_bg), "Heirline bottom bar should use Fresh Nostalgia")
 assert(color_id(statusline_style.fg) == color_id(fresh.status_bar_fg), "Heirline bottom-bar text should use Fresh Nostalgia")
 assert(statusline_style.bold == false, "Heirline bottom bar should not be bold")
-local right_info
-local function find_right_info(components)
-  for _, component in ipairs(components) do
-    if type(component) == "table" then
-      if #component == 6
-        and component[2][2] and component[2][2].on_click and component[2][2].on_click.name == "heirline_fileformat_menu"
-        and component[2][3] and component[2][3].on_click and component[2][3].on_click.name == "heirline_encoding_menu"
-        and component[3].on_click and component[3].on_click.name == "heirline_lsp_menu"
-        and component[4].on_click and component[4].on_click.name == "heirline_nav_menu" then
-        right_info = component
-        return
-      end
-      find_right_info(component)
-      if right_info then return end
-    end
+local function find_component(component, predicate)
+  if predicate(component) then return component end
+  for _, child in ipairs(component) do
+    local found = find_component(child, predicate)
+    if found then return found end
   end
 end
-find_right_info(statusline_opts)
-assert(right_info, "right status information should be split into color blocks")
-local caps_component = right_info[5]
-local mode_component = right_info[6]
+local mode_component = assert(find_component(statusline_opts, function(component)
+  return component.on_click and component.on_click.name == "heirline_mode_menu"
+end), "mode segment must be present")
+local caps_component = assert(find_component(statusline_opts, function(component)
+  local text = component[2] and component[2].provider
+  if type(text) ~= "function" then return false end
+  local ok, value = pcall(text)
+  return ok and type(value) == "string" and value:match("^CAPS ")
+end), "Caps Lock segment must be present")
+
 assert(mode_component and mode_component.on_click.name == "heirline_mode_menu", "mode segment should remain in the right status block")
 assert(mode_component.hl({ mode = "n", _pressed = false }) == "FreshStatusLineAccent", "mode segment should share Fresh green")
 assert(caps_component.on_click == nil, "Caps Lock status should only display state")

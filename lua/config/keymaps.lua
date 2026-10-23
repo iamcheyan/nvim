@@ -1,46 +1,48 @@
 -- Personal keymaps. Loaded after keymaps-defaults.lua so these mappings win
 -- when they intentionally reuse the same lhs.
 
+local map = require("config.reload").mapper("personal")
+
 -- Terminal keybindings
-vim.keymap.set("n", "<leader>tr", function()
+map("n", "<leader>tr", function()
   vim.cmd("vsplit | terminal")
 end, { desc = "Terminal Right" })
 
-vim.keymap.set("n", "<leader>tb", function()
+map("n", "<leader>tb", function()
   vim.cmd("split | terminal")
 end, { desc = "Terminal Bottom" })
 
 -- Path yanks live under <leader>y so <leader>c stays code actions.
 -- <leader>cd is line diagnostics (keymaps-defaults.lua).
-vim.keymap.set("n", "<leader>yp", function()
+map("n", "<leader>yp", function()
   vim.fn.setreg("+", vim.fn.expand("%"))
 end, { desc = "Copy file (relative path)" })
 
-vim.keymap.set("n", "<leader>yP", function()
+map("n", "<leader>yP", function()
   vim.fn.setreg("+", vim.fn.expand("%:p"))
 end, { desc = "Copy file (absolute path)" })
 
-vim.keymap.set("n", "<leader>yd", function()
+map("n", "<leader>yd", function()
   vim.fn.setreg("+", vim.fn.expand("%:p:h"))
 end, { desc = "Copy directory" })
 
 -- Search the config's own repository, wherever it is checked out. stdpath
 -- follows the ~/.config/nvim symlink, so this works on any machine without
 -- assuming a particular home directory or clone location.
-vim.keymap.set("n", "<leader>fC", function()
+map("n", "<leader>fC", function()
   local config_root = vim.uv.fs_realpath(vim.fn.stdpath("config")) or vim.fn.stdpath("config")
   local dirs = { config_root }
   require("snacks").picker.files({
-    title = "常用配置文件",
+    title = "Common Configuration Files",
     dirs = dirs,
   })
-end, { desc = "打开常用收藏" })
+end, { desc = "Browse Neovim Configuration Files" })
 
-vim.keymap.set("n", "<leader>fo", function()
+map("n", "<leader>fo", function()
   vim.lsp.buf.format({ async = true })
-end, { desc = "format this file" })
+end, { desc = "Format Current File" })
 
-vim.keymap.set("n", "<leader>fu", function()
+map("n", "<leader>fu", function()
   local file = vim.fn.expand("%:p")
   if file == "" then
     vim.notify("dos2unix: buffer has no file", vim.log.levels.WARN)
@@ -60,10 +62,10 @@ vim.keymap.set("n", "<leader>fu", function()
   end
   vim.cmd("checktime")
   vim.notify("dos2unix: " .. vim.fn.fnamemodify(file, ":t"))
-end, { desc = "dos2unix current file" })
+end, { desc = "Convert Current File to Unix Line Endings" })
 
 -- <leader>a is only "increment" (below). A second key on that prefix made it wait.
-vim.keymap.set("n", "<leader>bC", function()
+map("n", "<leader>bC", function()
   vim.api.nvim_buf_set_lines(0, 0, -1, false, { "" })
   vim.api.nvim_win_set_cursor(0, { 1, 0 })
 end, { desc = "Clear buffer contents" })
@@ -79,29 +81,29 @@ local function current_extension_filter()
   return "*." .. ext
 end
 
-vim.keymap.set("n", "<leader>sr", function()
+map("n", "<leader>sr", function()
   require("grug-far").open({
     transient = true,
     prefills = { filesFilter = current_extension_filter() },
   })
 end, { desc = "Search/Replace (project)" })
 
-vim.keymap.set("x", "<leader>sr", function()
+map("x", "<leader>sr", function()
   require("grug-far").with_visual_selection({
     transient = true,
     prefills = { filesFilter = current_extension_filter() },
   })
 end, { desc = "Search/Replace selection (project)" })
 
-vim.keymap.set("n", "<leader>sR", function()
+map("n", "<leader>sR", function()
   require("grug-far").open({ prefills = { paths = vim.fn.expand("%") } })
 end, { desc = "Search/Replace (current file)" })
 
-vim.keymap.set("x", "<leader>sR", function()
+map("x", "<leader>sR", function()
   require("grug-far").with_visual_selection({ prefills = { paths = vim.fn.expand("%") } })
 end, { desc = "Search/Replace selection (current file)" })
 
-vim.keymap.set("n", "<2-LeftMouse>", function()
+map("n", "<2-LeftMouse>", function()
   local m = vim.fn.getmousepos()
   if m.winid and m.winid ~= 0 then
     vim.api.nvim_set_current_win(m.winid)
@@ -138,11 +140,11 @@ vim.keymap.set("n", "<2-LeftMouse>", function()
   if color_found then
     vim.cmd("CccPick")
   end
-end, { desc = "双击颜色弹出 ccc 取色器" })
+end, { desc = "Open Color Picker on Double-Click" })
 
--- 添加到 <leader><tab> 菜单中
--- <leader><tab><tab> - 列出所有 Tab Pages 并选择切换（类似 buffer 切换）
-vim.keymap.set("n", "<leader><tab><tab>", function()
+-- Add tab-page switching to the <leader><tab> menu.
+-- <leader><tab><tab> lists tab pages and switches to the selected one.
+map("n", "<leader><tab><tab>", function()
   local tabs = vim.api.nvim_list_tabpages()
   local current_tab = vim.api.nvim_get_current_tabpage()
   local items = {}
@@ -172,28 +174,28 @@ vim.keymap.set("n", "<leader><tab><tab>", function()
 end, { desc = "List and switch Tab Pages" })
 
 -- <leader><tab><tab> 用于 tab 列表；新建 Tab 改用 n
-vim.keymap.set("n", "<leader><tab>n", "<cmd>tabnew<cr>", { desc = "New Tab" })
+map("n", "<leader><tab>n", "<cmd>tabnew<cr>", { desc = "New Tab" })
 
 -- =======================================================================
--- 现代编辑器操作流 (AI 协作 / 网页交互友好，兼顾 Vim 模态特性)
+-- Modern editing workflow (AI collaboration and web-friendly interaction).
 -- =======================================================================
 
 -- 1. Ctrl + A selects the file in normal and visual mode.
 -- Insert <C-a> stays "insert previously inserted text".
-vim.keymap.set({ "n", "x" }, "<C-a>", "ggVG", { desc = "Select all lines" })
+map({ "n", "x" }, "<C-a>", "ggVG", { desc = "Select all lines" })
 -- noremap so this is the builtin increment, not the select-all map above.
-vim.keymap.set("n", "<leader>a", "<C-a>", { desc = "Increment number" })
+map("n", "<leader>a", "<C-a>", { desc = "Increment number" })
 -- <C-v> is paste. <C-q> is the terminal-friendly visual-block key.
-vim.keymap.set({ "n", "x" }, "<C-q>", "<C-v>", { desc = "Visual block" })
+map({ "n", "x" }, "<C-q>", "<C-v>", { desc = "Visual block" })
 
--- 2. Ctrl + C: 仅在可视模式下生效，复制选区到系统剪贴板 (普通模式保留原生中断/取消)
-vim.keymap.set("x", "<C-c>", '"+y', { desc = "Copy selection to system clipboard" })
+-- Ctrl+C copies the selection to the system clipboard in Visual mode only.
+map("x", "<C-c>", '"+y', { desc = "Copy selection to system clipboard" })
 
--- 3. Ctrl + X: 仅在可视模式下生效，剪切选区到系统剪贴板 (普通模式保留数字减 1，插入模式保留补全前缀)
-vim.keymap.set("x", "<C-x>", '"+d', { desc = "Cut selection to system clipboard" })
+-- Ctrl+X cuts the selection to the system clipboard in Visual mode only.
+map("x", "<C-x>", '"+d', { desc = "Cut selection to system clipboard" })
 
--- 4. 可视模式 Ctrl + V：使用智能粘贴覆盖选区；p/P 支持智能缩进粘贴（已修复多余空行）。
-vim.keymap.set("x", "<C-v>", function() require("smart-paste").paste_clipboard_visual() end, { desc = "Smart paste clipboard over selection" })
+-- Ctrl+V uses smart paste to replace the Visual selection.
+map("x", "<C-v>", function() require("smart-paste").paste_clipboard_visual() end, { desc = "Smart paste clipboard over selection" })
 
--- 5. 插入模式 Ctrl + V：多行代码按当前位置缩进重排；单行文本保持原样插入。
-vim.keymap.set("i", "<C-v>", "<Plug>(smart-paste-clipboard-insert)", { remap = true, desc = "Smart paste from system clipboard" })
+-- Ctrl+V smart-pastes multiline code with indentation in Insert mode.
+map("i", "<C-v>", "<Plug>(smart-paste-clipboard-insert)", { remap = true, desc = "Smart paste from system clipboard" })

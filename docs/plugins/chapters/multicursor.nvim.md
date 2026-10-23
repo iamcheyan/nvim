@@ -19,7 +19,7 @@ multicursor 把光标同时放在多个位置，一次编辑作用于全部位�
 | `Ctrl+n` | n / x | 添加下一个匹配 |
 | `Ctrl+Shift+n` | n / x | 选中当前词/选区的**全部**匹配 |
 | `Alt+d` / `Alt+Shift+d` | n / x | 跳过下一个 / 上一个匹配 |
-| `<leader>n` / `<leader>N` | n / x | 添加下一个 / 上一个匹配 |
+| `<leader>mn` / `<leader>mN` | n / x | 添加下一个 / 上一个匹配 |
 | `Esc` | 有光标时 | 清除所有光标 |
 
 只在普通和可视模式绑定，所以**插入模式的 `Ctrl+n` 仍是补全**。`Ctrl+d` 仍是半页下滚。
