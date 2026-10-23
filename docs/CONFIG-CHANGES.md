@@ -178,7 +178,7 @@ hlslens 不再绑定 `n` / `N`。`*` `#` `g*` `g#` 仍调用 `hlslens.start()`�
 
 ### `lua/plugins/neo-tree.lua`
 
-进入 neo-tree 窗口时增加 `vim.wo.winfixwidth = true`。
+`config.ui_highlights` 将 Neo-tree 的 expander/indent 高亮组背景设为透明，防止组默认链接中的深蓝底色盖住 `CursorLine`，造成展开箭头后的空格颜色断层。
 
 ## 文档
 

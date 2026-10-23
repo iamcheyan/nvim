@@ -36,6 +36,13 @@ return {
     build = "bash scripts/build_parser.sh",
     dependencies = { "Bekaboo/dropbar.nvim" },
     ft = { "cobol", "cbl", "cob" },
+    init = function()
+      -- Neovim's runtime COBOL ftplugin stores non-silent `unmap <buffer> [[`
+      -- commands in b:undo_ftplugin. A second FileType pass (lazy loads the
+      -- plugin on the same event) then raises E31 even though the mapping is
+      -- gone. cobol.nvim supplies the COBOL-specific maps we use instead.
+      vim.g.no_cobol_maps = 1
+    end,
     cmd = {
       "CobolGuideToggle",
       "CobolGuideEnable",

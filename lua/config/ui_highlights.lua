@@ -490,6 +490,31 @@ function M.apply()
   local set = vim.api.nvim_set_hl
   local normal = get("Normal")
   local comment = get("Comment")
+  -- Sticky context header: one solid surface a step darker than the document,
+  -- with no border.  Both the line-number gutter and the context body must be
+  -- opaque, otherwise the real buffer line below shows through the float.
+  local context_bg = mix_colors(normal.bg, 0x000000, 0.30) or normal.bg
+  if context_bg then
+    local line_nr = get("LineNr")
+    local context_ctermbg = nearest_xterm_color(context_bg)
+    set(0, "TreesitterContext", {
+      fg = normal.fg,
+      bg = context_bg,
+      ctermfg = normal.ctermfg or nearest_xterm_color(normal.fg),
+      ctermbg = context_ctermbg,
+    })
+    set(0, "TreesitterContextLineNumber", {
+      fg = line_nr.fg,
+      bg = context_bg,
+      ctermfg = line_nr.ctermfg or nearest_xterm_color(line_nr.fg),
+      ctermbg = context_ctermbg,
+    })
+    -- The plugin applies these groups to the whole last context line.  Setting
+    -- a foreground here would replace the syntax colors, so only the surface
+    -- is defined; otherwise the last header line becomes invisible.
+    set(0, "TreesitterContextBottom", { bg = context_bg, ctermbg = context_ctermbg })
+    set(0, "TreesitterContextLineNumberBottom", { bg = context_bg, ctermbg = context_ctermbg })
+  end
   local split_bg = normal.bg
   if split_bg then
     -- Hide split glyphs against the editor surface so pane boundaries do not
@@ -500,8 +525,12 @@ function M.apply()
   end
   if normal.bg then
     local muted_fg = comment.fg or normal.fg
-    set(0, "NeoTreeMessage", { fg = muted_fg, bg = normal.bg, italic = true })
-    set(0, "NeoTreeDimText", { fg = muted_fg, bg = normal.bg, italic = true })
+    set(0, "NeoTreeMessage", { fg = muted_fg, bg = "NONE", italic = true })
+    set(0, "NeoTreeDimText", { fg = muted_fg, bg = "NONE", italic = true })
+    -- Neo-tree's expander component inherits DimText. Its fixed background
+    -- masks CursorLine on the padding after the expander glyph.
+    set(0, "NeoTreeExpander", { fg = muted_fg, bg = "NONE", italic = true })
+    set(0, "NeoTreeIndentMarker", { fg = muted_fg, bg = "NONE", italic = true })
   end
   if nostalgia then
     set(0, "TabLine", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })

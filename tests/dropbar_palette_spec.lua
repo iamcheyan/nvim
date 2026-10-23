@@ -10,6 +10,10 @@ local function check()
     assert(vim.deep_equal(vim.api.nvim_get_hl(0,{name=name,link=false}),
       vim.api.nvim_get_hl(0,{name=target,link=false})), name .. ' must match unified UI')
   end
+  for _,name in ipairs({'DropBarIconUISeparatorMenu','dropbarIconUIIndicator'}) do
+    assert(vim.api.nvim_get_hl(0,{name=name,link=false}).bg==nil,
+      name .. ' must stay transparent so selected menu rows have no dark notch')
+  end
   local padding=require('dropbar.configs').opts.bar.padding
   assert(padding.left==1 and padding.right==1,'winbar needs one space on both sides')
   assert(require('dropbar.configs').opts.menu.entry.padding.right==1,'menu needs space between icon and text')

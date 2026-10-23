@@ -21,6 +21,10 @@ with tempfile.TemporaryDirectory(prefix='nvim-dropbar-mouse-') as temp:
     try:
         nvim.ui_attach(180, 45, rgb=True)
         nvim.exec_lua("require('auto-session.config').enabled=false")
+        # A restored Neo-tree changes the window widths and click coordinates.
+        # Wait for the deferred sidebar restore before closing it.
+        nvim.exec_lua("vim.wait(400)")
+        nvim.exec_lua("pcall(function() require('neo-tree.command').execute({action='close'}) end)")
         nvim.command('silent! only')
         nvim.command('lcd ' + nvim.funcs.fnameescape(temp))
         nvim.command('edit src/first.py')
@@ -36,6 +40,9 @@ with tempfile.TemporaryDirectory(prefix='nvim-dropbar-mouse-') as temp:
         assert black_icons, 'Path icons must use black Nerd Font highlights'
         nvim.exec_lua("vim.v.errmsg=''")
         def click(row, col):
+            # v:errmsg can carry unrelated errors from file-open autocommands;
+            # assert only on errors produced by this click.
+            nvim.exec_lua("vim.v.errmsg=''")
             nvim.api.input_mouse('left','press','',0,row,col)
             nvim.api.input_mouse('left','release','',0,row,col)
             time.sleep(.15)

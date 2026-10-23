@@ -14,6 +14,11 @@ nvim = pynvim.attach('child', argv=argv)
 try:
     nvim.ui_attach(140, 40, rgb=True)
     nvim.exec_lua("require('auto-session.config').enabled=false")
+    # The sidebar restore scheduled by VeryLazy can still reopen Neo-tree after
+    # this point. Let it settle, then start from a clean layout; otherwise the
+    # sidebar changes the winbar budget and split widths.
+    nvim.exec_lua("vim.wait(400)")
+    nvim.exec_lua("pcall(function() require('neo-tree.command').execute({action='close'}) end)")
     nvim.command('silent! only')
     nvim.command('lcd ' + nvim.funcs.fnameescape(str(root/'tests/fixtures/context')))
     def screen():
@@ -30,8 +35,11 @@ try:
         nvim.command('edit ' + nvim.funcs.fnameescape(str(root/'tests/fixtures/context'/relative)))
     def check_bar(label):
         rows = screen()
-        assert label in rows[1], f'Visible winbar missing {label}: {rows[1]!r}'
-        assert rows[1].startswith(' ') and not rows[1].startswith('  '), f'Winbar needs one cell of left padding: {rows[1]!r}'
+        # Bufferline is optional and loads asynchronously; find the bar row
+        # instead of assuming it is always the first screen line.
+        bar = next((r for r in rows[:3] if label in r), None)
+        assert bar, f'Visible winbar missing {label}: {rows[:3]!r}'
+        assert bar.startswith(' ') and not bar.startswith('  '), f'Winbar needs one cell of left padding: {bar!r}'
     for _ in range(3):
         open_file('examples/python/night_report.py')
         nvim.current.window.cursor = (4, 10)

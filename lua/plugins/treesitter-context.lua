@@ -12,7 +12,11 @@ return {
       multiline_threshold = 4,
       trim_scope = "outer",
       mode = "cursor",
-      separator = "─",
+      -- No border/separator: a solid, slightly darker surface is enough to
+      -- show that the header is pinned.  The global float wrapper only leaves
+      -- borderless non-focusable windows alone, so this also avoids a
+      -- one-cell frame around the line number and context text.
+      separator = nil,
       zindex = 20,
     },
   },

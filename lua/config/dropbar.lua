@@ -304,10 +304,21 @@ function M.sources()
       local items = require('dropbar.sources.path').get_symbols(buf, win, cursor)
       local separator = require('dropbar.configs').opts.icons.ui.bar.separator
       local padding=require('dropbar.configs').opts.bar.padding
-      left_width = padding.left + padding.right
-      for _, symbol in ipairs(items) do
-        left_width = left_width + symbol:displaywidth() + vim.fn.strdisplaywidth(separator)
+      local function width_of(list)
+        local total = padding.left + padding.right
+        for _, symbol in ipairs(list) do
+          total = total + symbol:displaywidth() + vim.fn.strdisplaywidth(separator)
+        end
+        return total
       end
+      -- Keep enough room for the code breadcrumb. In a narrow split the full
+      -- path would otherwise eat the budget and hide the current function or
+      -- COBOL paragraph, so drop outer directories first and keep the file.
+      local path_budget = math.max(0, vim.api.nvim_win_get_width(win) - 40)
+      while #items > 1 and width_of(items) > path_budget do
+        table.remove(items, 1)
+      end
+      left_width = width_of(items)
       return items
     end},
     {get_symbols=function(buf, win, cursor)
@@ -363,7 +374,10 @@ function M.highlights()
     DropBarMenuCurrentContext='FreshMenuSelected', DropBarMenuHoverEntry='FreshMenuSelected',
     DropBarMenuSbar='FreshMenu', DropBarMenuThumb='FreshMenuSelected',
     DropBarMenuHoverIcon='FreshMenuSelected', DropBarMenuHoverSymbol='FreshMenuSelected',
-    dropbarIconUIIndicator='FreshMenu', DropBarIconUISeparatorMenu='FreshMenu',
+    -- The indicator and entry separator are single cells between icons.  Give
+    -- them no background, otherwise they mask the selected/hovered row and
+    -- leave a dark notch between the arrow and the icon.
+    dropbarIconUIIndicator='DropBarMenuText', DropBarIconUISeparatorMenu='DropBarMenuText',
     DropBarFzfMatch='FreshMenuSelected',
   }) do set(0,name,{link=target}) end
   for _,name in ipairs({'DropBarContextText','DropBarContextIcon','DropBarKindDir','DropBarKindFile',
