@@ -116,6 +116,47 @@ smart-paste 保留块内相对缩进，但把第一行对齐到当前光标位�
 
 这一条在 [05 复制与寄存器](../tutorials/05-yank-and-registers.html) 里详细讲了。
 
+## 本配置的历史说明
+
+旧版配置把 `d`、`c`、`x`、`D`、`C`、`X`、`<Del>` 以及选择模式下所有可打印字符都映射到黑洞寄存器 `"_`，并把 `m`/`M`/`mm` 改成专用剪切键。目的是让删除不冲掉系统剪贴板。这样做的代价是：Vim 的寄存器模型被重写，`dd` 后 `p` 粘出来的不再是刚删的行，`ciw` 不再把被替换的词送进寄存器，计数行为也不直观。
+
+**当前配置已恢复 Vim 默认**：`d`、`c`、`x` 等操作按 Vim 原生逻辑把内容送进 `"1` 和 `""`，`clipboard=unnamedplus` 时会覆盖系统剪贴板。如果想重新启用黑洞映射，把下面的代码加回 `lua/config/keymaps.lua`（在 smart-paste 映射之后）：
+
+```lua
+local blackhole_opts = { noremap = true, silent = true }
+
+vim.keymap.set({ "n", "x" }, "d", '"_d', vim.tbl_extend("force", blackhole_opts, { desc = "Delete (black hole, no yank)" }))
+vim.keymap.set("n", "dd", function()
+  return '"_' .. vim.v.count1 .. "dd"
+end, vim.tbl_extend("force", blackhole_opts, { expr = true, desc = "Delete line (black hole)" }))
+vim.keymap.set({ "n", "x" }, "D", '"_D', vim.tbl_extend("force", blackhole_opts, { desc = "Delete to end of line (black hole)" }))
+vim.keymap.set({ "n", "x" }, "x", '"_x', vim.tbl_extend("force", blackhole_opts, { desc = "Delete char (black hole)" }))
+vim.keymap.set({ "n", "x" }, "X", '"_X', vim.tbl_extend("force", blackhole_opts, { desc = "Delete char before cursor (black hole)" }))
+vim.keymap.set("n", "<Del>", '"_x', vim.tbl_extend("force", blackhole_opts, { desc = "Delete key (black hole)" }))
+vim.keymap.set("x", "<Del>", '"_d', vim.tbl_extend("force", blackhole_opts, { desc = "Delete selection (black hole)" }))
+
+vim.keymap.set({ "n", "x" }, "c", '"_c', vim.tbl_extend("force", blackhole_opts, { desc = "Change (black hole, no yank)" }))
+vim.keymap.set("n", "cc", function()
+  return '"_' .. vim.v.count1 .. "S"
+end, vim.tbl_extend("force", blackhole_opts, { expr = true, desc = "Change line (black hole)" }))
+vim.keymap.set({ "n", "x" }, "C", '"_C', vim.tbl_extend("force", blackhole_opts, { desc = "Change to end of line (black hole)" }))
+
+for char_nr = 33, 126 do
+  local char = vim.fn.nr2char(char_nr)
+  vim.keymap.set("s", char, '<c-o>"_c' .. (char == "\\" and "\\" or char), blackhole_opts)
+end
+vim.keymap.set("s", "<bs>", '<c-o>"_c', blackhole_opts)
+vim.keymap.set("s", "<space>", '<c-o>"_c<space>', blackhole_opts)
+
+vim.keymap.set("n", "<leader>M", "m", { desc = "Set mark" })
+vim.keymap.set("n", "m", '"+d', { desc = "Cut to system clipboard" })
+vim.keymap.set("n", "mm", '"+dd', { desc = "Cut line to system clipboard" })
+vim.keymap.set("n", "M", '"+D', { desc = "Cut to end of line to system clipboard" })
+vim.keymap.set("x", "m", '"+d', { desc = "Cut selection to system clipboard" })
+```
+
+建议先在小文件上练习 `dd`、`p`、`"0p` 的区别，再决定要不要重新启用。
+
 ## 下一步
 
 - [03 文件类型与语法高亮](03-filetypes.html)
