@@ -18,10 +18,32 @@ local function check()
   assert(padding.left==1 and padding.right==1,'winbar needs one space on both sides')
   assert(require('dropbar.configs').opts.menu.entry.padding.right==1,'menu needs space between icon and text')
   assert(require('dropbar.configs').opts.icons.ui.menu.indicator=='','menu arrow must not contain trailing spacing')
+  local winbar=vim.api.nvim_get_hl(0,{name='WinBar',link=false})
+  local bar_fg=winbar.fg or vim.api.nvim_get_hl(0,{name='Normal',link=false}).fg
+  for _,name in ipairs({'DropBarContextText','DropBarContextIcon','DropBarKindDir','DropBarKindFile',
+    'DropBarIconUISeparator','DropBarIconUIIndicator'}) do
+    assert(vim.api.nvim_get_hl(0,{name=name,link=false}).fg==bar_fg,
+      name .. ' must follow the WinBar foreground')
+  end
 end
 check()
 vim.cmd.colorscheme('blue')
 vim.wait(250)
 check()
+
+-- A dark WinBar must recolor the path breadcrumb instead of leaving the old
+-- hard-coded black foreground.
+vim.api.nvim_set_hl(0,'WinBar',{fg=0xf0f0f0,bg=0x101010})
+vim.api.nvim_set_hl(0,'WinBarNC',{fg=0xd0d0d0,bg=0x101010})
+require('config.dropbar').highlights()
+for _,name in ipairs({'DropBarContextText','DropBarContextIcon','DropBarKindDir','DropBarKindFile',
+  'DropBarIconUISeparator','DropBarIconUIIndicator'}) do
+  assert(vim.api.nvim_get_hl(0,{name=name,link=false}).fg==0xf0f0f0,
+    name .. ' must use the dark WinBar foreground')
+end
+for _,name in ipairs({'DropBarKindDirNC','DropBarKindFileNC','DropBarIconUISeparatorNC'}) do
+  assert(vim.api.nvim_get_hl(0,{name=name,link=false}).fg==0xd0d0d0,
+    name .. ' must use the dark WinBarNC foreground')
+end
 print('dropbar_palette_spec: OK')
 vim.cmd.qa()

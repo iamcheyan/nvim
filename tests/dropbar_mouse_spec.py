@@ -32,12 +32,14 @@ with tempfile.TemporaryDirectory(prefix='nvim-dropbar-mouse-') as temp:
         nvim.input('h')
         time.sleep(.2)
         nvim.command('redraw')
-        black_icons=nvim.exec_lua('''local b=require('dropbar.utils.bar').get_current()
+        theme_icons=nvim.exec_lua('''local b=require('dropbar.utils.bar').get_current()
+          local wb=vim.api.nvim_get_hl(0,{name='WinBar',link=false})
+          local fg=wb.fg or vim.api.nvim_get_hl(0,{name='Normal',link=false}).fg
           for _,s in ipairs(b.components) do
-            if s.data and s.data.path and vim.api.nvim_get_hl(0,{name=s.icon_hl,link=false}).fg~=0 then return false end
+            if s.data and s.data.path and vim.api.nvim_get_hl(0,{name=s.icon_hl,link=false}).fg~=fg then return false end
           end
           return true''')
-        assert black_icons, 'Path icons must use black Nerd Font highlights'
+        assert theme_icons, 'Path icons must follow the WinBar foreground'
         nvim.exec_lua("vim.v.errmsg=''")
         def click(row, col):
             # v:errmsg can carry unrelated errors from file-open autocommands;

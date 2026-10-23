@@ -380,11 +380,21 @@ function M.highlights()
     dropbarIconUIIndicator='DropBarMenuText', DropBarIconUISeparatorMenu='DropBarMenuText',
     DropBarFzfMatch='FreshMenuSelected',
   }) do set(0,name,{link=target}) end
+  -- Path breadcrumbs live on the WinBar surface.  Do not hard-code black:
+  -- themes with a dark WinBar would make every path component invisible.
+  local winbar=vim.api.nvim_get_hl(0,{name='WinBar',link=false})
+  local winbar_nc=vim.api.nvim_get_hl(0,{name='WinBarNC',link=false})
+  local normal=vim.api.nvim_get_hl(0,{name='Normal',link=false})
+  local bar_fg=winbar.fg or normal.fg
+  local bar_nc_fg=winbar_nc.fg or bar_fg
+  local bar_ctermfg=winbar.ctermfg or normal.ctermfg
+  local bar_nc_ctermfg=winbar_nc.ctermfg or bar_ctermfg
   for _,name in ipairs({'DropBarContextText','DropBarContextIcon','DropBarKindDir','DropBarKindFile',
-    'DropBarKindDirNC','DropBarKindFileNC','DropBarIconUISeparator','DropBarIconUIIndicator',
-    'DropBarHover','DropBarCurrentContext','DropBarCurrentContextIcon','DropBarCurrentContextName',
-    '_DropBarIconHover','_DropBarHover','_DropBarIconCurrentContext','_DropBarCurrentContext'}) do
-    set(0,name,{fg=0,ctermfg=0})
+    'DropBarIconUISeparator','DropBarIconUIIndicator'}) do
+    set(0,name,{fg=bar_fg,ctermfg=bar_ctermfg})
+  end
+  for _,name in ipairs({'DropBarKindDirNC','DropBarKindFileNC','DropBarIconUISeparatorNC'}) do
+    set(0,name,{fg=bar_nc_fg,ctermfg=bar_nc_ctermfg})
   end
   local menu_text=vim.api.nvim_get_hl(0,{name='FreshMenu',link=false})
   set(0,'DropBarMenuText',{fg=menu_text.fg,ctermfg=menu_text.ctermfg})
