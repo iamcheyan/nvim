@@ -15,7 +15,6 @@
 <leader>?	n	Help
 <leader>A	n
 <leader>K	n	Keywordprg
-<leader>M	n	Set mark
 <leader>N	n
 <leader>`	n	Switch to Other Buffer
 <leader>a	n	Increment number
@@ -91,7 +90,7 @@
 <leader>n	n
 <leader>nd	n	Dial: decrement
 <leader>ni	n	Dial: increment
-<leader>p	n	Smart paste system clipboard block
+<leader>p	n	Smart paste block
 <leader>qN	n	VimQuest next round
 <leader>qS	n	VimQuest stats
 <leader>qc	n	VimQuest check all
@@ -183,12 +182,11 @@
 <C-S-N>	n
 <C-S>	n	Save File
 <C-Up>	n	Increase Window Height
-<C-V>	n	Smart paste system clipboard block
+<C-V>	n	Smart paste block
 <C-W> 	n	Window Hydra Mode (which-key)
 <C-W><C-D>	n	Show diagnostics under the cursor
 <C-W>d	n	Show diagnostics under the cursor
 <C-_>	n	which_key_ignore
-<Del>	n	Delete key (black hole)
 <Esc>	n	Escape and Clear messages/hlsearch
 <LeftMouse>	n
 <M-D>	n
@@ -200,16 +198,12 @@
 <ScrollWheelLeft>	n
 <ScrollWheelRight>	n
 <ScrollWheelUp>	n
-C	n	Change to end of line (black hole)
-D	n	Delete to end of line (black hole)
 H	n	Prev Buffer
 K	n	Hover or VimQuest hint
 L	n	Next Buffer
-M	n	Cut to end of line to system clipboard
 N	n	Prev Search Result
-P	n	Smart paste: P
+P	n	Smart paste before
 S	n	Flash Treesitter
-X	n	Delete char before cursor (black hole)
 Y	n	:help Y-default
 [ 	n	Add empty line above cursor
 [%	n
@@ -227,7 +221,6 @@ Y	n	:help Y-default
 [d	n	Prev Diagnostic
 [e	n	Prev Error
 [l	n	:lprevious
-[p	n	Smart paste: [p
 [q	n	Previous Quickfix
 [t	n	:tprevious
 [w	n	Prev Warning
@@ -247,27 +240,20 @@ Y	n	:help Y-default
 ]d	n	Next Diagnostic
 ]e	n	Next Error
 ]l	n	:lnext
-]p	n	Smart paste: ]p
 ]q	n	Next Quickfix
 ]t	n	:tnext
 ]w	n	Next Warning
-c	n	Change (black hole, no yank)
-cc	n	Change line (black hole)
 cs%	n
-d	n	Delete (black hole, no yank)
-dd	n	Delete line (black hole)
 ds%	n
 g#	n	Search Partial Word Backward
 g%	n
 g*	n	Search Partial Word Forward
 gO	n	vim.lsp.buf.document_symbol()
-gP	n	Smart paste: gP
 g[	n	Move to left "around"
 g]	n	Move to right "around"
 ga	n
 gc	n	Toggle comment
 gcc	n	Toggle comment line
-gp	n	Smart paste: gp
 gra	n	vim.lsp.buf.code_action()
 gri	n	vim.lsp.buf.implementation()
 grn	n	vim.lsp.buf.rename()
@@ -291,14 +277,11 @@ gsr	n	Replace surrounding
 gsrl	n	Replace previous surrounding
 gsrn	n	Replace next surrounding
 gx	n	Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)
-m	n	Cut to system clipboard
-mm	n	Cut line to system clipboard
 n	n	Next Search Result
-p	n	Smart paste: p
+p	n	Smart paste after
 qn	n	VimQuest next
 qp	n	VimQuest prev
 s	n	Flash
-x	n	Delete char (black hole)
 z%	n
 zM	n	Close all folds
 zR	n	Open all folds
@@ -326,7 +309,6 @@ zr	n	Fold less
 <C-S>	x	Save File
 <C-V>	x	Smart paste clipboard over selection
 <C-X>	x	Cut selection to system clipboard
-<Del>	x	Delete selection (black hole)
 <LeftMouse>	v
 <M-D>	x
 <M-d>	x
@@ -340,13 +322,10 @@ zr	n	Fold less
 <lt>	x
 >	x
 @	x	:help v_@-default
-C	x	Change to end of line (black hole)
-D	x	Delete to end of line (black hole)
 N	x	Prev Search Result
-P	x	Smart paste: visual P
+P	x	Smart paste over selection
 Q	x	:help v_Q-default
 S	x	Flash Treesitter
-X	x	Delete char before cursor (black hole)
 [%	x
 [N	x	Select previous sibling node
 [n	x	Select previous node
@@ -357,8 +336,6 @@ a	x	Around textobject
 a%	x
 al	x	Around last textobject
 an	x	Around next textobject
-c	x	Change (black hole, no yank)
-d	x	Delete (black hole, no yank)
 g%	x
 g[	x	Move to left "around"
 g]	x	Move to right "around"
@@ -377,11 +354,9 @@ i	x	Inside textobject
 i%	x
 il	x	Inside last textobject
 in	x	Inside next textobject
-m	x	Cut selection to system clipboard
 n	x	Next Search Result
-p	x	Smart paste: visual p
+p	x	Smart paste over selection
 s	x	Flash
-x	x	Delete char (black hole)
 z%	x
 %	o
 <LeftMouse>	o
