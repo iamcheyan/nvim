@@ -449,7 +449,7 @@ function M.apply_menu_highlights()
   if not selected.bg then selected = get("Visual") end
   set(0, "FreshMenu", normal)
   set(0, "FreshMenuSelected", selected)
-  set(0, "FreshMenuBorder", { fg = "#ffffff", bg = document.bg })
+  set(0, "FreshMenuBorder", { fg = normal.fg or "#ffffff", bg = document.bg })
   set(0, "FreshMenuMuted", { fg = p.menu_disabled_fg })
   -- :popup uses Pmenu directly. Blink and picker surfaces keep their originals.
   -- Blue links all ordinary floats to Pmenu; preserve that surface first.
@@ -646,7 +646,7 @@ function M.apply()
   set(0, "BufferLineDuplicate",         { fg = p.surface_fg, bg = p.surface_bg, italic = true })
 
   -- Scrollbar (Satellite & nvim-scrollbar):
-  set(0, "SatelliteBackground", { bg = p.scrollbar_track_bg or "#25252a" })
+  set(0, "SatelliteBackground", { bg = p.scrollbar_track_bg or p.fill_bg })
   set(0, "SatelliteBar", { bg = p.scrollbar_bg })
 
   set(0, "ScrollbarHandle", { fg = p.scrollbar_bg, bg = p.scrollbar_bg })

@@ -49,7 +49,7 @@ return {
       local function click_feedback(self, normal)
         if not self or not self._pressed then return normal end
         local accent = vim.api.nvim_get_hl(0, { name = "FreshStatusLineAccent", link = false })
-        return { fg = accent.fg or "#ffffff", bg = accent.bg or statusline_colors.bg, bold = false }
+        return { fg = accent.fg or statusline_colors.text, bg = accent.bg or statusline_colors.bg, bold = false }
       end
 
       local mode_names = {
@@ -607,7 +607,7 @@ return {
               return click_feedback({ _pressed = true }, "FreshStatusLineWarning")
             end
             if self._pressed then return click_feedback(self, "FreshStatusLineWarning") end
-            return { fg = "#ffffff" }
+            return { fg = statusline_colors.text }
           end,
         },
         {
@@ -619,7 +619,7 @@ return {
               return click_feedback({ _pressed = true }, "FreshStatusLineWarning")
             end
             if self._pressed then return click_feedback(self, "FreshStatusLineWarning") end
-            return { fg = "#ffffff", bold = false }
+            return { fg = statusline_colors.text, bold = false }
           end,
         },
       }
