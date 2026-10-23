@@ -1,6 +1,6 @@
 -- Mouse menus use native dropbar entries without taking the editor's focus.
 local M = {}
-local root_menu, saved, source_buf, group
+local root_menu, saved, source_buf, group, saved_mousemove
 function M.get_current()
   local menu=root_menu
   while menu and menu.sub_menu and menu.sub_menu.is_opened do menu=menu.sub_menu end
@@ -22,10 +22,14 @@ local function cleanup()
       for _, map in ipairs(entry.maps) do vim.fn.mapset(entry.mode, false, map) end
     end
   end
+  if saved_mousemove~=nil then vim.o.mousemoveevent=saved_mousemove; saved_mousemove=nil end
   saved=nil
   root_menu=nil
 end
 local function bind(menu)
+  -- Hover needs opt-in mouse-move events; restore the user's global value on close.
+  saved_mousemove=vim.o.mousemoveevent
+  vim.o.mousemoveevent=true
   root_menu=menu
   -- Clicking an inactive split's winbar keeps the currently active document
   -- focused. Temporary keys must belong to that document, not the anchor.
@@ -56,12 +60,43 @@ local function bind(menu)
       vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<LeftMouse>',true,false,true),'m',false)
     end
   end
+  local function scroll(delta)
+    local mouse=vim.fn.getmousepos()
+    local target=mouse and mouse.winid and require('dropbar.utils.menu').get({win=mouse.winid})
+    if not target then return false end
+    local view=vim.api.nvim_win_call(target.win,function() return vim.fn.winsaveview() end)
+    local count=vim.api.nvim_buf_line_count(target.buf)
+    local height=vim.api.nvim_win_get_height(target.win)
+    local lines=3
+    local ok, options=pcall(function() return vim.opt.mousescroll:get() end)
+    if ok and type(options)=='table' then lines=tonumber(options.ver) or lines end
+    local last_top=math.max(1,count-height+1)
+    local top=math.max(1,math.min(last_top,view.topline+delta*lines))
+    view.topline=top
+    view.lnum=math.max(top,math.min(top+height-1,view.lnum+delta*lines))
+    view.skipcol=0
+    vim.api.nvim_win_call(target.win,function() vim.fn.winrestview(view) end)
+    select(target,view.lnum)
+    return true
+  end
   for _, mode in ipairs({'n','x','i'}) do
     for key, callback in pairs({['<LeftMouse>']=click, ['<Esc>']=function()
       close()
       if vim.fn.mode():sub(1,1)=='i' then vim.cmd.stopinsert() end
     end,
       ['<Up>']=function() move(-1) end, ['<Down>']=function() move(1) end,
+      ['<ScrollWheelUp>']=function()
+        if not scroll(-1) then
+          close()
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<ScrollWheelUp>',true,false,true),'n',false)
+        end
+      end,
+      ['<ScrollWheelDown>']=function()
+        if not scroll(1) then
+          close()
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<ScrollWheelDown>',true,false,true),'n',false)
+        end
+      end,
       ['<Home>']=function() select(M.get_current(),1) end,
       ['<End>']=function() local m=M.get_current(); if m then select(m,#m.entries) end end,
       ['<CR>']=function() activate(2) end, ['<Right>']=function() activate(1) end,

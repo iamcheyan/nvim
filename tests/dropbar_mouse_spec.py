@@ -68,6 +68,24 @@ with tempfile.TemporaryDirectory(prefix='nvim-dropbar-mouse-') as temp:
             assert target, 'Missing menu entry '+label
             pos=nvim.api.win_get_position(target['win'])
             click(pos[0]+1+target['row'], pos[1]+1+target['arrow' if arrow else 'name']+(0 if arrow else 1))
+        def hover_entry(label):
+            target=nvim.exec_lua('''local m=require('config.dropbar_mouse').get_current()
+              for i,e in ipairs(m.entries) do
+                if e.components[2].name:find(...,1,true) then
+                  return {win=m.win,row=i-vim.api.nvim_win_call(m.win,function() return vim.fn.line("w0") end),
+                    col=e.padding.left+e.components[1]:displaywidth()+e.separator:displaywidth()+2}
+                end
+              end''',label)
+            assert target, 'Missing hover entry '+label
+            pos=nvim.api.win_get_position(target['win'])
+            nvim.api.input_mouse('move','', '',0,pos[0]+1+target['row'],pos[1]+target['col'])
+            time.sleep(.1)
+            return nvim.exec_lua('''local m=require('config.dropbar_mouse').get_current(); local hl={};
+              for _,id in ipairs(vim.api.nvim_get_namespaces()) do
+                local ns=vim.api.nvim_get_namespaces()[id]
+                if ns then hl[#hl+1]={name=ns,id=id,marks=vim.api.nvim_buf_get_extmarks(m.buf,id,{0,0},{-1,-1},{details=true})} end
+              end
+              return {selected=m.selected,highlights=hl}''')
         # A refresh queued by the last edit must not delete a newly opened menu.
         nvim.exec_lua("vim.api.nvim_exec_autocmds('TextChanged',{buffer=0}); vim.api.nvim_exec_autocmds('TextChanged',{buffer=0})")
         click_bar('run')
@@ -75,6 +93,20 @@ with tempfile.TemporaryDirectory(prefix='nvim-dropbar-mouse-') as temp:
         assert nvim.current.window.cursor[0]==3, 'Mouse menu moved document cursor'
         doc_cursor=nvim.current.window.cursor
         before=nvim.exec_lua("local m=require('config.dropbar_mouse').get_current(); return m.selected")
+        hover_entry('other')
+        assert nvim.exec_lua("return require('config.dropbar_mouse').get_current().selected")==2, 'Hover must immediately activate the pointed menu item'
+        assert nvim.exec_lua("return vim.o.mousemoveevent"), 'Mouse hover events must be enabled while a dropbar menu is open'
+        hover_highlight=nvim.exec_lua('''local m=require('config.dropbar_mouse').get_current();
+          local groups={'DropBarMenuHoverEntry','DropBarMenuHoverSymbol','DropBarMenuHoverIcon'}
+          for _,group in ipairs(groups) do
+            local ns=vim.api.nvim_create_namespace(group)
+            local marks=vim.api.nvim_buf_get_extmarks(m.buf,ns,{m.selected-1,0},{m.selected-1,-1},{details=true})
+            for _,mark in ipairs(marks) do
+              if mark[4].hl_group==group then return true end
+            end
+          end
+          return false''')
+        assert hover_highlight, 'Hovering a menu item must activate its hover highlight'
         nvim.input('<Down>')
         time.sleep(.1)
         assert nvim.exec_lua("return require('config.dropbar_mouse').get_current().selected")==min(2,before+1)
@@ -87,10 +119,12 @@ with tempfile.TemporaryDirectory(prefix='nvim-dropbar-mouse-') as temp:
         opened=click_bar('first.py')
         # A list that fits in the popup must never scroll into empty rows.
         pos=nvim.api.win_get_position(opened['win'])
+        editor_cursor=nvim.current.window.cursor
         for _ in range(12):
             nvim.api.input_mouse('wheel','down','',0,pos[0]+2,pos[1]+5)
             time.sleep(.02)
         assert nvim.funcs.getwininfo(opened['win'])[0]['topline']==1, 'Short menu scrolled past its content'
+        assert nvim.current.window.cursor==editor_cursor, 'Wheel over a menu must not scroll the editor'
         for direction in ('right','left'):
             for _ in range(15):
                 nvim.api.input_mouse('wheel',direction,'',0,pos[0]+2,pos[1]+5)
@@ -178,6 +212,16 @@ with tempfile.TemporaryDirectory(prefix='nvim-dropbar-mouse-') as temp:
         opened=click_bar('first.py')
         assert nvim.exec_lua("return require('dropbar.configs').opts.menu.scrollbar.enable == false"), 'Menu scrollbar must be disabled'
         pos=nvim.api.win_get_position(opened['win'])
+        editor_cursor=nvim.current.window.cursor
+        first_top=nvim.funcs.getwininfo(opened['win'])[0]['topline']
+        nvim.api.input_mouse('wheel','down','',0,pos[0]+2,pos[1]+5)
+        time.sleep(.1)
+        down_top=nvim.funcs.getwininfo(opened['win'])[0]['topline']
+        assert down_top>first_top, ('Wheel down did not scroll the menu',first_top,down_top)
+        assert nvim.current.window.cursor==editor_cursor, 'Wheel over a menu must not scroll the editor'
+        nvim.api.input_mouse('wheel','up','',0,pos[0]+2,pos[1]+5)
+        time.sleep(.1)
+        assert nvim.funcs.getwininfo(opened['win'])[0]['topline']==first_top, 'Wheel up did not restore the menu position'
         for _ in range(35):
             nvim.api.input_mouse('wheel','down','',0,pos[0]+2,pos[1]+5)
             time.sleep(.02)

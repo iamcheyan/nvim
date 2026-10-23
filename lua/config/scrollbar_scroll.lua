@@ -91,8 +91,20 @@ function M.setup()
   if M._namespace then return end
 
   local kmopts = { silent = true }
-  vim.keymap.set({ "n", "i", "v", "x" }, "<ScrollWheelDown>", function() scroll_win(1) end, kmopts)
-  vim.keymap.set({ "n", "i", "v", "x" }, "<ScrollWheelUp>", function() scroll_win(-1) end, kmopts)
+  vim.keymap.set({ "n", "i", "v", "x" }, "<ScrollWheelDown>", function()
+    local mouse=vim.fn.getmousepos()
+    local win=mouse and mouse.winid
+    if win and win>0 and vim.api.nvim_win_is_valid(win)
+      and vim.bo[vim.api.nvim_win_get_buf(win)].filetype=='dropbar_menu' then return end
+    scroll_win(1)
+  end, kmopts)
+  vim.keymap.set({ "n", "i", "v", "x" }, "<ScrollWheelUp>", function()
+    local mouse=vim.fn.getmousepos()
+    local win=mouse and mouse.winid
+    if win and win>0 and vim.api.nvim_win_is_valid(win)
+      and vim.bo[vim.api.nvim_win_get_buf(win)].filetype=='dropbar_menu' then return end
+    scroll_win(-1)
+  end, kmopts)
 
   -- Native horizontal wheel scrolling can move every menu label off screen.
   -- Pass the original key through for ordinary editor windows.
