@@ -1,3 +1,27 @@
+local function picker_flag_title(picker)
+  local hidden = picker.opts.hidden and "ON" or "OFF"
+  local ignored = picker.opts.ignored and "ON" or "OFF"
+  local function state(value)
+    return value == "ON" and "SnacksPickerToggleOn" or "SnacksPickerToggleOff"
+  end
+  return {
+    { " " .. (picker.title or "Files") .. " ", "FloatTitle" },
+    { "│", "FloatTitle" },
+    { " Hidden ", "SnacksPickerFooterText" },
+    { hidden, state(hidden) },
+    { "  Ignored ", "SnacksPickerFooterText" },
+    { ignored, state(ignored) },
+    { " ", "FloatTitle" },
+  }
+end
+
+local function picker_refresh_flags(picker)
+  local win = picker.input and picker.input.win
+  if win and win:valid() then
+    win:set_title(picker_flag_title(picker), "center")
+  end
+end
+
 return {
   {
     "folke/snacks.nvim",
@@ -60,6 +84,8 @@ return {
         picker_layout.min_width = math.min(120, math.max(40, vim.o.columns - 4))
       end
       require("snacks").setup(opts)
+      vim.api.nvim_set_hl(0, "SnacksPickerToggleOn", { link = "DiagnosticOk" })
+      vim.api.nvim_set_hl(0, "SnacksPickerToggleOff", { link = "Comment" })
 
       -- Work around an upstream snacks bug where ioctl(TIOCGWINSZ) in tmux/pty
       -- returns xpixel=0 and ypixel=0, which causes cell_width=0 and cell_height=0,
@@ -193,6 +219,17 @@ return {
               end
             end
           end, 50)
+          -- Keep the hidden/ignored toggle state visible in the input border.
+          -- The toggle actions call find(), which refreshes titles.
+          if not picker._flags_title_hooked and picker.input and picker.input.win and picker.input.win:valid() then
+            picker._flags_title_hooked = true
+            local update_titles = picker.update_titles
+            picker.update_titles = function(self)
+              update_titles(self)
+              picker_refresh_flags(self)
+            end
+            picker_refresh_flags(picker)
+          end
         end,
         on_close = function(picker)
           local win = picker.main
