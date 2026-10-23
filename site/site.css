@@ -719,6 +719,95 @@ body { font-size: 15px; }
   .foot-inner { padding: 22px 16px; flex-direction: column; align-items: flex-start; }
 }
 
+
+/* ------------------------------------------------------------------ learn -- */
+
+.lcount {
+  font: 500 11px/1.6 var(--mono);
+  color: var(--muted);
+  letter-spacing: .06em;
+  margin: 0 0 26px;
+}
+
+.lgroup { margin: 0 0 34px; }
+
+.lgroup-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.lgroup-k {
+  margin: 0;
+  font: 600 13px/1.4 var(--sans);
+  color: var(--ink);
+  letter-spacing: .02em;
+}
+
+.lgroup-lead {
+  margin: 0;
+  font: 400 11.5px/1.5 var(--sans);
+  color: var(--muted);
+}
+
+.lgroup-more {
+  font: 500 11px/1.5 var(--sans);
+  white-space: nowrap;
+}
+
+.lgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 22px;
+}
+
+.lcard {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 5px 6px 5px 0;
+  color: var(--body);
+  border-bottom: 1px solid var(--line-soft);
+  font: 400 12.5px/1.5 var(--sans);
+}
+.lcard:hover { color: var(--green); text-decoration: none; }
+.lcard:hover strong { color: var(--green); }
+.lcard-k {
+  font: 400 10px/1.5 var(--mono);
+  color: var(--dim);
+  min-width: 1.7em;
+}
+.lcard strong { color: var(--body); font-weight: 500; }
+
+/* group switcher in the sidebar */
+
+.learn-switch a {
+  display: grid;
+  gap: 1px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--muted);
+  font: 500 12.5px/1.4 var(--sans);
+}
+.learn-switch a i {
+  font: 400 10.5px/1.4 var(--sans);
+  font-style: normal;
+  color: var(--dim);
+}
+.learn-switch a:hover { color: var(--green); text-decoration: none; }
+.learn-switch a.current { color: var(--green); }
+.learn-switch a.current i { color: var(--green-dim); }
+
+@media (max-width: 760px) {
+  .lgrid { grid-template-columns: 1fr; gap: 0; }
+  .lgroup-head { grid-template-columns: 1fr auto; }
+  .lgroup-lead { grid-column: 1 / -1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { transition: none !important; animation: none !important; }

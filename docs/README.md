@@ -2,15 +2,28 @@
 
 Neovim 的说明文档按用途集中放在 `config/nvim/docs/`。配置源文件仍位于 `config/nvim/lua/`。
 
-## 插件
+## 学习（三组）
 
-- [Neovim 插件使用书](plugins/PLUGINS.md)：43 个公开、私有插件和依赖的分类目录；每一项都链接到独立章节，含操作方法和练习。
-- [合并版插件手册](plugin-guide/README.md)也保留在仓库；逐插件学习以使用书章节为入口。
+站点上这三组合并为「学习」栏目，共用同一套示例配置。
 
-## 参考
+### 基础教程 — 从零开始，按顺序读
 
+- [`tutorials/`](tutorials/)：15 篇，从 ed/vi 的历史讲到按键语法。
+
+### 概念百科 — 理解编辑器怎么工作
+
+- [`wiki/`](wiki/)：8 篇，架构、剪贴板、LSP、Treesitter、编码等机制。
+
+### 速查知识 — 写东西时随手查
+
+- [`reference/`](reference/)：选项总表、命令、术语对照。
 - [Treesitter 运行要求与故障排查](reference/TREESITTER.md)：改动 Treesitter 配置前先读。
 - [Filetype 与大小写不敏感扩展名](reference/FILETYPE-DETECTION.md)。
+
+## 插件
+
+- [Neovim 插件使用书](plugins/PLUGINS.md)：50 个公开、私有插件和依赖的分类目录；每一项都链接到独立章节，含操作方法和练习。
+- [合并版插件手册](plugin-guide/README.md)也保留在仓库；逐插件学习以使用书章节为入口。
 
 ## 使用指南
 

@@ -44,12 +44,20 @@ SITE = {
 # Top-level navigation. Order is deliberate: install, then use, then go deep.
 NAV = [
     ("getting-started", "安装"),
-    ("tutorials", "教程"),
+    ("learn", "学习"),
     ("plugins", "插件"),
-    ("wiki", "百科"),
-    ("reference", "知识"),
     ("changes", "最近改动"),
 ]
+
+# The "learn" section merges three sources that used to be separate top-level
+# sections. Each keeps its own docs/ subdirectory and URL prefix, but the site
+# presents them as one column with three labelled groups.
+LEARN_GROUPS = [
+    ("tutorials", "基础教程", "从零开始，按顺序读"),
+    ("wiki", "概念百科", "理解编辑器怎么工作"),
+    ("reference", "速查知识", "写东西时随手查"),
+]
+LEARN_KINDS = tuple(kind for kind, _label, _lead in LEARN_GROUPS)
 
 # Ordered series for the tutorials section: (slug, short title).
 TUTORIALS = [
@@ -433,11 +441,15 @@ def html_escape(s: str) -> str:
 # ---------------------------------------------------------------------------
 
 def nav_html(current: str) -> str:
+    # A page inside one of the merged learning series still highlights "学习",
+    # but rel_root() must see the real page location, so compute it first.
+    root = rel_root(current)
+    active_current = "learn" if current in LEARN_KINDS else current
     items = []
     for slug, label in NAV:
-        active = current == slug or current == f"{slug}-index"
+        active = active_current == slug or active_current == f"{slug}-index"
         cls = "nav-link current" if active else "nav-link"
-        items.append(f'<a class="{cls}" href="{rel_root(current)}{slug}.html">{label}</a>')
+        items.append(f'<a class="{cls}" href="{root}{slug}.html">{label}</a>')
     return "\n".join(items)
 
 
@@ -447,7 +459,7 @@ def rel_root(current: str) -> str:
     Top-level pages must not climb; anything under a subdirectory does.
     """
     # Anything published under a subdirectory needs to climb one level.
-    subdirs = {"guide-page", "plugin-page", "tutorials", "wiki", "reference"}
+    subdirs = {"guide-page", "plugin-page", *LEARN_KINDS}
     return "../" if current in subdirs else ""
 
 
@@ -638,6 +650,7 @@ HIGHLIGHTS = [
 
 def build_home(keymaps: list[dict]) -> str:
     total_plugins = sum(len(entries) for _c, entries in CATALOG)  # 章节数
+    n_learn_pages = sum(len(series_items(kind)) for kind in LEARN_KINDS)
     total_specs = len(list((ROOT / "lua" / "plugins").glob("*.lua")))  # 插件规格文件数
     have = {r["lhs"] for r in keymaps}
     rows = []
@@ -708,10 +721,8 @@ def build_home(keymaps: list[dict]) -> str:
     <h2>从这里开始</h2>
     <ul class="route-list">
       <li><a href="getting-started.html">安装</a><span>依赖清单、安装命令、更新与卸载、常见失败</span></li>
-      <li><a href="tutorials.html">教程</a><span>从零学 Neovim，14 篇，口语讲解，配练习</span></li>
+      <li><a href="learn.html">学习</a><span>基础教程、概念百科、速查知识，三组共 {n_learn_pages} 篇</span></li>
       <li><a href="plugins.html">插件</a><span>{total_plugins} 章，每个插件解决什么问题、怎么用</span></li>
-      <li><a href="wiki.html">百科</a><span>架构、LSP、Treesitter、编码等概念与机制</span></li>
-      <li><a href="reference.html">知识</a><span>按键速查、选项总表、命令、术语对照</span></li>
       <li><a href="changes.html">最近改动</a><span>配置和手册最近改了什么</span></li>
     </ul>
   </div>
@@ -1347,7 +1358,15 @@ def build_search_index() -> list[dict]:
             body = src.read_text(encoding="utf-8") if src.exists() else ""
             add(f"{name}（{category}）", kind, f"plugins/{slug}.html", desc + " " + body)
 
-    for path in sorted((DOCS / "guides").glob("*.md")) + sorted((DOCS / "reference").glob("*.md")) + sorted((DOCS / "development").glob("*.md")):
+    add("学习", "页面", "learn.html",
+        "学习总览：基础教程、概念百科、速查知识三组，共用同一套示例配置")
+    for kind, label, _lead in LEARN_GROUPS:
+        for slug, title in series_items(kind):
+            src = DOCS / kind / f"{slug}.md"
+            body = src.read_text(encoding="utf-8") if src.exists() else title
+            add(f"{title}（{label}）", "学习", f"{kind}/{slug}.html", body)
+
+    for path in sorted((DOCS / "guides").glob("*.md")) + sorted((DOCS / "development").glob("*.md")):
         add(first_h1(path.read_text(encoding="utf-8"), path.stem), "指南",
             f"guides/{path.stem.lower()}.html", path.read_text(encoding="utf-8"))
 
@@ -1506,6 +1525,25 @@ def series_items(kind: str, locale: str = "zh-cn") -> list[tuple[str, str]]:
     return result
 
 
+def learn_switcher(current_kind: str, root: str = "") -> str:
+    """Links between the three groups of the merged learning section.
+
+    `root` is the relative path back to the site root: "" on top-level pages,
+    "../" on pages published under a section directory.
+    """
+    rows = []
+    for kind, label, lead in LEARN_GROUPS:
+        cls = ' class="current"' if kind == current_kind else ""
+        rows.append(
+            f'<a href="{root}{kind}.html"{cls}><span>{html_escape(label)}</span>'
+            f'<i>{html_escape(lead)}</i></a>'
+        )
+    return (
+        '<p class="side-title">学习分组</p>'
+        f'<div class="side-group open learn-switch">{"".join(rows)}</div>'
+    )
+
+
 def series_sidebar(kind: str, current_slug: str, prefix: str = "") -> str:
     items = series_items(kind)
     rows = []
@@ -1516,8 +1554,10 @@ def series_sidebar(kind: str, current_slug: str, prefix: str = "") -> str:
             f'data-label="{html_escape(title.lower())}"{cls}><span>{html_escape(title)}</span></a>'
         )
     label = SERIES[kind]["label"]
+    root = "" if prefix else "../"
     return (
-        f'<p class="side-title">{label}</p>'
+        learn_switcher(kind, root)
+        + f'<p class="side-title">{label}</p>'
         + side_filter(f"筛选{label}…")
         + f'<div class="side-group open">{"".join(rows)}</div>'
     )
@@ -1559,6 +1599,55 @@ def series_pager(kind: str, slug: str) -> str:
     )
 
 
+def build_learn_page() -> int:
+    """One index for the merged learning section: three labelled groups."""
+    groups = []
+    total = 0
+    for kind, label, lead in LEARN_GROUPS:
+        items = series_items(kind)
+        total += len(items)
+        cards = "".join(
+            f'<a class="lcard" href="{kind}/{slug}.html">'
+            f'<span class="lcard-k">{i + 1:02d}</span>'
+            f'<strong>{html_escape(title)}</strong></a>'
+            for i, (slug, title) in enumerate(items)
+        )
+        groups.append(
+            f'<section class="lgroup" id="g-{kind}">'
+            f'<header class="lgroup-head">'
+            f'<p class="lgroup-k">{html_escape(label)}</p>'
+            f'<p class="lgroup-lead">{html_escape(lead)} · {len(items)} 篇</p>'
+            f'<a class="lgroup-more" href="{kind}.html">分组索引 →</a>'
+            f'</header>'
+            f'<div class="lgrid">{cards}</div>'
+            f'</section>'
+        )
+
+    inner = (
+        '<p class="lede">学习部分是三条线：先按顺序读基础教程，'
+        '再补概念百科，最后把速查知识当参考书。它们共用同一套示例配置，'
+        '读到哪一步都能回到插件手册查具体插件的用法。</p>'
+        f'<p class="lcount">{total} 篇 · {len(LEARN_GROUPS)} 组</p>'
+        + "".join(groups)
+        + '<p class="pnav"><a href="plugins.html">去插件手册 →</a>'
+          '<a href="getting-started.html">先看安装</a></p>'
+    )
+    body = f"""
+<div class="wrap doc">
+  <aside class="side">{learn_switcher("tutorials")}</aside>
+  <article class="prose">
+    <p class="crumb"><a href="index.html">首页</a> / 学习</p>
+    <h1>学习</h1>
+    {inner}
+  </article>
+</div>
+"""
+    (OUT / "learn.html").write_text(
+        page("学习 — " + SITE["name"], body, "learn"), encoding="utf-8"
+    )
+    return total
+
+
 def build_series(kind: str) -> int:
     cfg = SERIES[kind]
     src_dir: Path = cfg["dir"]
@@ -1581,7 +1670,8 @@ def build_series(kind: str) -> int:
 <div class="wrap doc">
   <aside class="side">{series_sidebar(kind, slug, "")}</aside>
   <article class="prose">
-    <p class="crumb"><a href="../index.html">首页</a> / <a href="../{kind}.html">{label}</a></p>
+    <p class="crumb"><a href="../index.html">首页</a> / <a href="../learn.html">学习</a>
+      / <a href="../{kind}.html">{label}</a></p>
     <h1>{html_escape(title)}</h1>
     {toc}
     {html}
@@ -1610,9 +1700,10 @@ def build_series(kind: str) -> int:
 <div class="wrap doc">
   <aside class="side">{series_sidebar(kind, "", kind + "/")}</aside>
   <article class="prose">
-    <p class="crumb"><a href="index.html">首页</a> / {label}</p>
+    <p class="crumb"><a href="index.html">首页</a> / <a href="learn.html">学习</a> / {label}</p>
     <h1>{label}</h1>
     {inner}
+    <p class="pnav"><a href="learn.html">← 回到学习分组</a></p>
   </article>
 </div>
 """
@@ -1635,6 +1726,7 @@ def main() -> int:
 
     n_plugins = build_plugin_pages()
     n_guides = build_guides()
+    n_learn = build_learn_page()
     n_tutorials = build_series("tutorials")
     n_wiki = build_series("wiki")
     n_reference = build_series("reference")
@@ -1652,7 +1744,7 @@ def main() -> int:
     for name in ("site.css", "site.js"):
         shutil.copy(ROOT / "site" / name, OUT / "assets" / name)
 
-    print(f"pages: 1 home, 1 keys, 1 plugins, {n_plugins} plugin chapters, {n_guides} guides, {n_tutorials} tutorials, {n_wiki} wiki, {n_reference} reference, {n_changes} changes")
+    print(f"pages: 1 home, 1 learn, 1 keys, 1 plugins, {n_plugins} plugin chapters, {n_guides} guides, {n_tutorials} tutorials, {n_wiki} wiki, {n_reference} reference, {n_changes} changes")
     print(f"keymaps parsed: {len(keymaps)}")
 
     # Fail loudly rather than publishing a broken site.
