@@ -490,13 +490,36 @@ function M.apply()
   local set = vim.api.nvim_set_hl
   local normal = get("Normal")
   local comment = get("Comment")
-  -- Sticky context header: one solid surface a step darker than the document,
-  -- with no border.  Both the line-number gutter and the context body must be
-  -- opaque, otherwise the real buffer line below shows through the float.
-  local context_bg = mix_colors(normal.bg, 0x000000, 0.30) or normal.bg
+  -- Sticky context header:
+  -- Pinned context lines floating at the top of the window.
+  -- 1. Nostalgia blue theme: keep the beloved darker navy surface (0x00005f) with a cyan-blue divider (0x005faf).
+  -- 2. Pitch black or near-black themes (<= 0x121212, e.g. oceanblack): elevate slightly (0x171717) above the void
+  --    and draw a crisp subtle boundary (0x404040).
+  -- 3. Standard dark themes (habamax, retrobox, catppuccin, default): elevate slightly with a matching underline divider.
+  -- 4. Light themes (delek, quiet): soft paper tint (0xf2f2f2) and soft border (0xcccccc) instead of harsh dark gray.
+  local bg = normal.bg
+  local lum = relative_luminance(bg)
+  local is_light = vim.o.background == "light" or (lum and lum >= 0.3)
+
+  local context_bg, border_sp
+  if (vim.g.colors_name or ""):lower() == "blue" then
+    context_bg = mix_colors(bg, 0x000000, 0.30) or 0x00005f
+    border_sp = 0x005faf
+  elseif is_light then
+    context_bg = mix_colors(bg, 0x000000, 0.05) or 0xf2f2f2
+    border_sp = mix_colors(bg, 0x000000, 0.22) or 0xcccccc
+  elseif not bg or bg <= 0x121212 then
+    context_bg = mix_colors(bg or 0x000000, 0xffffff, 0.09) or 0x171717
+    border_sp = mix_colors(bg or 0x000000, 0xffffff, 0.25) or 0x404040
+  else
+    context_bg = mix_colors(bg, 0xffffff, 0.07) or 0x282828
+    border_sp = mix_colors(bg, 0xffffff, 0.25) or 0x555555
+  end
+
   if context_bg then
     local line_nr = get("LineNr")
     local context_ctermbg = nearest_xterm_color(context_bg)
+    local border_cterm = nearest_xterm_color(border_sp)
     set(0, "TreesitterContext", {
       fg = normal.fg,
       bg = context_bg,
@@ -504,16 +527,32 @@ function M.apply()
       ctermbg = context_ctermbg,
     })
     set(0, "TreesitterContextLineNumber", {
-      fg = line_nr.fg,
+      fg = line_nr.fg or comment.fg or normal.fg,
       bg = context_bg,
       ctermfg = line_nr.ctermfg or nearest_xterm_color(line_nr.fg),
       ctermbg = context_ctermbg,
     })
     -- The plugin applies these groups to the whole last context line.  Setting
     -- a foreground here would replace the syntax colors, so only the surface
-    -- is defined; otherwise the last header line becomes invisible.
-    set(0, "TreesitterContextBottom", { bg = context_bg, ctermbg = context_ctermbg })
-    set(0, "TreesitterContextLineNumberBottom", { bg = context_bg, ctermbg = context_ctermbg })
+    -- and a bottom underline divider are defined.
+    set(0, "TreesitterContextBottom", {
+      bg = context_bg,
+      ctermbg = context_ctermbg,
+      underline = true,
+      sp = border_sp,
+    })
+    set(0, "TreesitterContextLineNumberBottom", {
+      bg = context_bg,
+      ctermbg = context_ctermbg,
+      underline = true,
+      sp = border_sp,
+    })
+    set(0, "TreesitterContextSeparator", {
+      fg = border_sp,
+      bg = context_bg,
+      ctermfg = border_cterm,
+      ctermbg = context_ctermbg,
+    })
   end
   local split_bg = normal.bg
   if split_bg then

@@ -32,6 +32,22 @@ function M.setup()
       config = vim.tbl_extend('force', {}, config, { border = 'single' })
     end
     local win = open(buf, enter, config)
+    if float and config.win and vim.api.nvim_win_is_valid(config.win) then
+      local pwin = config.win
+      vim.schedule(function()
+        if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_is_valid(pwin) then
+          local pbuf = vim.api.nvim_win_get_buf(pwin)
+          if vim.bo[pbuf].filetype == 'markdown' then
+            local p_ns = vim.api.nvim_get_hl_ns({ winid = pwin })
+            if p_ns > 0 then pcall(vim.api.nvim_win_set_hl_ns, win, p_ns) end
+            local cur = vim.wo[win].winhighlight
+            if cur:match('TreesitterContext') and not cur:match('MdTypographyTreesitterContext') then
+              vim.wo[win].winhighlight = cur .. ',TreesitterContext:MdTypographyTreesitterContext,TreesitterContextLineNumber:MdTypographyTreesitterContextLineNumber,TreesitterContextBottom:MdTypographyTreesitterContextBottom,TreesitterContextLineNumberBottom:MdTypographyTreesitterContextLineNumberBottom,TreesitterContextSeparator:MdTypographyTreesitterContextSeparator'
+            end
+          end
+        end
+      end)
+    end
     if not float or backdrop then return win end
     local mappings = {}
     for mapping in vim.wo[win].winhighlight:gmatch('[^,]+') do

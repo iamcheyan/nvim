@@ -55,6 +55,11 @@ local window_groups = {
   ContextlineActiveMenu = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
   ContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = true },
   ContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = true },
+  TreesitterContext = { fg = 0, bg = 16119285, ctermfg = 16, ctermbg = 255 },
+  TreesitterContextLineNumber = { fg = 10824234, bg = 16119285, ctermfg = 124, ctermbg = 255 },
+  TreesitterContextBottom = { bg = 16119285, underline = true, sp = 12369084, ctermbg = 255 },
+  TreesitterContextLineNumberBottom = { bg = 16119285, underline = true, sp = 12369084, ctermbg = 255 },
+  TreesitterContextSeparator = { fg = 12369084, bg = 16119285, ctermfg = 250, ctermbg = 255 },
   SnacksStatusColumnMark = { fg = 34560, bg = 16777215 },
   SnacksStatusColumnSign = { fg = 35723, bg = 16777215 },
   MdTypographyNormal = delek["Normal"] or { fg = 0, bg = 16777215, ctermfg = 16, ctermbg = 231 },
@@ -77,6 +82,11 @@ local window_groups = {
   MdTypographyContextlineActiveMenu = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
   MdTypographyContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = true },
   MdTypographyContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = true },
+  MdTypographyTreesitterContext = { fg = 0, bg = 16119285, ctermfg = 16, ctermbg = 255 },
+  MdTypographyTreesitterContextLineNumber = { fg = 10824234, bg = 16119285, ctermfg = 124, ctermbg = 255 },
+  MdTypographyTreesitterContextBottom = { bg = 16119285, underline = true, sp = 12369084, ctermbg = 255 },
+  MdTypographyTreesitterContextLineNumberBottom = { bg = 16119285, underline = true, sp = 12369084, ctermbg = 255 },
+  MdTypographyTreesitterContextSeparator = { fg = 12369084, bg = 16119285, ctermfg = 250, ctermbg = 255 },
   MdTypographyVisual = delek["Visual"] or { fg = 0, bg = 13684944, ctermfg = 16, ctermbg = 252 },
 }
 
@@ -217,8 +227,39 @@ local function apply_to_markdown_windows(buf)
         "ContextlineActiveMenu:MdTypographyContextlineActiveMenu",
         "ContextlineErrorBadge:MdTypographyContextlineErrorBadge",
         "ContextlineWarningBadge:MdTypographyContextlineWarningBadge",
+        "TreesitterContext:MdTypographyTreesitterContext",
+        "TreesitterContextLineNumber:MdTypographyTreesitterContextLineNumber",
+        "TreesitterContextBottom:MdTypographyTreesitterContextBottom",
+        "TreesitterContextLineNumberBottom:MdTypographyTreesitterContextLineNumberBottom",
+        "TreesitterContextSeparator:MdTypographyTreesitterContextSeparator",
         "Visual:MdTypographyVisual",
       }, ",")
+      M.sync_context_windows(win)
+    end
+  end
+end
+
+function M.sync_context_windows(win)
+  if not vim.api.nvim_win_is_valid(win) then return end
+  local is_md = is_markdown(vim.api.nvim_win_get_buf(win))
+  local ns = is_md and vim.api.nvim_create_namespace("MarkdownTypographyDelek:" .. tostring(win)) or 0
+  for _, w in ipairs(vim.api.nvim_list_wins()) do
+    if w ~= win and vim.api.nvim_win_is_valid(w) then
+      local ok, cfg = pcall(vim.api.nvim_win_get_config, w)
+      if ok and cfg.relative == "win" and cfg.win == win then
+        local cur = vim.wo[w].winhighlight
+        if cur:match("TreesitterContext") then
+          pcall(vim.api.nvim_win_set_hl_ns, w, ns)
+          if is_md then
+            if not cur:match("MdTypographyTreesitterContext") then
+              vim.wo[w].winhighlight = cur .. ",TreesitterContext:MdTypographyTreesitterContext,TreesitterContextLineNumber:MdTypographyTreesitterContextLineNumber,TreesitterContextBottom:MdTypographyTreesitterContextBottom,TreesitterContextLineNumberBottom:MdTypographyTreesitterContextLineNumberBottom,TreesitterContextSeparator:MdTypographyTreesitterContextSeparator"
+            end
+          else
+            local cleaned = cur:gsub(",?TreesitterContext[^,:]*:MdTypography[^,:]*", ""):gsub("^,", "")
+            vim.wo[w].winhighlight = cleaned
+          end
+        end
+      end
     end
   end
 end
@@ -256,6 +297,7 @@ local function restore_window(win)
   vim.api.nvim_set_option_value("cursorcolumn", prev, { scope = "local", win = win })
   vim.api.nvim_win_set_hl_ns(win, 0)
   vim.wo[win].winhighlight = ""
+  M.sync_context_windows(win)
   restore_treesitter()
   vim.schedule(restore_treesitter)
 end
@@ -344,7 +386,7 @@ function M.setup()
   -- cursorcolumn is window-local but global-initialized, and entering a buffer
   -- resets it. Re-assert "off" for Markdown windows on every entry so the
   -- vertical cursor guide stays hidden there without touching other windows.
-  vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter", "FileType" }, {
+  vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "WinEnter", "FileType" }, {
     group = group,
     callback = function()
       local win = vim.api.nvim_get_current_win()
@@ -359,7 +401,7 @@ function M.setup()
       end
     end,
   })
-  vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {
+  vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "WinEnter" }, {
     group = group,
     callback = function(args)
       local win = vim.api.nvim_get_current_win()

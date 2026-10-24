@@ -33,6 +33,44 @@ assert(context_number.ctermbg == context.ctermbg, "terminal fallback must stay o
 assert(context.ctermbg < normal.ctermbg, "terminal fallback should also be darker")
 assert(context_bottom.bg == context.bg, "bottom line should keep the context surface")
 assert(context_bottom.fg == nil, "bottom line must not replace the syntax foreground")
+assert(context_bottom.underline == true, "bottom line must have underline divider")
+assert(context_bottom.sp ~= nil, "bottom line must define underline color")
+
+-- Test pitch-black theme (e.g. oceanblack): surface must be elevated above 0, not pitch black
+pcall(vim.cmd.colorscheme, "oceanblack")
+ui.apply()
+local black_ctx = vim.api.nvim_get_hl(0, { name = "TreesitterContext", link = false })
+local black_bottom = vim.api.nvim_get_hl(0, { name = "TreesitterContextBottom", link = false })
+assert(black_ctx.bg and black_ctx.bg > 0, "black theme must elevate context surface above pitch black")
+assert(black_bottom.underline == true and black_bottom.sp ~= nil, "black theme must have distinct underline divider")
+
+-- Test light theme (e.g. delek): surface must be a subtle paper tint, not dark gray
+pcall(vim.cmd.colorscheme, "delek")
+ui.apply()
+local delek_ctx = vim.api.nvim_get_hl(0, { name = "TreesitterContext", link = false })
+local delek_bottom = vim.api.nvim_get_hl(0, { name = "TreesitterContextBottom", link = false })
+assert(delek_ctx.bg and delek_ctx.bg > 0xe0e0e0, "light theme context surface must stay light paper")
+assert(delek_bottom.underline == true and delek_bottom.sp ~= nil, "light theme must have distinct underline divider")
+
+-- Restore blue theme
+pcall(vim.cmd.colorscheme, "blue")
+ui.apply()
+
+-- Test Markdown window typography integration
+local md = require("config.markdown_typography")
+md.setup()
+local md_buf = vim.api.nvim_create_buf(true, false)
+vim.bo[md_buf].filetype = "markdown"
+vim.api.nvim_win_set_buf(0, md_buf)
+vim.api.nvim_exec_autocmds("FileType", { buffer = md_buf })
+vim.api.nvim_exec_autocmds("BufEnter", { buffer = md_buf })
+
+local md_winhl = vim.wo[0].winhighlight
+assert(md_winhl:match("TreesitterContext:MdTypographyTreesitterContext"), "markdown window must map TreesitterContext")
+assert(md_winhl:match("TreesitterContextBottom:MdTypographyTreesitterContextBottom"), "markdown window must map TreesitterContextBottom")
+
+local md_ctx_hl = vim.api.nvim_get_hl(0, { name = "MdTypographyTreesitterContext", link = false })
+assert(md_ctx_hl.bg == 0xf5f5f5, "markdown context must use light paper background")
 
 local spec = dofile(nvim_root .. "/lua/plugins/treesitter-context.lua")[1]
 assert(spec.opts.separator == nil, "context header must not draw a separator border")
