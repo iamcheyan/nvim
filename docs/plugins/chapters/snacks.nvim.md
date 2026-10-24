@@ -55,6 +55,23 @@
 
 `<leader>gl` / `<leader>gL` 看 Git log，`<leader>gf` 看当前文件历史。
 
+### 状态列（Statuscolumn）与诊断徽章
+
+`snacks.statuscolumn` 负责紧凑高效地渲染缓冲区左侧区域（标记、行号、折叠和 Git 改动）：
+
+- **左侧标记区**：`left = { "mark", "sign" }`，展示用户 Mark 与 LSP 诊断标记（`E` / `W` / `I` / `H`）。
+- **实心高对比徽章**：配合全局高亮组 `DiagnosticSignError` / `DiagnosticSignWarn`，将原本单薄的纯文字字符升级为醒目的红底白字（`E `）或琥珀橙底黑字（`W `）实心徽章，多主题下均保证极高辨识度。
+- **右侧折叠与 Git 区**：`right = { "fold", "git" }`，展示代码折叠三角（``）及 Git 变更条。
+
+### 文件查找器置顶与已打开缓冲区指示
+
+在通过 `<leader><space>` 或 `<leader>ff` 启动文件查找（Files picker）时，系统会自动聚合当前会话中的所有已打开文件并置顶显示：
+
+- **当前活跃文件 (`[current]`)**：排在第 1 行最顶端，带有天蓝色实心徽章 ` [current] `（高亮组 `SnacksPickerCurrentBadge`），文件名呈醒目的金色高亮（`SnacksPickerCurrentFile`）。
+- **其他已打开缓冲区 (`[open]`)**：排在当前活跃文件下方，带有深青绿实心徽章 ` [open] `（高亮组 `SnacksPickerOpenBadge`），按最近使用时间先后排列。
+- **未打开项目文件**：紧随其后按正常规则排列。
+- **搜索过滤体验**：输入关键字时，匹配的已打开文件依然优先排在前列；若关键字不匹配则自动过滤，完全不干扰搜索其他文件。
+
 ## 动手练习
 
 1. 在项目里按 `<leader>ff`，输入文件名片段，回车打开。

@@ -436,6 +436,29 @@ function M.apply_picker_highlights()
     ctermfg = nearest_xterm_color(selected_fg),
     bold = true,
   })
+
+  -- Distinct styling for currently open file in file pickers (<leader><space> / files)
+  local is_light = vim.o.background == "light"
+  local current_fg = is_light and "#b45309" or (vim.g.colors_name == "blue" and "#ffff55" or "#ffff87")
+  vim.api.nvim_set_hl(0, "SnacksPickerCurrentFile", {
+    fg = current_fg,
+    bold = true,
+    ctermfg = is_light and 3 or 11,
+  })
+  vim.api.nvim_set_hl(0, "SnacksPickerCurrentBadge", {
+    fg = "#ffffff",
+    bg = "#0284c7",
+    bold = true,
+    ctermfg = 15,
+    ctermbg = 4,
+  })
+  vim.api.nvim_set_hl(0, "SnacksPickerOpenBadge", {
+    fg = "#ffffff",
+    bg = "#0f766e",
+    bold = true,
+    ctermfg = 15,
+    ctermbg = 2,
+  })
 end
 
 -- Dedicated menu groups never recolor document floats or sidebar contents.

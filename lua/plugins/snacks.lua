@@ -130,6 +130,107 @@ return {
         end
         return raw_proc(picker_opts, ctx)
       end
+
+      -- Prioritize all opened files at the top of file pickers (<leader><space>),
+      -- distinguishing the currently viewed file ([current]) and other open buffers ([open]).
+      local function patch_files_picker()
+        local ok, picker_mod = pcall(require, "snacks.picker")
+        if not ok or not picker_mod or not picker_mod.pick then return end
+        if picker_mod._files_picker_patched then return end
+        picker_mod._files_picker_patched = true
+
+        local raw_pick = picker_mod.pick
+        picker_mod.pick = function(source, p_opts)
+          if not p_opts and type(source) == "table" then
+            p_opts, source = source, nil
+          end
+          p_opts = p_opts or {}
+          local src = source or p_opts.source
+          if src == "files" or src == "git_files" then
+            local cur_win = vim.api.nvim_get_current_win()
+            local cur_buf = vim.api.nvim_win_get_buf(cur_win)
+            local cur_name = vim.api.nvim_buf_get_name(cur_buf)
+            local is_normal_file = cur_name ~= ""
+              and vim.bo[cur_buf].buftype == ""
+              and vim.api.nvim_win_get_config(cur_win).relative == ""
+            local cur_file = is_normal_file and vim.fs.normalize(cur_name) or nil
+            local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
+
+            local open_buffers = {}
+            for _, b in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+              if b.name and b.name ~= "" and vim.bo[b.bufnr].buftype == "" then
+                local norm = vim.fs.normalize(b.name)
+                local rel = (norm:sub(1, #cwd + 1) == (cwd .. "/")) and norm:sub(#cwd + 2) or nil
+                local item_info = {
+                  is_current = (norm == cur_file),
+                  rel = rel,
+                  lastused = b.lastused or 0,
+                  bufnr = b.bufnr,
+                }
+                open_buffers[norm] = item_info
+                if rel then
+                  open_buffers[rel] = item_info
+                end
+              end
+            end
+
+            p_opts = vim.tbl_extend("force", {}, p_opts)
+
+            local user_transform = p_opts.transform
+            p_opts.transform = function(item, ctx)
+              if user_transform then
+                local t = user_transform(item, ctx)
+                if t == false then return false end
+                if type(t) == "table" then item = t end
+              end
+              local info = open_buffers[item.file] or (item._path and open_buffers[item._path])
+              if info then
+                if info.is_current then
+                  item.is_current = true
+                  item.filename_hl = "SnacksPickerCurrentFile"
+                else
+                  item.is_open = true
+                end
+                item.lastused = info.lastused
+              end
+            end
+
+            p_opts.matcher = vim.tbl_extend("force", p_opts.matcher or {}, { sort_empty = true })
+
+            local default_sort = Snacks.picker.config.sort(p_opts)
+            p_opts.sort = function(a, b)
+              local a_rank = a.is_current and 1 or (a.is_open and 2 or 3)
+              local b_rank = b.is_current and 1 or (b.is_open and 2 or 3)
+              if a_rank ~= b_rank then
+                return a_rank < b_rank
+              end
+              if a.is_open and b.is_open then
+                local a_used = a.lastused or 0
+                local b_used = b.lastused or 0
+                if a_used ~= b_used then
+                  return a_used > b_used
+                end
+              end
+              return default_sort(a, b)
+            end
+
+            local orig_format = p_opts.format or Snacks.picker.format.file
+            local format_fn = type(orig_format) == "string" and (Snacks.picker.format[orig_format] or Snacks.picker.format.file) or orig_format
+            p_opts.format = function(item, picker)
+              local ret = format_fn(item, picker)
+              if item.is_current then
+                table.insert(ret, { " [current] ", "SnacksPickerCurrentBadge" })
+              elseif item.is_open then
+                table.insert(ret, { " [open] ", "SnacksPickerOpenBadge" })
+              end
+              return ret
+            end
+          end
+          return raw_pick(source, p_opts)
+        end
+      end
+
+      patch_files_picker()
     end,
     opts = {
       explorer = { enabled = false },
