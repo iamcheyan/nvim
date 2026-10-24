@@ -392,11 +392,23 @@ vim.filetype.add({ pattern = filetype_patterns })
 
 vim.opt.signcolumn = "yes"
 
+local diagnostic_signs = true
+if vim.g.have_nerd_font then
+  diagnostic_signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = " ",
+      [vim.diagnostic.severity.WARN] = " ",
+      [vim.diagnostic.severity.INFO] = " ",
+      [vim.diagnostic.severity.HINT] = " ",
+    },
+  }
+end
+
 -- Signs and underlines stay visible. Virtual text is off so the buffer
 -- text is not pushed around by diagnostic messages.
 vim.diagnostic.config({
   virtual_text = false,
-  signs = true,
+  signs = diagnostic_signs,
   underline = true,
   update_in_insert = false,
   severity_sort = true,

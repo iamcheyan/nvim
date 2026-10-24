@@ -58,6 +58,7 @@ Git 视图额外绑定：`ga` 暂存、`gu` 取消暂存、`gr` 撤销文件修�
   执行前先看一眼 diff。
 - **根节点隐藏后路径少一级**。列表第一行不是项目名，属正常，
   不是加载失败。
+- **彻底关闭诊断显示以保证极致速度**。配置显式设置了 `enable_diagnostics = false`，卸载了 `DiagnosticChanged` 全局监听与目录树递归扫描，消除打开和浏览文件时的卡顿。查看诊断统一推荐使用 `<leader>cd`（单行浮窗）、`<leader>xx`（Trouble 面板）或 `<leader>sd`（诊断搜索器）。
 - **树里打开文件不会替换特殊窗口**。terminal、quickfix、Outline 之类不会被顶掉，
   这是 `open_files_do_not_replace_types` 的作用。
 - 侧栏宽度是固定的（`winfixwidth`），恢复会话时不会被 `winwidth` 压扁。

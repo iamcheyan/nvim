@@ -104,38 +104,43 @@ Neovim 有两套诊断来源：
            ▼ publishDiagnostics 协议通知
 [Neovim 内置 vim.diagnostic 引擎]
            │
-           ▼ 在缓冲行创建 Sign Extmarks (E / W / I / H)
+           ▼ 在缓冲行创建 Sign Extmarks ( /  /  / )
 [snacks.statuscolumn 侧边栏]
            │
            ▼ 应用 DiagnosticSign* 实心徽章高亮
-[屏幕左侧行号栏 (Gutter)] 渲染出高对比度实心徽章
+[屏幕左侧行号栏 (Gutter)] 渲染出高对比度紧凑居中徽章
 ```
 
-这份配置的显示策略兼顾了**清爽度**与**即时警示**：
+这份配置的显示策略兼顾了**清爽度**与**极致性能**：
 
 1. **行尾虚拟文本关闭**（`virtual_text = false`）：避免悬浮文字挤占代码视线。
 2. **行内下划线**（`underline = true`）：保留出错位置波浪线标明精确范围。
-3. **侧边栏实心徽章标记**（`signs = true`）：在行号左侧显示单字母严重级别徽章。
+3. **侧边栏实心徽章标记**（`signs`）：在行号左侧显示高对比度实心徽章标记。
+4. **文件树诊断彻底禁用**（Neo-tree `enable_diagnostics = false`）：卸载 `DiagnosticChanged` 全局监听，杜绝文件树目录递归扫描与重绘，保障文件浏览与打开的绝对轻量极速。
 
-### 侧边栏高对比度实心徽章（Solid Badge）设计
+### 侧边栏高对比度实心徽章（Solid Badge）与 Nerd Font
 
-默认情况下，Neovim 的诊断 Sign 仅有前景色（透明背景），在深蓝、纯黑或高亮主题下容易因对比度不足而被忽略。为了让代码错误一目了然，全局高亮引擎（`lua/config/ui_highlights.lua`）为侧边栏配置了实心高对比徽章体系：
+当前配置已启用 Nerd Font 支持（`vim.g.have_nerd_font = true`）。诊断指示符（Diagnostics Signs）直接采用专用 Nerd Font 图标结合高对比度实心底色徽章（Solid Badge）：
 
-| 级别 | 标识 | 视觉效果 | 前景 / 背景色 | 终端 Fallback | 设计考量 |
+| 级别 | Nerd Font 图标 | 视觉效果 | 前景 / 背景色 | 终端 Fallback（无 Nerd Font） | 设计考量 |
 |---|:---:|---|---|---|---|
-| **Error (错误)** | `E ` | 🔴 **红底白字加粗** | `fg = "#ffffff"`, `bg = "#cc1100"`, `bold = true` | `ctermfg=15`, `ctermbg=1` | 极高警示度，任何主题下一眼捕捉错误行 |
-| **Warn (警告)** | `W ` | 🟡 **琥珀橙底黑字加粗** | `fg = "#000000"`, `bg = "#f59e0b"`, `bold = true` | `ctermfg=0`, `ctermbg=3` | 鲜亮琥珀底配合黑字高对比，与错误显著区分 |
-| **Info (信息)** | `I ` | 🔵 **蓝底白字加粗** | `fg = "#ffffff"`, `bg = "#0284c7"`, `bold = true` | `ctermfg=15`, `ctermbg=4` | 明亮天空蓝底色，温和提示上下文信息 |
-| **Hint (建议)** | `H ` | 🟢 **翠绿底白字加粗** | `fg = "#ffffff"`, `bg = "#16a34a"`, `bold = true` | `ctermfg=15`, `ctermbg=2` | 翠绿色实体徽章，提供优化建议 |
+| **Error (错误)** | ` ` | 🔴 **红底白字加粗** | `fg = "#ffffff"`, `bg = "#cc1100"`, `bold = true` | `E ` (`ctermfg=15`, `ctermbg=1`) | 极高警示度，任何主题下一眼捕捉错误行 |
+| **Warn (警告)** | ` ` | 🟡 **琥珀橙底黑字加粗** | `fg = "#000000"`, `bg = "#f59e0b"`, `bold = true` | `W ` (`ctermfg=0`, `ctermbg=3`) | 鲜亮琥珀底配合黑字高对比，与错误显著区分 |
+| **Info (信息)** | ` ` | 🔵 **蓝底白字加粗** | `fg = "#ffffff"`, `bg = "#0284c7"`, `bold = true` | `I ` (`ctermfg=15`, `ctermbg=4`) | 明亮天空蓝底色，温和提示上下文信息 |
+| **Hint (建议)** | ` ` | 🟢 **翠绿底白字加粗** | `fg = "#ffffff"`, `bg = "#16a34a"`, `bold = true` | `H ` (`ctermfg=15`, `ctermbg=2`) | 翠绿色实体徽章，提供优化建议 |
 
-> [!NOTE]
-> 该徽章样式由全局自适应管道管理，无论切换到 Nostalgia（蓝底）、Oceanblack（黑底）还是 Paper（浅色纸张）主题，`ColorScheme` 触发时均会自动保持不透明实体色，彻底避免透明底色被背景色冲淡。
+#### 设计细节与联动
+1. **实心徽章紧凑居中**：在行号侧边栏中，高亮范围被精确收拢为单个字符单元格（`1-cell square badge`），右侧留白空格保持终端正常底色，解决传统 2 字符背景将图标推向左侧导致视觉上不居中、不对称的问题。
+2. **全环境自适应**：当 `vim.g.have_nerd_font = true` 时自动注入 Nerd Font 图标；若在无 Nerd Font 的纯文本终端环境，则优雅回退至单字母模式（`E` / `W` / `I` / `H`）。
+3. **文件树零损耗架构**：Neo-tree 彻底关闭诊断监听（`enable_diagnostics = false`），让文件树只做纯粹的目录导航；需要查看跨文件诊断时，统一使用 Trouble（`<leader>xx`）或搜索器（`<leader>sd`），按需拉取，平时完全 0 开销。
 
-### 诊断相关按键
+### 诊断相关按键与排查
+
+当看到代码行出现 ``（警告）或 ``（错误）时：
 
 | 按键 | 作用 | 说明 |
 |---|---|---|
-| `<leader>cd` | 浮窗查看当前行诊断 | 弹出 Float Window 显示具体错误信息与代码规则 |
+| `<leader>cd` | 浮窗查看当前行诊断 | 弹出 Float Window 显示具体错误信息、规则名称与来源 |
 | `]d` / `[d` | 跳转到下 / 上一个诊断 | 快速在文件内的各个问题点之间巡检 |
 | `<leader>ud` | 切换诊断指示器显示 | 一键隐藏或恢复行号旁的标记与下划线 |
 | `<leader>xx` | 打开 Trouble 诊断列表 | 在底部弹出面板聚合浏览所有文件的问题 |
@@ -153,6 +158,7 @@ LSP 会索引整个工作区。大项目里这是个负担。
 
 | 现象 | 原因 | 检查 |
 |---|---|---|
+| 行号旁出现黄色警告图标 `` | 该行存在 Warning 级别代码诊断（如未使用变量、语法警告等） | `<leader>cd` 浮窗看原因，或 `]d` 跳转 |
 | `gd` 没反应 | server 没装或没 attach | `:LspInfo` |
 | 诊断不显示 | 该文件类型没有 server | `:LspInfo` |
 | 补全不弹出 | 同上，或 blink 配置问题 | `:checkhealth blink` |

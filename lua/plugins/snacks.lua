@@ -231,6 +231,24 @@ return {
       end
 
       patch_files_picker()
+
+      -- Center solid badge diagnostic signs by highlighting only the 1-cell glyph,
+      -- leaving the trailing column as a standard gutter space instead of stretching
+      -- the badge background into an awkward off-center 2-cell box.
+      local statuscolumn = require("snacks.statuscolumn")
+      local orig_statuscolumn_icon = statuscolumn.icon
+      statuscolumn.icon = function(sign)
+        if not sign then
+          return "  "
+        end
+        if sign.type == "sign" and sign.texthl and sign.texthl:match("^DiagnosticSign") then
+          local char = vim.fn.strcharpart(sign.text or "", 0, 1)
+          if char ~= "" and char ~= " " then
+            return "%#" .. sign.texthl .. "#" .. char .. "%* "
+          end
+        end
+        return orig_statuscolumn_icon(sign)
+      end
     end,
     opts = {
       explorer = { enabled = false },

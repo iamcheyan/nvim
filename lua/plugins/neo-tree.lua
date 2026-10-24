@@ -52,6 +52,7 @@ return {
       },
     },
     opts = {
+      enable_diagnostics = false,
       sources = { "filesystem", "buffers", "git_status" },
       event_handlers = {
         {

@@ -36,4 +36,27 @@ ui.apply()
 local err_nostalgia = vim.api.nvim_get_hl(0, { name = "DiagnosticSignError", link = false })
 assert(err_nostalgia.bg ~= nil, "DiagnosticSignError must preserve background on colorscheme switch")
 
+-- Ensure Nerd Font icons are populated in vim.diagnostic.config when have_nerd_font is set
+local diag_cfg = vim.diagnostic.config()
+assert(diag_cfg.signs and diag_cfg.signs.text, "diagnostic signs must specify text when Nerd Font is enabled")
+assert(diag_cfg.signs.text[vim.diagnostic.severity.WARN] == " ", "Warning sign icon mismatch")
+assert(diag_cfg.signs.text[vim.diagnostic.severity.ERROR] == " ", "Error sign icon mismatch")
+assert(diag_cfg.signs.text[vim.diagnostic.severity.INFO] == " ", "Info sign icon mismatch")
+assert(diag_cfg.signs.text[vim.diagnostic.severity.HINT] == " ", "Hint sign icon mismatch")
+
+-- Ensure statuscolumn formats diagnostic sign badges without trailing space in the badge highlight
+local lazy_snacks = vim.fn.stdpath("data") .. "/lazy/snacks.nvim"
+if vim.fn.isdirectory(lazy_snacks) == 1 then
+  vim.opt.runtimepath:prepend(lazy_snacks)
+  local snacks_spec = dofile(nvim_root .. "/lua/plugins/snacks.lua")[1]
+  pcall(snacks_spec.config, nil, snacks_spec.opts)
+  local sc = require("snacks.statuscolumn")
+  local formatted_warn = sc.icon({ text = " ", texthl = "DiagnosticSignWarn", type = "sign" })
+  assert(formatted_warn == "%#DiagnosticSignWarn#%* ", "Diagnostic badge must isolate glyph to center icon")
+end
+
+-- Ensure Neo-tree diagnostics are fully disabled for performance
+local nt_spec = dofile(nvim_root .. "/lua/plugins/neo-tree.lua")[1]
+assert(nt_spec.opts.enable_diagnostics == false, "Neo-tree diagnostics must be disabled for performance")
+
 print("diagnostic_sign_badge_spec: OK")
