@@ -705,6 +705,15 @@ function M.apply()
     set(0, "Scrollbar" .. mark .. "Handle", { fg = p.scrollbar_bg, bg = p.scrollbar_bg })
   end
 
+  -- Diagnostic sign badges in gutter (statuscolumn):
+  -- High-contrast solid badge styling makes errors and warnings immediately prominent
+  -- across all themes (blue, dark, paper).
+  set(0, "DiagnosticSignError", { fg = "#ffffff", bg = "#cc1100", bold = true, ctermfg = 15, ctermbg = 1 })
+  set(0, "DiagnosticSignWarn",  { fg = "#000000", bg = "#f59e0b", bold = true, ctermfg = 0,  ctermbg = 3 })
+  set(0, "DiagnosticSignInfo",  { fg = "#ffffff", bg = "#0284c7", bold = true, ctermfg = 15, ctermbg = 4 })
+  set(0, "DiagnosticSignHint",  { fg = "#ffffff", bg = "#16a34a", bold = true, ctermfg = 15, ctermbg = 2 })
+  set(0, "DiagnosticSignOk",    { fg = "#ffffff", bg = "#059669", bold = true, ctermfg = 15, ctermbg = 10 })
+
   for _, group in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
     if group:match("Selected$") then
       set(0, group, { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold })
