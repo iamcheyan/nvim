@@ -9,6 +9,10 @@ local function key_id(lhs)
 end
 
 local function global_map(mode, lhs)
+  local direct = vim.fn.maparg(lhs, mode, false, true)
+  if type(direct) == "table" and not vim.tbl_isempty(direct) and direct.buffer == 0 then
+    return direct
+  end
   local id = key_id(lhs)
   for _, mapping in ipairs(vim.api.nvim_get_keymap(mode)) do
     if key_id(mapping.lhs) == id then return mapping end

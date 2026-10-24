@@ -946,7 +946,7 @@ def rewrite_source_links(html: str, page_dir: str = "guides") -> str:
         # under guides/.
         for sect in ("wiki", "tutorials", "reference", "guides", "development"):
             if target.startswith(f"../{sect}/"):
-                tail = target[len(f"../{sect}/") :].replace(".md", ".html")
+                tail = target[len(f"../{sect}/") :].replace(".md", ".html").lower()
                 published = "guides" if sect == "development" else sect
                 if page_dir in ("plugins", "tutorials", "wiki", "reference"):
                     return f'href="../{published}/{tail}"'

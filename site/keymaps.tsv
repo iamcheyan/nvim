@@ -2,7 +2,7 @@
 <leader>,	n	Switch Buffer
 <leader>-	n	Split Window Below
 <leader>/	n	Grep
-<leader><Down>	n
+<leader><Down>	n	Add cursor on next line
 <leader><Tab><Tab>	n	List and switch Tab Pages
 <leader><Tab>[	n	Previous Tab
 <leader><Tab>]	n	Next Tab
@@ -11,11 +11,11 @@
 <leader><Tab>l	n	Last Tab
 <leader><Tab>n	n	New Tab
 <leader><Tab>o	n	Close Other Tabs
-<leader><Up>	n
+<leader><Up>	n	Add cursor on previous line
 <leader>?	n	Help
-<leader>A	n
+<leader>A	n	Align cursors
 <leader>K	n	Keywordprg
-<leader>N	n
+<leader>N	n	New File (Default Name)
 <leader>`	n	Switch to Other Buffer
 <leader>a	n	Increment number
 <leader>bC	n	Clear buffer contents
@@ -41,7 +41,7 @@
 <leader>dph	n	Toggle Profiler Highlights
 <leader>dpp	n	Toggle Profiler
 <leader>e	n	Explorer NeoTree (cwd)
-<leader>fC	n	打开常用收藏
+<leader>fC	n	Browse Neovim Configuration Files
 <leader>fE	n	Explorer NeoTree (cwd)
 <leader>fF	n	Find Files (Git Root)
 <leader>fG	n	Grep (Git Root)
@@ -55,11 +55,11 @@
 <leader>ff	n	Find Files
 <leader>fg	n	Grep (cwd)
 <leader>fh	n	Help Pages
-<leader>fn	n	New File
-<leader>fo	n	format this file
+<leader>fn	n	New File (Choose Name)
+<leader>fo	n	Format Current File
 <leader>fr	n	Recent
 <leader>ft	n	Terminal (Root Dir)
-<leader>fu	n	dos2unix current file
+<leader>fu	n	Convert Current File to Unix Line Endings
 <leader>fw	n	Grep Word (cwd)
 <leader>gD	n	Diffview File History (Current File)
 <leader>gG	n	Lazygit (cwd)
@@ -72,7 +72,7 @@
 <leader>gg	n	Lazygit (Root Dir)
 <leader>gl	n	Git Log
 <leader>gq	n	Diffview Close
-<leader>gv	n
+<leader>gv	n	Restore cursors
 <leader>hk	n	Buffer Keymaps (which-key)
 <leader>jO	n	Portal: jump forward
 <leader>ja	n	Grapple: tag file
@@ -83,11 +83,12 @@
 <leader>jt	n	Grapple: tag list
 <leader>l	n	Lazy
 <leader>mC	n	Bookmarks: Clear Project
+<leader>mN	n	Add cursor to previous match
 <leader>mc	n	Bookmarks: Clear Buffer
 <leader>mm	n	Bookmarks: List
-<leader>mq	n
+<leader>mn	n	Add cursor to next match
+<leader>mq	n	Toggle multicursor mode
 <leader>mt	n	Bookmarks: Toggle Line
-<leader>n	n
 <leader>nd	n	Dial: decrement
 <leader>ni	n	Dial: increment
 <leader>p	n	Smart paste block
@@ -112,15 +113,16 @@
 <leader>tr	n	Terminal Right
 <leader>uA	n	Toggle Tabline
 <leader>uC	n	Colorscheme with Preview
-<leader>uD	n	Toggle Dimming
+<leader>uD	n	Toggle Dim Mode
 <leader>uG	n	Toggle Git Signs
 <leader>uI	n	Inspect Tree
-<leader>uL	n	Toggle Relative Number
+<leader>uL	n	Toggle Relative Line Numbers
 <leader>uM	n	Matchup: enable matchparen
 <leader>uN	n	Matchup: disable matchparen
-<leader>uS	n	Toggle Smooth Scroll
-<leader>uT	n	Toggle Treesitter Highlight
-<leader>uZ	n	Toggle Zoom Mode
+<leader>uR	n	Reload Configuration
+<leader>uS	n	Toggle Smooth Scrolling
+<leader>uT	n	Toggle Treesitter Highlighting
+<leader>uZ	n	Toggle Window Zoom
 <leader>ua	n	Toggle Animations
 <leader>ub	n	Toggle Dark Background
 <leader>uc	n	Toggle Conceal Level
@@ -128,11 +130,11 @@
 <leader>uh	n	Toggle Inlay Hints
 <leader>ui	n	Inspect Pos
 <leader>ul	n	Toggle Line Numbers
-<leader>up	n	Toggle Mini Pairs
+<leader>up	n	Toggle Automatic Pairing
 <leader>ur	n	Redraw / Clear hlsearch / Diff Update
 <leader>us	n	Toggle Spelling
 <leader>ut	n	Theme / Colorscheme
-<leader>uw	n	Toggle Wrap
+<leader>uw	n	Toggle Line Wrap
 <leader>uz	n	Zen Mode
 <leader>wH	n	Move Window Left
 <leader>wJ	n	Move Window Down
@@ -144,7 +146,7 @@
 <leader>wj	n	Window Down
 <leader>wk	n	Window Up
 <leader>wl	n	Window Right
-<leader>wm	n	Toggle Zoom Mode
+<leader>wm	n	Toggle Window Zoom
 <leader>wr	n	Session search
 <leader>ws	n	Save session
 <leader>ww	n	Other Window
@@ -164,7 +166,7 @@
 %	n
 &	n	:help &-default
 *	n	Search Word Forward
-<2-LeftMouse>	n	双击颜色弹出 ccc 取色器
+<2-LeftMouse>	n	Open Color Picker on Double-Click
 <C-/>	n	Terminal (Root Dir)
 <C-A>	n	Select all lines
 <C-Down>	n	Decrease Window Height
@@ -176,10 +178,10 @@
 <C-LeftDrag>	n
 <C-LeftMouse>	n
 <C-LeftRelease>	n
-<C-N>	n
+<C-N>	n	Add cursor to next match
 <C-Q>	n	Visual block
 <C-Right>	n	Increase Window Width
-<C-S-N>	n
+<C-S-N>	n	Add cursor to every match
 <C-S>	n	Save File
 <C-Up>	n	Increase Window Height
 <C-V>	n	Smart paste block
@@ -189,8 +191,8 @@
 <C-_>	n	which_key_ignore
 <Esc>	n	Escape and Clear messages/hlsearch
 <LeftMouse>	n
-<M-D>	n
-<M-d>	n
+<M-D>	n	Skip previous match
+<M-d>	n	Skip next match
 <M-j>	n	Move Down
 <M-k>	n	Move Up
 <RightMouse>	n	Open context menu
@@ -251,7 +253,7 @@ g*	n	Search Partial Word Forward
 gO	n	vim.lsp.buf.document_symbol()
 g[	n	Move to left "around"
 g]	n	Move to right "around"
-ga	n
+ga	n	Add cursor with operator
 gc	n	Toggle comment
 gcc	n	Toggle comment line
 gra	n	vim.lsp.buf.code_action()
@@ -288,12 +290,12 @@ zR	n	Open all folds
 zm	n	Fold more
 zp	n	Peek folded lines under cursor
 zr	n	Fold less
-<leader><Down>	x
-<leader><Up>	x
-<leader>N	x
+<leader><Down>	x	Add cursor on next line
+<leader><Up>	x	Add cursor on previous line
 <leader>gY	x	Git Browse (copy)
-<leader>mq	x
-<leader>n	x
+<leader>mN	x	Add cursor to previous match
+<leader>mn	x	Add cursor to next match
+<leader>mq	x	Toggle multicursor mode
 <leader>nd	x	Dial: decrement
 <leader>ni	x	Dial: increment
 <leader>sR	x	Search/Replace selection (current file)
@@ -303,15 +305,15 @@ zr	n	Fold less
 *	x	:help v_star-default
 <C-A>	x	Select all lines
 <C-C>	x	Copy selection to system clipboard
-<C-N>	x
+<C-N>	x	Add cursor to next match
 <C-Q>	x	Visual block
-<C-S-N>	x
+<C-S-N>	x	Add cursor to every match
 <C-S>	x	Save File
 <C-V>	x	Smart paste clipboard over selection
 <C-X>	x	Cut selection to system clipboard
 <LeftMouse>	v
-<M-D>	x
-<M-d>	x
+<M-D>	x	Skip previous match
+<M-d>	x	Skip next match
 <M-j>	v	Move Down
 <M-k>	v	Move Up
 <RightMouse>	x	Open context menu
@@ -339,7 +341,7 @@ an	x	Around next textobject
 g%	x
 g[	x	Move to left "around"
 g]	x	Move to right "around"
-ga	x
+ga	x	Add cursor with operator
 gc	x	Toggle comment
 gra	x	vim.lsp.buf.code_action()
 gsF	x	Find left surrounding
