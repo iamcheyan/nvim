@@ -144,26 +144,68 @@ local function register_global_aliases(groups)
   end
 end
 
+local md_winhighlight = table.concat({
+  "Normal:MdTypographyNormal",
+  "NormalNC:MdTypographyNormalNC",
+  "Cursor:MdTypographyCursor",
+  "CursorLine:MdTypographyCursorLine",
+  "CursorLineNr:MdTypographyCursorLineNr",
+  "CursorColumn:MdTypographyCursorColumn",
+  "LineNr:MdTypographyLineNr",
+  "SignColumn:MdTypographySignColumn",
+  "FoldColumn:MdTypographyFoldColumn",
+  "ColorColumn:MdTypographyColorColumn",
+  "EndOfBuffer:MdTypographyEndOfBuffer",
+  "WinSeparator:MdTypographyWinSeparator",
+  "StatusLine:MdTypographyStatusLine",
+  "StatusLineNC:MdTypographyStatusLineNC",
+  "WinBar:MdTypographyWinBar",
+  "WinBarNC:MdTypographyWinBarNC",
+  "ContextlineText:MdTypographyContextlineText",
+  "ContextlineActiveMenu:MdTypographyContextlineActiveMenu",
+  "ContextlineErrorBadge:MdTypographyContextlineErrorBadge",
+  "ContextlineWarningBadge:MdTypographyContextlineWarningBadge",
+  "TreesitterContext:MdTypographyTreesitterContext",
+  "TreesitterContextLineNumber:MdTypographyTreesitterContextLineNumber",
+  "TreesitterContextBottom:MdTypographyTreesitterContextBottom",
+  "TreesitterContextLineNumberBottom:MdTypographyTreesitterContextLineNumberBottom",
+  "TreesitterContextSeparator:MdTypographyTreesitterContextSeparator",
+  "Visual:MdTypographyVisual",
+}, ",")
+
+local shared_delek_ns = nil
+
+function M.get_delek_namespace()
+  if shared_delek_ns and vim.api.nvim_get_namespaces()[shared_delek_ns] then
+    return shared_delek_ns
+  end
+  shared_delek_ns = vim.api.nvim_create_namespace("MarkdownTypographyDelek")
+  local groups = resolve_window_groups()
+  register_global_aliases(groups)
+  -- Apply all native delek highlight groups into the shared namespace
+  for name, spec in pairs(delek) do
+    vim.api.nvim_set_hl(shared_delek_ns, name, spec)
+  end
+  -- Apply window-local surface overrides
+  for name, spec in pairs(groups) do
+    vim.api.nvim_set_hl(shared_delek_ns, name, spec)
+  end
+  -- Apply Markview paper-background overrides
+  for name, spec in pairs(markview_overrides) do
+    vim.api.nvim_set_hl(shared_delek_ns, name, spec)
+  end
+  -- Apply treesitter overrides to the namespace as well
+  vim.api.nvim_set_hl(shared_delek_ns, "@markup.heading.1", { fg = palette.magenta, bold = true })
+  vim.api.nvim_set_hl(shared_delek_ns, "@markup.raw.block", { fg = palette.code_fg, bg = palette.code_bg })
+  vim.api.nvim_set_hl(shared_delek_ns, "@markup.raw.inline", { fg = palette.dark_green, bg = palette.inline_bg })
+  return shared_delek_ns
+end
+
 local function apply_namespace(win)
   if not vim.api.nvim_win_is_valid(win) then
     return
   end
-  local groups = resolve_window_groups()
-  register_global_aliases(groups)
-  local ns = vim.api.nvim_create_namespace("MarkdownTypographyDelek:" .. tostring(win))
-  -- Apply all native delek highlight groups into the window-local namespace
-  for name, spec in pairs(delek) do
-    vim.api.nvim_set_hl(ns, name, spec)
-  end
-  -- Apply window-local surface overrides
-  for name, spec in pairs(groups) do
-    vim.api.nvim_set_hl(ns, name, spec)
-  end
-  -- Apply Markview paper-background overrides
-  for name, spec in pairs(markview_overrides) do
-    vim.api.nvim_set_hl(ns, name, spec)
-  end
-  vim.api.nvim_win_set_hl_ns(win, ns)
+  vim.api.nvim_win_set_hl_ns(win, M.get_delek_namespace())
 end
 
 local function is_markdown(buf)
@@ -190,7 +232,17 @@ local function apply_treesitter_groups()
   vim.api.nvim_set_hl(0, "@markup.raw.inline", { fg = palette.dark_green, bg = palette.inline_bg })
 end
 
-local function apply_to_markdown_windows(buf)
+local saved_cursorcolumn = {}
+
+function M.apply_window(win, buf)
+  if not vim.api.nvim_win_is_valid(win) then
+    return
+  end
+  buf = buf or vim.api.nvim_win_get_buf(win)
+  if not is_markdown(buf) then
+    return
+  end
+
   if not palette_active then
     original_treesitter_groups = snapshot_treesitter_groups()
     palette_active = true
@@ -199,58 +251,37 @@ local function apply_to_markdown_windows(buf)
   if vim.api.nvim_buf_is_valid(buf) then
     vim.b[buf].snacks_statuscolumn_left = false
   end
-  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
-    if vim.api.nvim_win_is_valid(win) then
-      local ok, matches = pcall(vim.fn.getmatches, win)
-      if ok and type(matches) == "table" then
-        for _, m in ipairs(matches) do
-          if m.group and vim.startswith(m.group, "Cobol") then
-            pcall(vim.fn.matchdelete, m.id, win)
-          end
-        end
+
+  local ok, matches = pcall(vim.fn.getmatches, win)
+  if ok and type(matches) == "table" then
+    for _, m in ipairs(matches) do
+      if m.group and vim.startswith(m.group, "Cobol") then
+        pcall(vim.fn.matchdelete, m.id, win)
       end
-      apply_namespace(win)
-      -- Markdown windows drop the vertical cursor guide; the horizontal
-      -- cursorline stays. cursorcolumn is global-local and nvim_win_set_buf
-      -- resets it, so the override is re-asserted by the autocmds in
-      -- M.setup() rather than set once here.
-      vim.wo[win].winhighlight = table.concat({
-        "Normal:MdTypographyNormal",
-        "NormalNC:MdTypographyNormalNC",
-        "Cursor:MdTypographyCursor",
-        "CursorLine:MdTypographyCursorLine",
-        "CursorLineNr:MdTypographyCursorLineNr",
-        "CursorColumn:MdTypographyCursorColumn",
-        "LineNr:MdTypographyLineNr",
-        "SignColumn:MdTypographySignColumn",
-        "FoldColumn:MdTypographyFoldColumn",
-        "ColorColumn:MdTypographyColorColumn",
-        "EndOfBuffer:MdTypographyEndOfBuffer",
-        "WinSeparator:MdTypographyWinSeparator",
-        "StatusLine:MdTypographyStatusLine",
-        "StatusLineNC:MdTypographyStatusLineNC",
-        "WinBar:MdTypographyWinBar",
-        "WinBarNC:MdTypographyWinBarNC",
-        "ContextlineText:MdTypographyContextlineText",
-        "ContextlineActiveMenu:MdTypographyContextlineActiveMenu",
-        "ContextlineErrorBadge:MdTypographyContextlineErrorBadge",
-        "ContextlineWarningBadge:MdTypographyContextlineWarningBadge",
-        "TreesitterContext:MdTypographyTreesitterContext",
-        "TreesitterContextLineNumber:MdTypographyTreesitterContextLineNumber",
-        "TreesitterContextBottom:MdTypographyTreesitterContextBottom",
-        "TreesitterContextLineNumberBottom:MdTypographyTreesitterContextLineNumberBottom",
-        "TreesitterContextSeparator:MdTypographyTreesitterContextSeparator",
-        "Visual:MdTypographyVisual",
-      }, ",")
-      M.sync_context_windows(win)
     end
+  end
+
+  apply_namespace(win)
+  vim.wo[win].winhighlight = md_winhighlight
+
+  if saved_cursorcolumn[win] == nil then
+    saved_cursorcolumn[win] = vim.wo[win].cursorcolumn
+  end
+  vim.api.nvim_set_option_value("cursorcolumn", false, { scope = "local", win = win })
+
+  M.sync_context_windows(win)
+end
+
+local function apply_to_markdown_windows(buf)
+  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+    M.apply_window(win, buf)
   end
 end
 
 function M.sync_context_windows(win)
   if not vim.api.nvim_win_is_valid(win) then return end
   local is_md = is_markdown(vim.api.nvim_win_get_buf(win))
-  local ns = is_md and vim.api.nvim_create_namespace("MarkdownTypographyDelek:" .. tostring(win)) or 0
+  local ns = is_md and M.get_delek_namespace() or 0
   for _, w in ipairs(vim.api.nvim_list_wins()) do
     if w ~= win and vim.api.nvim_win_is_valid(w) then
       local ok, cfg = pcall(vim.api.nvim_win_get_config, w)
@@ -291,8 +322,6 @@ local function restore_treesitter()
   end
 end
 
-local saved_cursorcolumn = {}
-
 local function restore_window(win)
   if not vim.api.nvim_win_is_valid(win) or is_markdown(vim.api.nvim_win_get_buf(win)) then
     return
@@ -315,9 +344,11 @@ function M.palette()
 end
 
 function M.refresh()
+  shared_delek_ns = nil
+  M.get_delek_namespace()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     if vim.api.nvim_win_is_valid(win) and is_markdown(vim.api.nvim_win_get_buf(win)) then
-      apply_namespace(win)
+      M.apply_window(win)
     end
   end
 end
@@ -409,13 +440,20 @@ function M.setup()
       end
     end,
   })
+  -- Pre-warm the shared delek namespace and global aliases
+  M.get_delek_namespace()
+
   vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "WinEnter" }, {
     group = group,
     callback = function(args)
       local win = vim.api.nvim_get_current_win()
       local buf = (vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win)) or args.buf
       if is_markdown(buf) then
-        apply_to_markdown_windows(buf)
+        if vim.api.nvim_win_is_valid(win) then
+          M.apply_window(win, buf)
+        else
+          apply_to_markdown_windows(buf)
+        end
       else
         restore_window(win)
       end
@@ -442,6 +480,7 @@ function M.setup()
   vim.api.nvim_create_autocmd("ColorScheme", {
     group = group,
     callback = function()
+      shared_delek_ns = nil
       local markdown_open = false
       for _, win in ipairs(vim.api.nvim_list_wins()) do
         if is_markdown(vim.api.nvim_win_get_buf(win)) then
@@ -456,12 +495,7 @@ function M.setup()
         palette_active = false
         original_treesitter_groups = nil
         vim.schedule(function()
-          for _, win in ipairs(vim.api.nvim_list_wins()) do
-            local buf = vim.api.nvim_win_get_buf(win)
-            if is_markdown(buf) then
-              apply_to_markdown_windows(buf)
-            end
-          end
+          M.refresh()
         end)
       end
     end,

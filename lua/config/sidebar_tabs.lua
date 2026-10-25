@@ -29,7 +29,13 @@ function M.open_buffer(buf)
   local win = editor_window()
   if not win then return end
   vim.api.nvim_set_current_win(win)
+  if vim.bo[buf].filetype == "markdown" then
+    require("config.markdown_typography").apply_window(win, buf)
+  end
   vim.api.nvim_win_set_buf(win, buf)
+  if vim.bo[buf].filetype == "markdown" then
+    require("config.markdown_typography").apply_window(win, buf)
+  end
   vim.cmd.redrawtabline()
 end
 
