@@ -454,9 +454,30 @@ local function update_cobol_whitespace(ev)
     end
   end
 end
+local function clear_window_cobol_matches(win)
+  if not win or not vim.api.nvim_win_is_valid(win) then return end
+  local ok, matches = pcall(vim.fn.getmatches, win)
+  if ok and type(matches) == "table" then
+    for _, m in ipairs(matches) do
+      if m.group and vim.startswith(m.group, "Cobol") then
+        pcall(vim.fn.matchdelete, m.id, win)
+      end
+    end
+  end
+end
+
 vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
   group = cobol_list_group,
   callback = update_cobol_whitespace,
+})
+
+vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
+  group = cobol_list_group,
+  callback = function(ev)
+    if cobol_filetypes[vim.bo[ev.buf].filetype] then
+      clear_window_cobol_matches(vim.api.nvim_get_current_win())
+    end
+  end,
 })
 
 -- ── Colorscheme ──

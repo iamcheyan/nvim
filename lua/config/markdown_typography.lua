@@ -201,6 +201,14 @@ local function apply_to_markdown_windows(buf)
   end
   for _, win in ipairs(vim.fn.win_findbuf(buf)) do
     if vim.api.nvim_win_is_valid(win) then
+      local ok, matches = pcall(vim.fn.getmatches, win)
+      if ok and type(matches) == "table" then
+        for _, m in ipairs(matches) do
+          if m.group and vim.startswith(m.group, "Cobol") then
+            pcall(vim.fn.matchdelete, m.id, win)
+          end
+        end
+      end
       apply_namespace(win)
       -- Markdown windows drop the vertical cursor guide; the horizontal
       -- cursorline stays. cursorcolumn is global-local and nvim_win_set_buf
