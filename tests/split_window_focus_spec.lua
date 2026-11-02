@@ -3,6 +3,15 @@ vim.opt.runtimepath:prepend(root)
 
 local win_search = require("config.win_search")
 win_search.setup()
+
+-- hlslens incremental search must not re-enable global hlsearch: doing so
+-- bypasses the per-window matches below and highlights every split globally.
+local hlslens_path = vim.fn.expand("~/.local/share/nvim/lazy/nvim-hlslens")
+if vim.fn.isdirectory(hlslens_path) == 1 then
+  vim.opt.runtimepath:append(hlslens_path)
+  require("hlslens").setup({ enable_incsearch = false })
+end
+
 dofile(root .. "/lua/config/autocmds.lua")
 
 vim.opt.number = true
@@ -32,11 +41,21 @@ assert(vim.wo[w1].relativenumber == false, "Inactive window must have relativenu
 assert(vim.wo[w1].number == true, "Inactive window must retain absolute line numbers")
 
 -- Test 2: Window-local search isolation (A on left, B on right)
--- Window 1 searches for 'apple'
-win_search.set(w1, "apple")
+-- Exercise the real /pattern<CR> path so CmdlineLeave handlers run.
+local function search_in_window(win, pattern)
+  vim.api.nvim_set_current_win(win)
+  vim.api.nvim_feedkeys(
+    vim.api.nvim_replace_termcodes("/" .. pattern .. "<CR>", true, false, true),
+    "xt",
+    false
+  )
+  vim.wait(50)
+end
 
--- Window 2 searches for 'banana'
-win_search.set(w2, "banana")
+search_in_window(w1, "apple")
+assert(vim.o.hlsearch == false, "search must not re-enable global hlsearch")
+search_in_window(w2, "banana")
+assert(vim.o.hlsearch == false, "search in another split must not re-enable global hlsearch")
 
 -- Check that both windows have their own independent matches simultaneously!
 local m1 = vim.fn.getmatches(w1)

@@ -14,7 +14,10 @@ return {
   {
     "kevinhwang91/nvim-hlslens",
     event = "VeryLazy",
-    opts = {},
+    -- Window-local search owns / and ? highlighting. hlslens's incremental
+    -- search handler toggles global hlsearch back on when the command line exits,
+    -- which makes every split highlight every window's search pattern.
+    opts = { enable_incsearch = false },
     -- n/N are owned by config/keymaps-defaults.lua so fold-open (`zv`) and
     -- hlslens stay on one mapping. * / # / g* / g# still start the lens here.
     keys = {
