@@ -62,4 +62,19 @@ vim.api.nvim_exec_autocmds("BufWinLeave", { buffer = markdown, modeline = false 
 vim.wait(20, function() return vim.wo[mdwin].winhighlight == "" end, 5)
 assert(vim.wo[mdwin].winhighlight == "", "closing or leaving Markdown must not leak window overrides")
 assert(vim.deep_equal(vim.api.nvim_get_hl(0, { name = "Normal", link = false }), original), "global Blue Normal must remain intact")
+
+-- Regression: viewsplit.nvim must not clobber MarkdownTypographyDelek's
+-- window highlight namespace or winhighlight on redraw or split switch.
+local vs_path = vim.fn.expand("~/.local/share/nvim/lazy/viewsplit.nvim")
+if vim.fn.isdirectory(vs_path) == 1 then
+  vim.opt.runtimepath:prepend(vs_path)
+  require("viewsplit").setup({ search = true, selection = true, jumps = true, marks = true, scroll = true })
+  vim.api.nvim_win_set_buf(mdwin, markdown)
+  vim.api.nvim_exec_autocmds("BufEnter", { buffer = markdown, modeline = false })
+  vim.cmd("redraw!")
+  assert(vim.api.nvim_get_hl_ns({ winid = mdwin }) == typography.get_delek_namespace(),
+    "viewsplit redraw must preserve Markdown window highlight namespace")
+  assert(vim.wo[mdwin].winhighlight:find("Normal:MdTypographyNormal", 1, true),
+    "viewsplit redraw must preserve Markdown window Normal highlight")
+end
 print("markdown_typography_spec: OK")

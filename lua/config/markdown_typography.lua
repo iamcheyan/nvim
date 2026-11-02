@@ -198,6 +198,8 @@ function M.get_delek_namespace()
   vim.api.nvim_set_hl(shared_delek_ns, "@markup.heading.1", { fg = palette.magenta, bold = true })
   vim.api.nvim_set_hl(shared_delek_ns, "@markup.raw.block", { fg = palette.code_fg, bg = palette.code_bg })
   vim.api.nvim_set_hl(shared_delek_ns, "@markup.raw.inline", { fg = palette.dark_green, bg = palette.inline_bg })
+  vim.api.nvim_set_hl(shared_delek_ns, "ViewSplitSavedSelection", window_groups.MdTypographyVisual)
+  vim.api.nvim_set_hl(shared_delek_ns, "ViewSplitVisualHidden", {})
   return shared_delek_ns
 end
 
@@ -235,6 +237,9 @@ end
 local saved_cursorcolumn = {}
 
 function M.apply_window(win, buf)
+  if not M._ready then
+    M.setup()
+  end
   if not vim.api.nvim_win_is_valid(win) then
     return
   end
@@ -326,14 +331,27 @@ local function restore_window(win)
   if not vim.api.nvim_win_is_valid(win) or is_markdown(vim.api.nvim_win_get_buf(win)) then
     return
   end
+  local cur_hl = vim.wo[win].winhighlight or ""
+  local cur_ns = vim.api.nvim_get_hl_ns({ winid = win })
+  if saved_cursorcolumn[win] == nil and cur_ns ~= shared_delek_ns and not cur_hl:find("MdTypography", 1, true) then
+    return
+  end
   local prev = saved_cursorcolumn[win]
   if prev == nil then
     prev = vim.o.cursorcolumn
   end
   saved_cursorcolumn[win] = nil
   vim.api.nvim_set_option_value("cursorcolumn", prev, { scope = "local", win = win })
-  vim.api.nvim_win_set_hl_ns(win, 0)
-  vim.wo[win].winhighlight = ""
+  if cur_ns == shared_delek_ns then
+    vim.api.nvim_win_set_hl_ns(win, 0)
+  end
+  local kept = {}
+  for item in cur_hl:gmatch("[^,]+") do
+    if not item:find(":MdTypography", 1, true) then
+      kept[#kept + 1] = item
+    end
+  end
+  vim.wo[win].winhighlight = table.concat(kept, ",")
   M.sync_context_windows(win)
   restore_treesitter()
   vim.schedule(restore_treesitter)
@@ -500,8 +518,13 @@ function M.setup()
       end
     end,
   })
-  if vim.bo.filetype == "markdown" then
-    apply_to_markdown_windows(vim.api.nvim_get_current_buf())
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_is_valid(win) then
+      local buf = vim.api.nvim_win_get_buf(win)
+      if is_markdown(buf) then
+        M.apply_window(win, buf)
+      end
+    end
   end
 end
 

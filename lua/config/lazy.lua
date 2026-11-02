@@ -118,6 +118,12 @@ vim.api.nvim_create_autocmd("FileType", {
     require("config.markdown_typography").setup()
   end,
 })
+for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+  if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "markdown" then
+    require("config.markdown_typography").setup()
+    break
+  end
+end
 require("config.markdown_image_paste").setup()
 require("config.scrollbar_scroll").setup()
 require("config.autocmds")
