@@ -19,10 +19,13 @@ local function is_scrollbar_hover(mp)
       return true, cfg.win
     end
   end
-  -- 2. Is the mouse hovering on the rightmost column of an ordinary window?
+  -- 2. Is the mouse hovering on the rightmost column inside an ordinary window?
+  -- Exclude window separators (where mp.wincol == width + 1 or mp.line == 0).
   if cfg and cfg.relative == "" and not cfg.external then
     local width = vim.api.nvim_win_get_width(mp.winid)
-    if mp.wincol and mp.wincol >= width then
+    local height = vim.api.nvim_win_get_height(mp.winid)
+    if mp.wincol and mp.wincol == width and (mp.line or 0) > 0
+      and (mp.winrow or 0) >= 1 and (mp.winrow or 0) <= height then
       return true, mp.winid
     end
   end
@@ -41,6 +44,8 @@ local function scrollbar_jump(target_win, mp)
   local ratio = (row - 1) / math.max(1, winheight - 1)
   local target_line = math.max(1, math.min(line_count, math.floor(ratio * (line_count - 1) + 1)))
 
+  local cur_line = vim.api.nvim_win_get_cursor(target_win)[1]
+  if cur_line == target_line then return end
   vim.api.nvim_win_set_cursor(target_win, { target_line, 0 })
   vim.api.nvim_win_call(target_win, function()
     vim.cmd("normal! zz")
@@ -49,6 +54,7 @@ local function scrollbar_jump(target_win, mp)
   if ok_sat and sat.enabled() then
     sat.schedule_refresh()
   end
+  pcall(vim.cmd, "redraw")
 end
 
 local function scroll_win(direction)
@@ -90,6 +96,20 @@ end
 function M.setup()
   if M._namespace then return end
 
+  -- Ensure satellite's blocking <LeftMouse> mapping is removed if present
+  pcall(vim.keymap.del, { "n", "v", "o", "i" }, "<LeftMouse>")
+
+  -- Keep satellite scrollbars synced on WinResized (satellite only listens to WinScrolled/VimResized)
+  vim.api.nvim_create_autocmd("WinResized", {
+    group = vim.api.nvim_create_augroup("ScrollBarWinResizedSync", { clear = true }),
+    callback = function()
+      local ok_sat, sat = pcall(require, "satellite.view")
+      if ok_sat and sat.enabled and sat.enabled() and sat.refresh_bars then
+        pcall(sat.refresh_bars)
+      end
+    end,
+  })
+
   local kmopts = { silent = true }
   vim.keymap.set({ "n", "i", "v", "x" }, "<ScrollWheelDown>", function()
     local mouse=vim.fn.getmousepos()
@@ -126,26 +146,60 @@ function M.setup()
     [vim.api.nvim_replace_termcodes("<LeftRelease>", true, false, true)] = "release",
   }
 
-  vim.on_key(function(key)
-    local action = keycodes[key]
+  vim.on_key(function(key, typed)
+    local raw_key = (typed and typed ~= "") and typed or key
+    local action = keycodes[raw_key] or keycodes[key]
     if not action then return end
+    local split_drag = package.loaded["config.split_mouse_drag"]
+    if split_drag and split_drag.is_dragging and split_drag.is_dragging() then
+      M._dragging_win = nil
+      M._pending_jump_mp = nil
+      return
+    end
     local mp = vim.fn.getmousepos()
     if action == "press" then
       local is_bar, win = is_scrollbar_hover(mp)
       if is_bar then
         M._dragging_win = win
-        scrollbar_jump(win, mp)
+        M._press_col = mp.screencol
+        M._press_row = mp.screenrow
+        -- If this scrollbar is immediately adjacent to a split separator, defer the jump
+        -- until vertical drag or release so horizontal split dragging never jumps the buffer.
+        if split_drag and split_drag.find_separator and split_drag.find_separator(mp) then
+          M._pending_jump_mp = mp
+        else
+          M._pending_jump_mp = nil
+          scrollbar_jump(win, mp)
+        end
         return ""
       else
         M._dragging_win = nil
+        M._pending_jump_mp = nil
       end
     elseif action == "drag" and M._dragging_win then
+      if M._press_col and M._press_row and mp.screencol and mp.screenrow then
+        local dx = math.abs(mp.screencol - M._press_col)
+        local dy = math.abs(mp.screenrow - M._press_row)
+        if dx >= 1 and dx >= dy and split_drag and split_drag.is_dragging and split_drag.is_dragging() then
+          M._dragging_win = nil
+          M._pending_jump_mp = nil
+          return
+        end
+        if dy == 0 and dx == 0 then
+          return ""
+        end
+      end
+      M._pending_jump_mp = nil
       if vim.api.nvim_win_is_valid(M._dragging_win) then
         scrollbar_jump(M._dragging_win, mp)
         return ""
       end
     elseif action == "release" and M._dragging_win then
+      if M._pending_jump_mp and vim.api.nvim_win_is_valid(M._dragging_win) then
+        scrollbar_jump(M._dragging_win, M._pending_jump_mp)
+      end
       M._dragging_win = nil
+      M._pending_jump_mp = nil
       return ""
     end
   end, M._namespace)

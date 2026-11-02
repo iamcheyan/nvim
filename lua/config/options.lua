@@ -246,8 +246,11 @@ if vim.fn.exists("&mousemoveevent") == 1 then
 end
 require("config.context_menu").setup()
 require("config.float_style").setup()
+require("config.win_search").setup()
+require("config.split_mouse_drag").setup()
 vim.opt.number = true
 vim.opt.relativenumber = true
+vim.opt.numberwidth = 2
 vim.opt.cursorline = true
 vim.opt.cursorcolumn = false
 vim.opt.splitbelow = true
@@ -272,7 +275,7 @@ if vim.fn.exists("&cmdheight") == 1 then
 end
 
 vim.opt.incsearch = true
-vim.opt.hlsearch = true
+vim.opt.hlsearch = false
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
@@ -390,7 +393,7 @@ filetype_patterns[ci_pattern("env")] = { "env", { priority = -1 } }
 
 vim.filetype.add({ pattern = filetype_patterns })
 
-vim.opt.signcolumn = "yes"
+vim.opt.signcolumn = "auto"
 
 local diagnostic_signs = true
 if vim.g.have_nerd_font then

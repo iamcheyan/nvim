@@ -84,3 +84,63 @@ vim.api.nvim_create_autocmd("SwapExists", {
     vim.v.swapchoice = "e"
   end,
 })
+
+-- Window-isolated focus behaviors:
+-- When a file is split into multiple windows, each split behaves like an
+-- independent viewport. Inactive splits hide cursorline and switch to absolute
+-- line numbers so the active window is immediately visually distinct.
+local function is_standard_window(win)
+  if not win or not vim.api.nvim_win_is_valid(win) then
+    return false
+  end
+  local config = vim.api.nvim_win_get_config(win)
+  if config.relative and config.relative ~= "" then
+    return false
+  end
+  local buf = vim.api.nvim_win_get_buf(win)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return false
+  end
+  local buftype = vim.bo[buf].buftype
+  if buftype == "nofile" or buftype == "terminal" or buftype == "prompt" or buftype == "quickfix" then
+    return false
+  end
+  local filetype = vim.bo[buf].filetype
+  if filetype == "dashboard" or filetype == "neo-tree" or filetype == "Trouble" then
+    return false
+  end
+  return true
+end
+
+local function update_split_focus()
+  local curwin = vim.api.nvim_get_current_win()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if is_standard_window(win) and not vim.wo[win].diff then
+      local is_active = (win == curwin)
+      vim.wo[win].cursorline = is_active
+      if vim.wo[win].number then
+        vim.wo[win].relativenumber = is_active
+      end
+    end
+  end
+end
+
+local split_focus_group = vim.api.nvim_create_augroup("SplitWindowFocus", { clear = true })
+
+vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter", "FocusGained", "WinNew" }, {
+  group = split_focus_group,
+  callback = update_split_focus,
+})
+
+vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave", "FocusLost" }, {
+  group = split_focus_group,
+  callback = function()
+    local win = vim.api.nvim_get_current_win()
+    if is_standard_window(win) and not vim.wo[win].diff then
+      vim.wo[win].cursorline = false
+      if vim.wo[win].number then
+        vim.wo[win].relativenumber = false
+      end
+    end
+  end,
+})

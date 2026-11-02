@@ -22,7 +22,12 @@ return {
         "*",
         function()
           pcall(vim.cmd, "normal! *")
-          require("hlslens").start()
+          pcall(function()
+            require("config.win_search").set(vim.api.nvim_get_current_win(), vim.fn.getreg("/"))
+          end)
+          pcall(function()
+            require("hlslens").start()
+          end)
         end,
         desc = "Search Word Forward",
       },
@@ -30,7 +35,12 @@ return {
         "#",
         function()
           pcall(vim.cmd, "normal! #")
-          require("hlslens").start()
+          pcall(function()
+            require("config.win_search").set(vim.api.nvim_get_current_win(), vim.fn.getreg("/"))
+          end)
+          pcall(function()
+            require("hlslens").start()
+          end)
         end,
         desc = "Search Word Backward",
       },
@@ -38,7 +48,12 @@ return {
         "g*",
         function()
           pcall(vim.cmd, "normal! g*")
-          require("hlslens").start()
+          pcall(function()
+            require("config.win_search").set(vim.api.nvim_get_current_win(), vim.fn.getreg("/"))
+          end)
+          pcall(function()
+            require("hlslens").start()
+          end)
         end,
         desc = "Search Partial Word Forward",
       },
@@ -46,7 +61,12 @@ return {
         "g#",
         function()
           pcall(vim.cmd, "normal! g#")
-          require("hlslens").start()
+          pcall(function()
+            require("config.win_search").set(vim.api.nvim_get_current_win(), vim.fn.getreg("/"))
+          end)
+          pcall(function()
+            require("hlslens").start()
+          end)
         end,
         desc = "Search Partial Word Backward",
       },

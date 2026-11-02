@@ -278,13 +278,7 @@ return {
         img_dirs = { "assets", "img", "images", "static", "media", "attachments" },
       },
       statuscolumn = {
-        enabled = true,
-        left = { "mark", "sign" },
-        right = { "fold", "git" },
-        folds = {
-          open = true, -- 显示已展开的代码折叠三角图标 
-          git_hl = false,
-        },
+        enabled = false,
       },
       notifier = {
         icons = {

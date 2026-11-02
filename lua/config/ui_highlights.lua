@@ -578,13 +578,10 @@ function M.apply()
     })
   end
   local split_bg = normal.bg
-  if split_bg then
-    -- Hide split glyphs against the editor surface so pane boundaries do not
-    -- draw a contrasting line through the background.
-    set(0, "WinSeparator", { fg = split_bg, bg = split_bg })
-    set(0, "VertSplit", { fg = split_bg, bg = split_bg })
-    set(0, "NeoTreeWinSeparator", { fg = split_bg, bg = split_bg })
-  end
+  local split_fg = (p and (p.win_separator_fg or p.split_separator_fg or p.separator_fg)) or (comment and comment.fg) or "#5f87af"
+  set(0, "WinSeparator", { fg = split_fg, bg = "NONE" })
+  set(0, "VertSplit", { fg = split_fg, bg = "NONE" })
+  set(0, "NeoTreeWinSeparator", { fg = split_fg, bg = "NONE" })
   if normal.bg then
     local muted_fg = comment.fg or normal.fg
     set(0, "NeoTreeMessage", { fg = muted_fg, bg = "NONE", italic = true })

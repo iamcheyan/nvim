@@ -83,6 +83,9 @@ map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 ------------------- Clear search on escape -----------------------------------
 map({ "i", "n", "s" }, "<esc>", function()
   vim.cmd("noh")
+  pcall(function()
+    require("config.win_search").clear(vim.api.nvim_get_current_win())
+  end)
   -- Noice's bottom popup is independent of the native command line. Hide
   -- messages after this expression mapping finishes (outside textlock).
   if package.loaded.noice then
@@ -94,7 +97,14 @@ map({ "i", "n", "s" }, "<esc>", function()
 end, { expr = true, desc = "Escape and Clear messages/hlsearch" })
 
 ------------------- Redraw / Clear hlsearch / Diff Update --------------------
-map("n", "<leader>ur", "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>", { desc = "Redraw / Clear hlsearch / Diff Update" })
+map("n", "<leader>ur", function()
+  vim.cmd("nohlsearch")
+  pcall(function()
+    require("config.win_search").clear(vim.api.nvim_get_current_win())
+  end)
+  vim.cmd("diffupdate")
+  vim.cmd("normal! \x0c")
+end, { desc = "Redraw / Clear hlsearch / Diff Update" })
 
 ------------------- saner n/N ------------------------------------------------
 local function search_key(forward)
@@ -107,12 +117,19 @@ end
 
 local function search_result(forward, open_fold)
   return function()
+    local win = vim.api.nvim_get_current_win()
+    pcall(function()
+      require("config.win_search").restore_reg(win)
+    end)
     local key = search_key(forward)
     local ok, err = pcall(vim.cmd.normal, { args = { open_fold and (key .. "zv") or key }, bang = true })
     if not ok and not tostring(err):match("E486:") then error(err) end
     if ok and open_fold then
       pcall(function()
         require("hlslens").start()
+      end)
+      pcall(function()
+        require("config.win_search").update_prompt(win)
       end)
     end
   end

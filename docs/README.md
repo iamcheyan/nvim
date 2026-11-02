@@ -27,6 +27,7 @@ Neovim 的说明文档按用途集中放在 `config/nvim/docs/`。配置源文�
 
 ## 使用指南
 
+- [分屏独立浏览与窗口级独立搜索](guides/WINDOW-LOCAL-SEARCH.md)：分屏多开同一文件时的行为隔离、窗口专属高亮与左右对照搜索。
 - [新建文件、文件条与配置重载](guides/FILES-TABS-AND-RELOAD.md)：默认文件名、tab 布局入口和定向重载命令。
 - [Markdown 阅读主题](guides/MARKDOWN-TYPOGRAPHY.md)：Markdown 窗口的排版和配色。
 - [Markdown 图片预览与粘贴](guides/MARKDOWN-IMAGES.md)：Markview、Snacks image、剪贴板图片归档和 Markdown 引用的实现说明。

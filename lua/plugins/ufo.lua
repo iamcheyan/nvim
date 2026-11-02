@@ -43,7 +43,7 @@ return {
       },
     },
     config = function(_, opts)
-      vim.o.foldcolumn = "1"
+      vim.o.foldcolumn = "0"
       -- Merge fold glyphs into the fillchars set in options.lua. Assigning the
       -- whole option would drop vert/horiz.
       vim.opt.fillchars:append({
