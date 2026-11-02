@@ -6,9 +6,9 @@ return {
       search = true,
       selection = true,
       folds = false,
-      jumps = false,
-      marks = false,
-      scroll = false,
+      jumps = true,
+      marks = true,
+      scroll = true,
     },
   },
 }

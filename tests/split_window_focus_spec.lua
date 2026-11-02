@@ -87,4 +87,23 @@ win_search.clear(w2)
 assert(#vim.fn.getmatches(w2) == 0, "w2 match should be cleared")
 assert(#vim.fn.getmatches(w1) == 1, "w1 match must still remain active")
 
+-- Test 5: With viewsplit.nvim loaded, win_search and viewsplit must not create duplicate matches
+local vs_path = vim.fn.expand("~/.local/share/nvim/lazy/viewsplit.nvim")
+if vim.fn.isdirectory(vs_path) == 1 then
+  vim.opt.runtimepath:prepend(vs_path)
+  local viewsplit = require("viewsplit")
+  viewsplit.setup({ search = true, selection = true, jumps = true, marks = true, scroll = true })
+
+  search_in_window(w1, "apple")
+  search_in_window(w2, "banana")
+  assert(#vim.fn.getmatches(w1) == 1 and vim.fn.getmatches(w1)[1].pattern == "apple",
+    "w1 must have exactly 1 match when both win_search and viewsplit are active")
+  assert(#vim.fn.getmatches(w2) == 1 and vim.fn.getmatches(w2)[1].pattern == "banana",
+    "w2 must have exactly 1 match when both win_search and viewsplit are active")
+
+  win_search.clear(w1)
+  assert(#vim.fn.getmatches(w1) == 0, "win_search.clear(w1) must clear viewsplit match completely")
+  assert(#vim.fn.getmatches(w2) == 1, "w2 match must remain intact")
+end
+
 print("split_window_focus_spec: OK")

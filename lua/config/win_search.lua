@@ -7,10 +7,19 @@ local function refresh_scrollbar()
   end
 end
 
+local function vs()
+  return package.loaded["viewsplit"]
+end
+
 --- Clear search match for a window
 ---@param win integer
 function M.clear(win)
   if not win or not vim.api.nvim_win_is_valid(win) then
+    return
+  end
+  local v = vs()
+  if v and v.clear_search then
+    v.clear_search(win)
     return
   end
   local id = vim.w[win].win_search_id
@@ -35,6 +44,11 @@ function M.set(win, pattern)
   if not win or not vim.api.nvim_win_is_valid(win) then
     return
   end
+  local v = vs()
+  if v and v.set_search then
+    v.set_search(win, pattern)
+    return
+  end
   M.clear(win)
   if not pattern or pattern == "" then
     return
@@ -57,6 +71,11 @@ function M.get(win)
   if not win or not vim.api.nvim_win_is_valid(win) then
     return nil
   end
+  local v = vs()
+  if v and v.get_search then
+    local pat = v.get_search(win)
+    if pat then return pat end
+  end
   return vim.w[win].win_search_pattern
 end
 
@@ -64,6 +83,11 @@ end
 ---@param win integer
 function M.restore_reg(win)
   if not win or not vim.api.nvim_win_is_valid(win) then
+    return
+  end
+  local v = vs()
+  if v and v.restore_search_reg then
+    v.restore_search_reg(win)
     return
   end
   local pattern = vim.w[win].win_search_pattern
@@ -80,6 +104,11 @@ end
 ---@param win integer
 function M.update_prompt(win)
   if not win or not vim.api.nvim_win_is_valid(win) then
+    return
+  end
+  local v = vs()
+  if v and v.update_search_prompt then
+    v.update_search_prompt(win)
     return
   end
   local pattern = vim.w[win].win_search_pattern
@@ -140,6 +169,7 @@ function M.setup()
   vim.api.nvim_create_autocmd("CmdlineLeave", {
     group = group,
     callback = function()
+      if vs() then return end
       local ev = vim.v.event
       if not ev.abort and (ev.cmdtype == "/" or ev.cmdtype == "?") then
         local win = vim.api.nvim_get_current_win()
@@ -158,6 +188,7 @@ function M.setup()
   vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter", "FocusGained" }, {
     group = group,
     callback = function()
+      if vs() then return end
       local win = vim.api.nvim_get_current_win()
       M.clean_winhl(win)
       M.restore_reg(win)

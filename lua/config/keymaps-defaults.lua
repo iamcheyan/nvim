@@ -50,10 +50,10 @@ map("n", "<leader>,", function() Snacks.picker.pick("buffers") end, { desc = "Sw
 map("n", "<leader>?", function() Snacks.picker.pick("help") end, { desc = "Help" })
 
 ------------------- Move to window using <ctrl> hjkl -------------------------
-map("n", "<C-h>", "<C-w>h", { desc = "Go to Left Window", remap = true })
-map("n", "<C-j>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
-map("n", "<C-k>", "<C-w>k", { desc = "Go to Upper Window", remap = true })
-map("n", "<C-l>", "<C-w>l", { desc = "Go to Right Window", remap = true })
+map({ "n", "x" }, "<C-h>", "<C-w>h", { desc = "Go to Left Window", remap = true })
+map({ "n", "x" }, "<C-j>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
+map({ "n", "x" }, "<C-k>", "<C-w>k", { desc = "Go to Upper Window", remap = true })
+map({ "n", "x" }, "<C-l>", "<C-w>l", { desc = "Go to Right Window", remap = true })
 
 ------------------- Resize window using <ctrl> arrow keys --------------------
 map("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase Window Height" })
@@ -82,9 +82,14 @@ map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 
 ------------------- Clear search on escape -----------------------------------
 map({ "i", "n", "s" }, "<esc>", function()
+  local mode = vim.api.nvim_get_mode().mode
   vim.cmd("noh")
   pcall(function()
-    require("config.win_search").clear(vim.api.nvim_get_current_win())
+    local win = vim.api.nvim_get_current_win()
+    require("config.win_search").clear(win)
+    if mode == "n" and package.loaded["viewsplit"] and package.loaded["viewsplit"].clear_selection then
+      package.loaded["viewsplit"].clear_selection(win)
+    end
   end)
   -- Noice's bottom popup is independent of the native command line. Hide
   -- messages after this expression mapping finishes (outside textlock).
@@ -100,7 +105,11 @@ end, { expr = true, desc = "Escape and Clear messages/hlsearch" })
 map("n", "<leader>ur", function()
   vim.cmd("nohlsearch")
   pcall(function()
-    require("config.win_search").clear(vim.api.nvim_get_current_win())
+    local win = vim.api.nvim_get_current_win()
+    require("config.win_search").clear(win)
+    if package.loaded["viewsplit"] and package.loaded["viewsplit"].clear_selection then
+      package.loaded["viewsplit"].clear_selection(win)
+    end
   end)
   vim.cmd("diffupdate")
   vim.cmd("normal! \x0c")
