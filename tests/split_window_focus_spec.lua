@@ -101,7 +101,14 @@ if vim.fn.isdirectory(vs_path) == 1 then
   assert(#vim.fn.getmatches(w2) == 1 and vim.fn.getmatches(w2)[1].pattern == "banana",
     "w2 must have exactly 1 match when both win_search and viewsplit are active")
 
+  local l1 = viewsplit.lens_info(w1)
+  local l2 = viewsplit.lens_info(w2)
+  assert(l1 and l1.cnt == 3 and l1.text:find("/3]", 1, true), "w1 must render its own hlslens match count")
+  assert(l2 and l2.cnt == 3 and l2.text:find("/3]", 1, true), "w2 must render its own hlslens match count")
+
   win_search.clear(w1)
+  assert(viewsplit.lens_info(w1) == nil, "clearing w1 must also clear w1's search lens")
+  assert(viewsplit.lens_info(w2) ~= nil, "w2's search lens must remain active")
   assert(#vim.fn.getmatches(w1) == 0, "win_search.clear(w1) must clear viewsplit match completely")
   assert(#vim.fn.getmatches(w2) == 1, "w2 match must remain intact")
 
