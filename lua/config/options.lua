@@ -282,7 +282,15 @@ vim.opt.smartcase = true
 -- 告诉 Neovim 自动尝试这些编码
 -- UTF-8 first. cp932/euc-jp were tried after a UTF-8 failure and could
 -- reopen a damaged file as Japanese and save it back wrong.
-vim.opt.fileencodings = "ucs-bom,utf-8,default,latin1"
+vim.opt.fileencodings = {
+  "ucs-bom",
+  "utf-8",
+  "cp932",
+  "euc-jp",
+  "iso-2022-jp",
+  "default",
+  "latin1",
+}
 
 -- ── Case-insensitive extension detection ──
 -- Neovim registers each extension with the exact spelling used in its own
