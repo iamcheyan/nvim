@@ -4,7 +4,7 @@ return {
     main = "viewsplit",
     opts = {
       search = true,
-      selection = false,
+      selection = true,
       folds = false,
       jumps = false,
       marks = false,
