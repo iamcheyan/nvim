@@ -104,6 +104,10 @@ if vim.fn.isdirectory(vs_path) == 1 then
   win_search.clear(w1)
   assert(#vim.fn.getmatches(w1) == 0, "win_search.clear(w1) must clear viewsplit match completely")
   assert(#vim.fn.getmatches(w2) == 1, "w2 match must remain intact")
+
+  -- Regression: session restore (`set hlsearch`) must not re-enable global hlsearch
+  vim.cmd("set hlsearch")
+  assert(vim.o.hlsearch == false, "global hlsearch must stay disabled even if session script runs set hlsearch")
 end
 
 print("split_window_focus_spec: OK")

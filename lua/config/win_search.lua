@@ -165,6 +165,23 @@ function M.setup()
 
   local group = vim.api.nvim_create_augroup("WindowLocalSearch", { clear = true })
 
+  vim.api.nvim_create_autocmd("SessionLoadPost", {
+    group = group,
+    callback = function()
+      vim.opt.hlsearch = false
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("OptionSet", {
+    group = group,
+    pattern = "hlsearch",
+    callback = function()
+      if vim.o.hlsearch then
+        vim.opt.hlsearch = false
+      end
+    end,
+  })
+
   -- When a search is submitted via / or ?, attach highlight locally to the active window
   vim.api.nvim_create_autocmd("CmdlineLeave", {
     group = group,

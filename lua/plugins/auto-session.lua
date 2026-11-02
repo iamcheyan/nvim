@@ -310,6 +310,7 @@ return {
       vim.api.nvim_create_autocmd("User", {
         pattern = "SessionLoadPost",
         callback = function()
+          vim.opt.hlsearch = false
           vim.opt.cursorcolumn = false
           for _, win in ipairs(vim.api.nvim_list_wins()) do
             if vim.api.nvim_win_is_valid(win) then
