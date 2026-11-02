@@ -1,7 +1,7 @@
 return {
   {
     "iamcheyan/viewsplit.nvim",
-    main = "main",
+    main = "viewsplit",
     opts = {
       search = true,
       selection = false,
