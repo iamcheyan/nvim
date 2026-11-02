@@ -261,8 +261,9 @@ local function tab_palette()
     local surface_bg = to_rgb(fresh.tab_inactive_bg)
     local surface_fg = to_rgb(fresh.tab_inactive_fg)
     local separator_bg = to_rgb(fresh.tab_separator_bg)
-    local active_bg = to_rgb(fresh.tab_active_bg)
+    local active_bg = 0xffffff
     local active_fg = to_rgb(fresh.tab_active_fg)
+    local topbar_bg = to_rgb(fresh.tab_active_bg)
     return {
       normal_fg = to_rgb(fresh.editor_fg),
       normal_bg = normal_bg,
@@ -277,9 +278,10 @@ local function tab_palette()
       scrollbar_bg = theme_scrollbar_accent,
       scrollbar_misc_fg = normal_fg,
       scrollbar_misc_bg = normal_bg,
-      -- Match the context bar to the corresponding active/inactive buffer tab.
+      -- Keep the context bar (WinBar) on the gray surface while the active
+      -- buffer tab uses pure white (#ffffff).
       winbar_fg = active_fg,
-      winbar_bg = active_bg,
+      winbar_bg = topbar_bg,
       winbar_nc_fg = surface_fg,
       winbar_nc_bg = surface_bg,
       top_bold = false,
@@ -594,7 +596,7 @@ function M.apply()
   if nostalgia then
     set(0, "TabLine", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })
     set(0, "TabLineFill", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })
-    set(0, "TabLineSel", { fg = nostalgia.tab_active_fg, bg = nostalgia.tab_active_bg, bold = false })
+    set(0, "TabLineSel", { fg = nostalgia.tab_active_fg, bg = "#ffffff", bold = false })
     set(0, "FreshStatusLineNormal", M.fresh_normal_style())
     set(0, "FreshStatusLineAccent", {
       fg = nostalgia.status_palette_fg,

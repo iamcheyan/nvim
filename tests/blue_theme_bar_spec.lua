@@ -39,7 +39,7 @@ local fresh = ui.nostalgia_palette()
 local fresh_rgb = ui.to_rgb
 local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
 assert(tabs.fill.bg == fresh_rgb(fresh.tab_separator_bg), "top-bar fill should use Fresh Nostalgia blue")
-assert(tabs.buffer_selected.bg == fresh_rgb(fresh.tab_active_bg), "selected tab should use Fresh Nostalgia gray")
+assert(tabs.buffer_selected.bg == 0xffffff, "selected tab should use pure white")
 assert(tabs.fill.bg ~= normal.bg, "top-bar fill should remain distinct from the document background")
 for _, name in ipairs({ "fill", "buffer", "buffer_visible", "buffer_selected" }) do
   readable("BufferLine " .. name, tabs[name].fg, tabs[name].bg)
