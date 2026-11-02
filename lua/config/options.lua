@@ -173,7 +173,7 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-vim.opt.clipboard = "unnamedplus"
+vim.opt.clipboard = ""
 
 -- 多设备跨平台剪贴板智能适配：
 -- 优先级：本地 Wayland (wl-copy) -> macOS (pbcopy) -> WSL (win32yank) -> X11 (xclip) -> tmux -> 终端 OSC 52 (降级兜底)
