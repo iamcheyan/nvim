@@ -260,7 +260,7 @@ function M.get_symbols(buf, win, cursor, layout)
       local count = #vim.diagnostic.get(buf, {severity=severity})
       if count > 0 then
         result[#result+1] = require('dropbar.bar').dropbar_symbol_t:new({
-          name=(severity == vim.diagnostic.severity.ERROR and '  ' or '  ') .. count .. ' ',
+          name=(severity == vim.diagnostic.severity.ERROR and '  ' or '  ') .. count .. ' ',
           icon='', name_hl=severity == vim.diagnostic.severity.ERROR and 'DropBarContextErrorBadge' or 'DropBarContextWarningBadge',
           data={diagnostic=true},
           on_click=function()
@@ -391,10 +391,16 @@ function M.highlights()
   local bar_nc_ctermfg=winbar_nc.ctermfg or bar_ctermfg
   for _,name in ipairs({'DropBarContextText','DropBarContextIcon','DropBarKindDir','DropBarKindFile',
     'DropBarIconUISeparator','DropBarIconUIIndicator'}) do
-    set(0,name,{fg=bar_fg,ctermfg=bar_ctermfg})
+    set(0,name,{fg=bar_fg,ctermfg=bar_ctermfg,bold=false})
   end
   for _,name in ipairs({'DropBarKindDirNC','DropBarKindFileNC','DropBarIconUISeparatorNC'}) do
-    set(0,name,{fg=bar_nc_fg,ctermfg=bar_nc_ctermfg})
+    set(0,name,{fg=bar_nc_fg,ctermfg=bar_nc_ctermfg,bold=false})
+  end
+  for _,name in ipairs({'DropBarIconKindFolder','DropBarIconKindFile'}) do
+    set(0,name,{fg=bar_fg,ctermfg=bar_ctermfg,bold=false})
+  end
+  for _,name in ipairs({'DropBarIconKindFolderNC','DropBarIconKindFileNC'}) do
+    set(0,name,{fg=bar_nc_fg,ctermfg=bar_nc_ctermfg,bold=false})
   end
   local menu_text=vim.api.nvim_get_hl(0,{name='FreshMenu',link=false})
   set(0,'DropBarMenuText',{fg=menu_text.fg,ctermfg=menu_text.ctermfg})

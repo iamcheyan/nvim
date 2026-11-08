@@ -49,12 +49,12 @@ local window_groups = {
   StatusLine = { fg = 0, bg = 15000804 },
   StatusLineNC = { fg = 12369084, bg = 16777215 },
   CursorColumn = delek["CursorColumn"] or { bg = 15000804, ctermbg = 254 },
-  WinBar = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
-  WinBarNC = delek["WinBarNC"] or { fg = 8947848, bg = 16777215, bold = true },
-  ContextlineText = delek["WinBar"] or { fg = 0, bg = 16777215 },
-  ContextlineActiveMenu = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
-  ContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = true },
-  ContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = true },
+  WinBar = { fg = 0, bg = 16777215, bold = false },
+  WinBarNC = { fg = 8947848, bg = 16777215, bold = false },
+  ContextlineText = { fg = 0, bg = 16777215, bold = false },
+  ContextlineActiveMenu = { fg = 0, bg = 16777215, bold = false },
+  ContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = false },
+  ContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = false },
   TreesitterContext = { fg = 0, bg = 16119285, ctermfg = 16, ctermbg = 255 },
   TreesitterContextLineNumber = { fg = 10824234, bg = 16119285, ctermfg = 124, ctermbg = 255 },
   TreesitterContextBottom = { bg = 16119285, underline = true, sp = 12369084, ctermbg = 255 },
@@ -76,12 +76,12 @@ local window_groups = {
   MdTypographyWinSeparator = { fg = 12369084, bg = 16777215 },
   MdTypographyStatusLine = { fg = 0, bg = 15000804 },
   MdTypographyStatusLineNC = { fg = 12369084, bg = 16777215 },
-  MdTypographyWinBar = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
-  MdTypographyWinBarNC = delek["WinBarNC"] or { fg = 8947848, bg = 16777215, bold = true },
-  MdTypographyContextlineText = delek["WinBar"] or { fg = 0, bg = 16777215 },
-  MdTypographyContextlineActiveMenu = delek["WinBar"] or { fg = 0, bg = 16777215, bold = true },
-  MdTypographyContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = true },
-  MdTypographyContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = true },
+  MdTypographyWinBar = { fg = 0, bg = 16777215, bold = false },
+  MdTypographyWinBarNC = { fg = 8947848, bg = 16777215, bold = false },
+  MdTypographyContextlineText = { fg = 0, bg = 16777215, bold = false },
+  MdTypographyContextlineActiveMenu = { fg = 0, bg = 16777215, bold = false },
+  MdTypographyContextlineErrorBadge = { fg = 13382451, bg = 16777215, bold = false },
+  MdTypographyContextlineWarningBadge = { fg = 13408512, bg = 16777215, bold = false },
   MdTypographyTreesitterContext = { fg = 0, bg = 16119285, ctermfg = 16, ctermbg = 255 },
   MdTypographyTreesitterContextLineNumber = { fg = 10824234, bg = 16119285, ctermfg = 124, ctermbg = 255 },
   MdTypographyTreesitterContextBottom = { bg = 16119285, underline = true, sp = 12369084, ctermbg = 255 },
@@ -120,6 +120,9 @@ local function resolve_window_groups()
   local winbar_nc = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
   if not winbar.bg then winbar = vim.deepcopy(delek["WinBar"] or window_groups.WinBar) end
   if not winbar_nc.bg then winbar_nc = vim.deepcopy(delek["WinBarNC"] or window_groups.WinBarNC) end
+
+  winbar.bold = false
+  winbar_nc.bold = false
 
   resolved.WinBar = vim.deepcopy(winbar)
   resolved.WinBarNC = vim.deepcopy(winbar_nc)

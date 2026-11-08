@@ -182,7 +182,7 @@ function M.load()
   set("ModeMsg", { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = true })
   set("WarningMsg", { fg = p.diag_warning_fg, bold = true })
   set("ErrorMsg", { fg = p.diag_error_fg, bold = true })
-  set("Directory", { fg = p.keyword, bold = true })
+  set("Directory", { fg = p.keyword, bold = false })
   set("Title", { fg = p.func, bold = true })
 
   -----------------------------------------------------------------------------
@@ -385,15 +385,15 @@ function M.load()
   -- remain visually distinct without exposing BufferLine-specific groups.
   set("TabLine", { fg = p.inactive_cursor, bg = p.tab_inactive_surface_bg })
   set("TabLineFill", { fg = p.inactive_cursor, bg = p.tab_inactive_surface_bg })
-  set("TabLineSel", { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true })
+  set("TabLineSel", { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = false })
 
   -----------------------------------------------------------------------------
   -- 8. Heirline / Statusline / WinBar
   -----------------------------------------------------------------------------
   set("StatusLine", { fg = p.status_bar_fg, bg = p.status_bar_bg })
   set("StatusLineNC", { fg = p.inactive_cursor, bg = p.status_bar_bg })
-  set("WinBar", { fg = p.fg, bg = p.tab_hover_bg })
-  set("WinBarNC", { fg = p.inactive_cursor, bg = p.tab_hover_bg })
+  set("WinBar", { fg = p.fg, bg = p.tab_hover_bg, bold = false })
+  set("WinBarNC", { fg = p.inactive_cursor, bg = p.tab_hover_bg, bold = false })
   set("MsgArea", { fg = p.fg, bg = p.menu_dropdown_bg })
   set("Cmdline", { fg = p.fg, bg = p.menu_dropdown_bg })
 
@@ -403,7 +403,7 @@ function M.load()
   set("NeoTreeNormal", { fg = p.fg, bg = p.bg })
   set("NeoTreeNormalNC", { fg = p.fg, bg = p.bg })
   set("NeoTreeWinSeparator", { fg = p.win_separator_fg, bg = p.bg })
-  set("NeoTreeRootName", { fg = p.popup_border_fg, bg = p.bg, bold = true })
+  set("NeoTreeRootName", { fg = p.popup_border_fg, bg = p.bg, bold = false })
   set("NeoTreeDirectoryName", { fg = p.fg, bg = "NONE" })
   set("NeoTreeMessage", { fg = p.comment, bg = "NONE", italic = true })
   set("NeoTreeDimText", { fg = p.comment, bg = "NONE", italic = true })

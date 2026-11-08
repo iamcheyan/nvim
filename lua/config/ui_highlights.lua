@@ -336,7 +336,7 @@ local function tab_palette()
     scrollbar_bg = title_surfaces.scrollbar_bg or active_bg,
     winbar_fg = winbar_fg,
     winbar_bg = winbar_bg,
-    top_bold = true,
+    top_bold = false,
   }
 end
 
@@ -664,8 +664,8 @@ function M.apply()
 
   -- The path and metadata bar should read as a UI surface, not disappear
   -- into the editor background.  The colors still come from the active theme.
-  set(0, "WinBar", { fg = p.winbar_fg, bg = p.winbar_bg })
-  set(0, "WinBarNC", { fg = p.winbar_fg, bg = p.winbar_bg })
+  set(0, "WinBar", { fg = p.winbar_fg, bg = p.winbar_bg, bold = false })
+  set(0, "WinBarNC", { fg = p.winbar_fg, bg = p.winbar_bg, bold = false })
 
   -- Source tabs use exactly the same styles as file tabs, including theme changes.
   set(0, "NeoTreeTabInactive", { link = "BufferLineBuffer" })
@@ -727,14 +727,13 @@ function M.apply()
     set(0, "Scrollbar" .. mark .. "Handle", { fg = p.scrollbar_bg, bg = p.scrollbar_bg })
   end
 
-  -- Diagnostic sign badges in gutter (statuscolumn):
-  -- High-contrast solid badge styling makes errors and warnings immediately prominent
-  -- across all themes (blue, dark, paper).
-  set(0, "DiagnosticSignError", { fg = "#ffffff", bg = "#cc1100", bold = true, ctermfg = 15, ctermbg = 1 })
-  set(0, "DiagnosticSignWarn",  { fg = "#000000", bg = "#f59e0b", bold = true, ctermfg = 0,  ctermbg = 3 })
-  set(0, "DiagnosticSignInfo",  { fg = "#ffffff", bg = "#0284c7", bold = true, ctermfg = 15, ctermbg = 4 })
-  set(0, "DiagnosticSignHint",  { fg = "#ffffff", bg = "#16a34a", bold = true, ctermfg = 15, ctermbg = 2 })
-  set(0, "DiagnosticSignOk",    { fg = "#ffffff", bg = "#059669", bold = true, ctermfg = 15, ctermbg = 10 })
+  -- Diagnostic signs in gutter (statuscolumn):
+  -- Clean, refined circular glyphs matching theme colors without heavy square cell backgrounds.
+  set(0, "DiagnosticSignError", { link = "DiagnosticError" })
+  set(0, "DiagnosticSignWarn",  { link = "DiagnosticWarn" })
+  set(0, "DiagnosticSignInfo",  { link = "DiagnosticInfo" })
+  set(0, "DiagnosticSignHint",  { link = "DiagnosticHint" })
+  set(0, "DiagnosticSignOk",    { link = "DiagnosticOk" })
 
   for _, group in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
     if group:match("Selected$") then

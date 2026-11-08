@@ -60,7 +60,7 @@
 `snacks.statuscolumn` 负责紧凑高效地渲染缓冲区左侧区域（标记、行号、折叠和 Git 改动）：
 
 - **左侧标记区**：`left = { "mark", "sign" }`，展示用户 Mark 与 LSP 诊断标记（`E` / `W` / `I` / `H`）。
-- **实心高对比徽章**：配合全局高亮组 `DiagnosticSignError` / `DiagnosticSignWarn`，将原本单薄的纯文字字符升级为醒目的红底白字（`E `）或琥珀橙底黑字（`W `）实心徽章，多主题下均保证极高辨识度。
+- **正圆矢量指示符**：配合全局高亮组 `DiagnosticSignError` / `DiagnosticSignWarn`，采用统一几何正圆 Nerd Font 图标（`` / `` / `` / ``），告别粗糙方形底色块，在多主题下均保证居中、精致与极高辨识度。
 - **右侧折叠与 Git 区**：`right = { "fold", "git" }`，展示代码折叠三角（``）及 Git 变更条。
 
 ### 文件查找器置顶与已打开缓冲区指示
