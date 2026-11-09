@@ -18,6 +18,7 @@
 <leader>K	n	Keywordprg
 <leader>N	n	New File (Default Name)
 <leader>`	n	Switch to Other Buffer
+<leader>aK	n	AWS ACM
 <leader>aa	n	AWS service picker
 <leader>ac	n	AWS CloudFormation
 <leader>ad	n	AWS DynamoDB
@@ -25,7 +26,7 @@
 <leader>af	n	AWS CloudFront
 <leader>ag	n	AWS API Gateway
 <leader>ai	n	AWS IAM
-<leader>ak	n	AWS ACM
+<leader>ak	n	AWS KMS
 <leader>al	n	AWS Lambda
 <leader>am	n	AWS Secrets Manager
 <leader>as	n	AWS S3
@@ -110,6 +111,12 @@
 <leader>qs	n	VimQuest start
 <leader>qt	n	VimQuest tasks
 <leader>qw	n	VimQuest words drill
+<leader>rd	n	AWS download current resource
+<leader>ri	n	AWS invoke current resource
+<leader>rl	n	AWS tail logs for current resource
+<leader>rm	n	AWS resource metadata
+<leader>rr	n	AWS refresh current resource
+<leader>ru	n	AWS upload current resource
 <leader>s-	n	Split Below
 <leader>sR	n	Search/Replace (current file)
 <leader>sg	n	Grep (Git Root)

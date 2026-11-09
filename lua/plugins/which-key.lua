@@ -25,6 +25,7 @@ return {
           { "<leader>", group = "Leader" },
           { "<leader><tab>", group = "tabs" },
           { "<leader>a", group = "AWS" },
+          { "<leader>r", group = "AWS resource" },
           { "<leader>c", group = "code" },
           { "<leader>d", group = "profiler" },
           { "<leader>y", group = "copy paths" },

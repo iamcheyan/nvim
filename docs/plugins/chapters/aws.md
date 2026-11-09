@@ -26,7 +26,8 @@ aws sts get-caller-identity
 | `<leader>aw` | CloudWatch | Log groups、streams 和 events |
 | `<leader>as` | S3 | Buckets；可打开 bucket 浏览其对象 |
 | `<leader>al` | Lambda | Functions、详情、源码和日志 |
-| `<leader>ak` | ACM | Certificates 与详情 |
+| `<leader>ak` | KMS | Keys、aliases 与详情 |
+| `<leader>aK` | ACM | Certificates 与详情 |
 | `<leader>am` | Secrets Manager | Secrets 与详情 |
 | `<leader>af` | CloudFront | Distributions 与详情 |
 | `<leader>ag` | API Gateway | REST APIs、stages、resources 和 authorizers |
@@ -38,7 +39,16 @@ aws sts get-caller-identity
 
 例如，按 `<leader>al` 可直接打开 Lambda 函数列表。`<leader>aa` 始终保留为完整服务选择器。
 
-`<leader>au`（`:AwsUpload`）把当前正在编辑的资源同步回 AWS，资源类型、函数名、profile 和 region 全部自动推断，不需要手动输入。
+`<leader>r*` 是针对“当前正在编辑的资源”的一组动作，资源类型、函数名、profile、region 和 log group 全部从 `.aws-resource.json` 自动推断：
+
+| 按键 | 命令 | 动作 |
+|---|---|---|
+| `<leader>rd` | `:AwsDownload` | 下载资源源码并写 `.aws-resource.json` |
+| `<leader>ru` / `<leader>au` | `:AwsUpload` | 保存全部缓冲区后打包上传 |
+| `<leader>ri` | `:AwsInvoke` | 调用 Lambda，写 `response.json` 并显示 StatusCode/FunctionError/ExecutedVersion |
+| `<leader>rl` | `:AwsLogs` | 按 metadata 的 log_group 跟踪日志 |
+| `<leader>rr` | `:AwsRefresh` | 重新读取函数配置并写回 metadata |
+| `<leader>rm` | `:AwsMetadata` | 显示当前资源的 metadata |
 
 ## 浏览列表和详情
 
@@ -89,34 +99,31 @@ aws sts get-caller-identity
 
 上传会更新 AWS 上的 Lambda 部署包；调用会实际执行函数；日志命令会持续读取 CloudWatch。执行前检查当前文件属于正确的 `lambda/<函数名>/` 目录，并确认账号、profile、region 与函数名称。自动保存部署默认关闭；启用 `lambda.auto_deploy` 后，仅绑定目录下的文件会触发部署。
 
-## 上传当前资源
+## 资源动作（当前 Buffer 即当前资源）
 
-在资源目录里按 `<leader>au` 或执行 `:AwsUpload`，插件会把当前文件所属的资源推回 AWS。识别顺序：
+所有动作都先做资源发现：从当前文件目录向上找 `.aws-resource.json`，其次旧版 `.aws-meta.json`，再按目录结构（`lambda/`、`stepfunctions/`、`glue/`）推断，最后才用 AWS Explorer 里光标选中的 Lambda。找不到时直接报 `❌ AWS resource metadata not found` 并终止，不会猜。
 
-1. 从当前文件所在目录向上递归找 `.aws-resource.json`（优先级最高）：
+metadata 示例：
 
 ```json
 {
   "type": "lambda",
-  "function_name": "dwh-dev",
+  "account": "123456789012",
   "region": "ap-northeast-1",
-  "profile": "sbi-dwh-dev"
+  "profile": "sbi-dwh-dev",
+  "function_name": "dwh-dev",
+  "log_group": "/aws/lambda/dwh-dev"
 }
 ```
 
-2. 找不到时退回 Lambda 下载生成的 `.aws-meta.json`；
-3. 再按目录结构推断：`.../lambda/<名称>/`、`.../stepfunctions/<名称>/`、`.../glue/<名称>/`；
-4. 最后才尝试用 AWS Explorer 里光标选中的 Lambda 节点。
+- **下载**：把代码下载到 `lambda/<函数名>/`，并生成 `.aws-resource.json`（同时保留旧 `.aws-meta.json`）。
+- **上传**：先 `:wall`；在资源目录生成 `function.zip`，忽略 `.git`、`.github`、`__pycache__`、`.pytest_cache`、`.venv`、`node_modules`、`*.pyc`、`function.zip` 和 `.aws-resource.json`；显示 Function/Profile/Region/Account 后执行 `aws lambda update-function-code`；成功显示 `✅ Upload Success`，失败显示 `❌ Upload Failed` 并原样输出 AWS CLI 报错。
+- **调用**：执行 `aws lambda invoke --function-name <名称> response.json --cli-binary-format raw-in-base64-out`，打开 `response.json`，并显示 StatusCode、FunctionError、ExecutedVersion。
+- **日志**：用 metadata 的 `log_group` 执行 `aws logs tail <group> --follow`；缺失时 Lambda 回退到 `/aws/lambda/<函数名>`。
+- **刷新**：重新读取 Runtime/Architecture/Memory/Timeout/Handler/CodeSha256/CodeSize/LastModified/环境变量名，并写回 `.aws-resource.json`。
+- **Metadata**：浮动窗口显示当前资源使用的 metadata 文件，便于排查 profile/region 选错。
 
-Lambda 上传流程：
-
-1. 有未保存缓冲区时先执行 `:wall`；
-2. 进入资源目录，例如 `aws-dev/lambda/dwh-dev/`；
-3. 生成 `function.zip`，忽略 `.git`、`__pycache__`、`.pytest_cache`、`.venv`、`node_modules`、`*.pyc` 和压缩包自身；
-4. 先显示 `Uploading Lambda: <名称> / Profile / Region`，再执行 `aws lambda update-function-code --function-name <名称> --zip-file fileb://function.zip`；
-5. 成功显示 `✅ Lambda Upload Success` 及 Function、Region、Profile；失败显示 `❌ Upload Failed` 并原样输出 AWS CLI 报错（例如 `AccessDeniedException`），不做改写。
-
-`:AwsUpload --profile <p> --region <r>` 会覆盖 metadata 中的对应值。`stepfunctions/`、`glue/` 目录能被识别，但上传尚未实现，插件会明确提示并且不会调用 AWS。
+`stepfunctions/`、`glue/` 目录可以识别，但对应动作尚未实现，插件会明确提示且不调用 AWS。
 
 ## 远程删除保护
 
