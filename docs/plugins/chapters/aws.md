@@ -38,6 +38,8 @@ aws sts get-caller-identity
 
 例如，按 `<leader>al` 可直接打开 Lambda 函数列表。`<leader>aa` 始终保留为完整服务选择器。
 
+`<leader>au`（`:AwsUpload`）把当前正在编辑的资源同步回 AWS，资源类型、函数名、profile 和 region 全部自动推断，不需要手动输入。
+
 ## 浏览列表和详情
 
 列表显示 AWS CLI 返回的数据，并可在列表内搜索、筛选和刷新。按 `<CR>` 打开当前资源的详情或子列表；CloudFormation 可进入资源和事件，CloudWatch 可继续进入 streams 和 events，Lambda 可打开函数详情和日志。
@@ -86,6 +88,35 @@ aws sts get-caller-identity
 ```
 
 上传会更新 AWS 上的 Lambda 部署包；调用会实际执行函数；日志命令会持续读取 CloudWatch。执行前检查当前文件属于正确的 `lambda/<函数名>/` 目录，并确认账号、profile、region 与函数名称。自动保存部署默认关闭；启用 `lambda.auto_deploy` 后，仅绑定目录下的文件会触发部署。
+
+## 上传当前资源
+
+在资源目录里按 `<leader>au` 或执行 `:AwsUpload`，插件会把当前文件所属的资源推回 AWS。识别顺序：
+
+1. 从当前文件所在目录向上递归找 `.aws-resource.json`（优先级最高）：
+
+```json
+{
+  "type": "lambda",
+  "function_name": "dwh-dev",
+  "region": "ap-northeast-1",
+  "profile": "sbi-dwh-dev"
+}
+```
+
+2. 找不到时退回 Lambda 下载生成的 `.aws-meta.json`；
+3. 再按目录结构推断：`.../lambda/<名称>/`、`.../stepfunctions/<名称>/`、`.../glue/<名称>/`；
+4. 最后才尝试用 AWS Explorer 里光标选中的 Lambda 节点。
+
+Lambda 上传流程：
+
+1. 有未保存缓冲区时先执行 `:wall`；
+2. 进入资源目录，例如 `aws-dev/lambda/dwh-dev/`；
+3. 生成 `function.zip`，忽略 `.git`、`__pycache__`、`.pytest_cache`、`.venv`、`node_modules`、`*.pyc` 和压缩包自身；
+4. 先显示 `Uploading Lambda: <名称> / Profile / Region`，再执行 `aws lambda update-function-code --function-name <名称> --zip-file fileb://function.zip`；
+5. 成功显示 `✅ Lambda Upload Success` 及 Function、Region、Profile；失败显示 `❌ Upload Failed` 并原样输出 AWS CLI 报错（例如 `AccessDeniedException`），不做改写。
+
+`:AwsUpload --profile <p> --region <r>` 会覆盖 metadata 中的对应值。`stepfunctions/`、`glue/` 目录能被识别，但上传尚未实现，插件会明确提示并且不会调用 AWS。
 
 ## 远程删除保护
 

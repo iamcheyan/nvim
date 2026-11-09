@@ -29,6 +29,7 @@
 <leader>al	n	AWS Lambda
 <leader>am	n	AWS Secrets Manager
 <leader>as	n	AWS S3
+<leader>au	n	AWS upload current resource
 <leader>av	n	AWS VPC
 <leader>aw	n	AWS CloudWatch
 <leader>ax	n	AWS EC2

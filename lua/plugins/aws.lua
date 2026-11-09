@@ -13,6 +13,7 @@ return {
       "AwsLambdaUploadInvoke",
       "AwsLambdaLogs",
       "AwsLambdaLogsStop",
+      "AwsUpload",
       "AwsACM",
       "AwsSM",
       "AwsAGW",
@@ -25,6 +26,7 @@ return {
     },
     keys = {
       { "<leader>aa", "<cmd>AwsPicker<cr>", desc = "AWS service picker" },
+      { "<leader>au", "<cmd>AwsUpload<cr>", desc = "AWS upload current resource" },
       { "<leader>ac", "<cmd>AwsCF<cr>", desc = "AWS CloudFormation" },
       { "<leader>aw", "<cmd>AwsCW<cr>", desc = "AWS CloudWatch" },
       { "<leader>as", "<cmd>AwsS3<cr>", desc = "AWS S3" },
