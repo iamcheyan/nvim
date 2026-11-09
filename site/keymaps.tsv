@@ -77,7 +77,6 @@
 <leader>jO	n	Portal: jump forward
 <leader>ja	n	Grapple: tag file
 <leader>jc	n	Portal: change list
-<leader>jg	n	Portal: grapple tags
 <leader>jo	n	Portal: jump back
 <leader>js	n	Grapple: scopes
 <leader>jt	n	Grapple: tag list
@@ -150,14 +149,8 @@
 <leader>wr	n	Session search
 <leader>ws	n	Save session
 <leader>ww	n	Other Window
-<leader>xL	n	Trouble: location list
-<leader>xX	n	Trouble: buffer diagnostics
 <leader>xl	n	Location List
 <leader>xq	n	Quickfix List
-<leader>xr	n	Trouble: LSP references
-<leader>xs	n	Trouble: symbols
-<leader>xt	n	Trouble: TODOs
-<leader>xx	n	Trouble: diagnostics
 <leader>yP	n	Copy file (absolute path)
 <leader>yd	n	Copy directory
 <leader>yp	n	Copy file (relative path)

@@ -107,7 +107,6 @@ CATALOG = [
         ("nvim-treesitter", "nvim-treesitter", "公开", "语法解析与高亮"),
         ("nvim-treesitter-textobjects", "nvim-treesitter-textobjects", "公开", "语法对象与结构跳转"),
         ("mini-ai", "mini.ai", "公开", "代码结构文本对象"),
-        ("mini-surround", "mini.surround", "公开", "添加、删除、替换包围符号"),
         ("flash.nvim", "flash.nvim", "公开", "屏幕内快速定位"),
         ("markview", "markview.nvim", "公开", "Markdown 等文档预览"),
         ("multicursor.nvim", "multicursor.nvim", "公开", "多光标匹配与批量编辑"),
@@ -115,18 +114,14 @@ CATALOG = [
     ]),
     ("阅读、诊断与撤销", [
         ("hover-nvim", "hover.nvim", "公开", "统一的悬浮文档窗口"),
-        ("trouble-nvim", "trouble.nvim", "公开", "诊断、符号与引用面板"),
-        ("nvim-bqf", "nvim-bqf", "公开", "快速修复列表的预览与高亮"),
     ]),
     ("阅读与上下文", [
         ("nvim-treesitter-context", "nvim-treesitter-context", "公开", "固定在窗口顶部的结构上下文"),
         ("hlchunk.nvim", "hlchunk.nvim", "公开", "当前代码块高亮"),
     ]),
     ("导航、标记与编辑辅助", [
-        ("grapple.nvim", "grapple.nvim", "公开", "按分支保存的文件标签"),
         ("portal.nvim", "portal.nvim", "公开", "可搜索的跳转与改动历史"),
         ("vim-matchup", "vim-matchup", "公开", "增强的 % 匹配与结构选中"),
-        ("dial.nvim", "dial.nvim", "公开", "可扩展的递增与递减"),
     ]),
     ("Git 与项目记录", [
         ("gitsigns", "gitsigns.nvim", "公开", "Git 行变更与 hunk 操作"),

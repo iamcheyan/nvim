@@ -13,9 +13,8 @@
 | `<leader>jo` | 打开跳转历史（向后，相当于回退） |
 | `<leader>jO` | 打开跳转历史（向前） |
 | `<leader>jc` | 打开改动历史 |
-| `<leader>jg` | 在 Grapple 标签里搜索 |
 
-打开后输入关键字过滤，`<Esc>`、`q` 或 `Ctrl-c` 退出。命令形式：`:Portal jumplist backward`、`:Portal changelist backward`、`:Portal grapple`。
+打开后输入关键字过滤，`<Esc>`、`q` 或 `Ctrl-c` 退出。命令形式：`:Portal jumplist backward`、`:Portal changelist backward`。
 
 ## 动手练习
 

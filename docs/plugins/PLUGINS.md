@@ -16,7 +16,7 @@
 可以按这个顺序熟悉：
 
 1. **先熟悉入口与找文件**：Which-key、Dashboard、Snacks、Neo-tree、Bufferline。
-2. **再练编辑**：Flash、mini.ai、mini.pairs、mini.surround、multicursor.nvim、Smart Paste。
+2. **再练编辑**：Flash、mini.ai、mini.pairs、multicursor.nvim、Smart Paste。
 3. **然后学代码理解与格式化**：LSP、Treesitter、Aerial、Markview。
 4. **再练 Git 与会话**：Gitsigns、Diffview、Auto Session。
 5. **最后按需探索语言辅助和视觉插件**：COBOL、Batch、Contextline、VimQuest、颜色、折叠和状态显示。
@@ -44,7 +44,6 @@
 | [nvim-treesitter](chapters/nvim-treesitter.md) | 公开 | 语法解析和高亮 |
 | [nvim-treesitter-textobjects](chapters/nvim-treesitter-textobjects.md) | 公开 | 语法对象和结构跳转 |
 | [mini.ai](chapters/mini-ai.md) | 公开 | 代码结构文本对象 |
-| [mini.surround](chapters/mini-surround.md) | 公开 | 添加、删除和替换包围符号 |
 | [flash.nvim](chapters/flash.nvim.md) | 公开 | 屏幕内快速定位 |
 | [markview.nvim](chapters/markview.md) | 公开 | Markdown 等文档预览 |
 | [multicursor.nvim](chapters/multicursor.nvim.md) | 公开 | 多光标匹配与批量编辑 |
@@ -55,8 +54,6 @@
 | 插件 | 类型 | 章节 |
 |---|---|---|
 | [hover.nvim](chapters/hover-nvim.md) | 公开 | 统一的悬浮文档窗口 |
-| [trouble.nvim](chapters/trouble-nvim.md) | 公开 | 诊断、符号与引用面板 |
-| [nvim-bqf](chapters/nvim-bqf.md) | 公开 | 快速修复列表的预览与高亮 |
 
 ## 阅读与上下文
 
@@ -69,10 +66,8 @@
 
 | 插件 | 类型 | 章节 |
 |---|---|---|
-| [grapple.nvim](chapters/grapple.nvim.md) | 公开 | 按分支保存的文件标签 |
 | [portal.nvim](chapters/portal.nvim.md) | 公开 | 可搜索的跳转与改动历史 |
 | [vim-matchup](chapters/vim-matchup.md) | 公开 | 增强的 % 匹配与结构选中 |
-| [dial.nvim](chapters/dial.nvim.md) | 公开 | 可扩展的递增与递减 |
 
 ## Git 与项目记录
 

@@ -82,10 +82,6 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 这是两项协同工作的 LSP 安装和连接设施。Mason 用 `:Mason` / `<leader>cm` 浏览安装服务器；当前管理 basedpyright、lua_ls。mason-lspconfig 把已安装服务器连接到 Neovim，nvim-lspconfig 提供服务器配置。LSP 附加后：`gd` 定义，`gD` 声明，`K` 悬浮文档，`gI` 实现，`gy` 类型定义，`gK` 签名帮助（插入模式 `<C-S-k>`，`<C-k>` 留给 digraph），`<leader>ca` 代码操作，`<leader>cr` 重命名，`<leader>co` 整理 imports，`<leader>cl` 查看 LSP 配置。诊断有下划线和标记列，行内虚拟文本关闭。`<leader>cd` 打开当前行诊断。`]d`/`[d` 仍是诊断跳转。
 
-### mini.surround（公开）
-
-以 `gs` 前缀操作包围符号：`gsa` 添加，`gsd` 删除，`gsr` 替换，`gsf` / `gsF` 向右/向左查找，`gsh` 高亮范围。例如 `gsaiw)` 给当前单词加括号，`gsr)'` 把括号改成单引号。可用 `:help mini.surround` 查看完整说明。
-
 ### nvim-treesitter（公开）
 
 提供语法解析和高亮，并被折叠、文本对象、符号列表等插件调用。多数受支持语言自动安装配置的 parser；`:TSInstall <语言>` 安装，`:TSUpdate` 更新/重建，`:TSLog` 查看日志，`:TSUninstall <语言>` 卸载。安装目录在 `~/.local/share/nvim/site/parser`。**最低 Neovim 0.12，nvim-treesitter 和 textobjects 都固定 main 分支**；升级/换分支后需要重建 parser。细节见公开配置 `config/nvim/TREESITTER.md`。

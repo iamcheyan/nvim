@@ -52,7 +52,7 @@
 - **非活动窗口（`WinLeave`, `BufLeave`, `FocusLost`）**：
   - `cursorline = false`（消除背景横线杂色）。
   - 若启用了行号，则 `relativenumber = false`（还原为常规绝对行号 `1, 2, 3...`，便于对照行数）。
-- 过滤浮窗（`config.relative ~= ""`）与专用面板（`neo-tree`、`Trouble` 等），不干扰辅助界面的自有样式。
+- 过滤浮窗（`config.relative ~= ""`）与专用面板（`neo-tree`），不干扰辅助界面的自有样式。
 
 ### 5. 分屏极致紧凑贴合与留白消除
 
