@@ -58,13 +58,22 @@ aws sts get-caller-identity
 
 ## Lambda 源码工作流
 
-在 Lambda 列表选中函数后按 `D`，插件会把源码下载到当前 Neovim 工作目录：
+在 Lambda 列表选中函数后：
 
-```text
-.aws/lambda/<函数名>/
-```
+- `D` 只把源码下载到当前 Neovim 工作目录的 `lambda/<函数名>/`，不会打开任何缓冲区；
+- `E` 打开该函数的本地源码用于编辑；本地还没有副本时会先下载再打开，所以不会出现“no local source binding”的死路。
 
-下载使用 `aws lambda get-function` 提供的代码 URL，显示进度，将内容写入暂存目录后再提取。插件会拒绝不安全的归档路径和符号链接，成功后才替换本地函数目录。`.aws-meta.json` 保存函数名、region 和 account 信息。插件优先打开 `app.py`、`index.js`、`handler.py` 或 `main.py` 中第一个存在的入口文件。
+下载使用 `aws lambda get-function` 提供的代码 URL，显示进度，将内容写入暂存目录后再提取。插件会拒绝不安全的归档路径和符号链接，成功后才替换本地函数目录。`.aws-meta.json` 保存函数名、region 和 account 信息。`E` 优先打开 `app.py`、`index.js`、`handler.py` 或 `main.py` 中第一个存在的入口文件。
+
+## 交互式远程调用面板
+
+在 Lambda 列表按 `I`（或在绑定源码里执行 `:AwsLambdaInvoke`）会打开底部水平分屏的调用面板：
+
+- 上方是可编辑的 **JSON 载荷框**（`filetype=json`，带语法高亮），默认载入该函数上次使用的载荷；
+- 下方是一行 **按钮栏**：`[ Invoke <C-s> ]`、`[ Upload + Invoke ]`、`[ Copy response ]`、`[ Close q ]`，既支持鼠标点击也支持快捷键；
+- 右侧显示实时状态：`ready`、`invoking…`、`ok · 200`、`response copied`。
+
+面板内快捷键：`<C-s>` / `<C-CR>` 调用，`<C-a>` 先上传再调用，`q` / `<Esc>` 关闭。JSON 不合法时只在面板内提示，不会调用 AWS。调用结果（StatusCode、RequestId、响应体和解码后的 CloudWatch 日志）显示在 `aws://lambda/invoke-result/<函数名>` 浮动窗口，`Copy response` 会把原始响应写入无名寄存器。
 
 对下载后的源码作出修改后，可以在该函数绑定目录内执行：
 
@@ -76,7 +85,7 @@ aws sts get-caller-identity
 :AwsLambdaLogsStop
 ```
 
-上传会更新 AWS 上的 Lambda 部署包；调用会实际执行函数；日志命令会持续读取 CloudWatch。执行前检查当前文件属于正确的 `.aws/lambda/<函数名>/` 目录，并确认账号、profile、region 与函数名称。自动保存部署默认关闭；启用 `lambda.auto_deploy` 后，仅绑定目录下的文件会触发部署。
+上传会更新 AWS 上的 Lambda 部署包；调用会实际执行函数；日志命令会持续读取 CloudWatch。执行前检查当前文件属于正确的 `lambda/<函数名>/` 目录，并确认账号、profile、region 与函数名称。自动保存部署默认关闭；启用 `lambda.auto_deploy` 后，仅绑定目录下的文件会触发部署。
 
 ## 远程删除保护
 
@@ -89,7 +98,7 @@ Lambda 上传和 CloudFront cache invalidation 会修改云端状态，但不删
 1. 运行 `aws sts get-caller-identity`，确认当前账号。
 2. 按 `<leader>aa` 选择 CloudWatch，再进入一个 log group 查看 streams。
 3. 按 `<leader>al` 打开 Lambda，选择可安全测试的函数并按 `D` 下载。
-4. 检查 cwd 下 `.aws/lambda/<函数名>/` 的文件和 `.aws-meta.json`。
+4. 检查 cwd 下 `lambda/<函数名>/` 的文件和 `.aws-meta.json`。
 5. 在测试账号确认 profile、region 和函数目录后，再尝试上传或调用。
 
 ## 参考
