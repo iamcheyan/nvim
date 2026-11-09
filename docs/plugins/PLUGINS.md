@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，共 **52 章**，覆盖 50 个插件（公开 43 个、私有 7 个）。其中四个依赖库共用一章，因为它们是给其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
+这本书按当前 `lazy.nvim` 注册结果整理，共 **47 章**。其中依赖库共用一章，因为它们是供其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
 
 ## 怎么使用这本书
 
@@ -28,6 +28,8 @@
 | [dashboard-nvim](chapters/dashboard-nvim.md) | 公开 | 启动页、最近文件和项目目录 |
 | [snacks.nvim](chapters/snacks.nvim.md) | 公开 | 文件/内容搜索、通知和工具 |
 | [neo-tree.nvim](chapters/neo-tree.nvim.md) | 公开 | 文件树、缓冲区和 Git 视图 |
+| [aws.nvim](chapters/aws.md) | 公开 | AWS 服务与 Lambda 工作流 |
+| [viewsplit.nvim](chapters/viewsplit.md) | 公开 | 在分屏间隔离浏览状态 |
 | [bufferline.nvim](chapters/bufferline.nvim.md) | 公开 | 缓冲区标签栏 |
 | [grug-far.nvim](chapters/grug-far.nvim.md) | 公开 | 跨文件查找替换 |
 | [auto-session](chapters/auto-session.md) | 公开 | 项目会话保存和恢复 |

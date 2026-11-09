@@ -17,7 +17,7 @@
 
 ## 核心实现原理
 
-实现代码位于 [lua/config/win_search.lua](lua/config/win_search.lua) 与 [lua/config/autocmds.lua](lua/config/autocmds.lua)。
+实现代码位于 [lua/config/win_search.lua](https://github.com/iamcheyan/nvim/blob/main/lua/config/win_search.lua) 与 [lua/config/autocmds.lua](https://github.com/iamcheyan/nvim/blob/main/lua/config/autocmds.lua)。
 
 ### 1. 窗口级独立高亮（`matchadd` 机制）
 
@@ -35,17 +35,17 @@
   1. 自动将该窗口记忆的检索词同步回 Neovim 搜索寄存器 `@/`。
   2. 立即重算该窗口当前的匹配数，并自动刷新底部命令行的搜索提示（如 `/node [2/4]`），**无需按 `n` 即可立即跟随焦点自动切换**。
   3. 若进入的窗口未进行过搜索，则自动清空底部搜索提示，避免显示其他窗口的残留关键词。
-- 配合 [lua/config/keymaps-defaults.lua](lua/config/keymaps-defaults.lua) 中增强的 `n` / `N` 映射，确保每次跳转前窗口状态均已对齐，实现在不同窗口内按 `n` 独立跳转各自关键词的效果。
+- 配合 [lua/config/keymaps-defaults.lua](https://github.com/iamcheyan/nvim/blob/main/lua/config/keymaps-defaults.lua) 中增强的 `n` / `N` 映射，确保每次跳转前窗口状态均已对齐，实现在不同窗口内按 `n` 独立跳转各自关键词的效果。
 
 ### 3. 取词与取消搜索的独立性
 
 - **取消高亮（`<Esc>`）**：在当前窗口按下 <kbd>Esc</kbd> 仅调用 `M.clear(current_win)` 清除当前窗口的高亮，另一侧分屏的高亮完整保留。
-- **取词搜索（`*` / `#` / `g*` / `g#`）**：在 [lua/plugins/dev-visual.lua](lua/plugins/dev-visual.lua) 中拦截对应按键，取词后同样通过 `M.set` 仅挂载到当前活跃窗口。
+- **取词搜索（`*` / `#` / `g*` / `g#`）**：在 [lua/plugins/dev-visual.lua](https://github.com/iamcheyan/nvim/blob/main/lua/plugins/dev-visual.lua) 中拦截对应按键，取词后同样通过 `M.set` 仅挂载到当前活跃窗口。
 - **重绘与清空（`<leader>ur`）**：同步清理当前窗口的局部高亮标记。
 
 ### 4. 焦点感知的光标行与行号管理
 
-在 [lua/config/autocmds.lua](lua/config/autocmds.lua) 中设置自动命令组 `SplitWindowFocus`：
+在 [lua/config/autocmds.lua](https://github.com/iamcheyan/nvim/blob/main/lua/config/autocmds.lua) 中设置自动命令组 `SplitWindowFocus`：
 - **活动窗口（`WinEnter`, `BufEnter`, `FocusGained`）**：
   - `cursorline = true`
   - 若启用了行号，则 `relativenumber = true`（便于进行 `5j`、`12k` 等相对跳行）。
@@ -57,14 +57,14 @@
 ### 5. 分屏极致紧凑贴合与留白消除
 
 在保留每个窗口顶栏 Dropbar 面包屑导航的前提下，清除了所有多余的占位与空白缝隙：
-- **消除中缝空白断层**：在 [lua/config/ui_highlights.lua](lua/config/ui_highlights.lua) 中修复 `WinSeparator` 与 `VertSplit` 的色彩设置，消除原本将前景色和背景色设为一致所产生的 1 列/1 行“虚空盲区”，呈现轻盈纤细的单像素物理分割线。
+- **消除中缝空白断层**：在 [lua/config/ui_highlights.lua](https://github.com/iamcheyan/nvim/blob/main/lua/config/ui_highlights.lua) 中修复 `WinSeparator` 与 `VertSplit` 的色彩设置，消除原本将前景色和背景色设为一致所产生的 1 列/1 行“虚空盲区”，呈现轻盈纤细的单像素物理分割线。
 - **左右分屏直接贴合**：去除 `statuscolumn` 在行号左侧强行占位的空白 padding 并将 `foldcolumn` 设为 `0`，行号直接紧挨垂直中缝 `│` 展开，左右代码紧凑贴合。
 - **上下分屏直接贴合**：上下两块代码区域通过精细单像素分界线 `─` 与下方分屏的面包屑顶栏直接无缝相接，不再有任何多余的空行。
 
-### 6. 分屏分割线鼠标拖拽调整尺寸（[lua/config/split_mouse_drag.lua](lua/config/split_mouse_drag.lua)）
+### 6. 分屏分割线鼠标拖拽调整尺寸（[lua/config/split_mouse_drag.lua](https://github.com/iamcheyan/nvim/blob/main/lua/config/split_mouse_drag.lua)）
 
-- **解除滚动条对分割线的误拦截**：在 [lua/config/scrollbar_scroll.lua](lua/config/scrollbar_scroll.lua) 中，原本使用 `mp.wincol >= width` 判断滚动条悬停，导致点击右侧外沿的垂直分割线 `│`（`mp.wincol == width + 1`, `mp.line == 0`）时被误判为点击左侧窗口滚动条并吞掉 `<LeftMouse>` / `<LeftDrag>` 事件。现已修正为严格匹配窗口内部滚动条列（`mp.wincol == width and mp.line > 0`），并在横向拖拽时自动让渡给分屏拖拽逻辑。
-- **支持宽容边缘热区与双向拖拽**：新增 [lua/config/split_mouse_drag.lua](lua/config/split_mouse_drag.lua)，不仅支持直接按住 `│` 左右拖拽、按住 `─` 上下拖拽，还支持在分割线相邻 1 格边缘（左侧滚动条列或右侧首列行号、下方顶栏）按住并向垂直于分割线方向拖动时自动触发尺寸调整，完美兼容 Kitty + SSH + Tmux 环境与 `laststatus = 3`。
+- **解除滚动条对分割线的误拦截**：在 [lua/config/scrollbar_scroll.lua](https://github.com/iamcheyan/nvim/blob/main/lua/config/scrollbar_scroll.lua) 中，原本使用 `mp.wincol >= width` 判断滚动条悬停，导致点击右侧外沿的垂直分割线 `│`（`mp.wincol == width + 1`, `mp.line == 0`）时被误判为点击左侧窗口滚动条并吞掉 `<LeftMouse>` / `<LeftDrag>` 事件。现已修正为严格匹配窗口内部滚动条列（`mp.wincol == width and mp.line > 0`），并在横向拖拽时自动让渡给分屏拖拽逻辑。
+- **支持宽容边缘热区与双向拖拽**：新增 [lua/config/split_mouse_drag.lua](https://github.com/iamcheyan/nvim/blob/main/lua/config/split_mouse_drag.lua)，不仅支持直接按住 `│` 左右拖拽、按住 `─` 上下拖拽，还支持在分割线相邻 1 格边缘（左侧滚动条列或右侧首列行号、下方顶栏）按住并向垂直于分割线方向拖动时自动触发尺寸调整，完美兼容 Kitty + SSH + Tmux 环境与 `laststatus = 3`。
 
 ---
 
@@ -86,7 +86,7 @@
 ## 回归测试
 
 相关行为由自动化测试保障：
-- [tests/split_window_focus_spec.lua](tests/split_window_focus_spec.lua)：测试分屏间 `apple` 与 `banana` 的并行独立高亮、寄存器恢复、光标独立跳行及单独清除。
+- [tests/split_window_focus_spec.lua](https://github.com/iamcheyan/nvim/blob/main/tests/split_window_focus_spec.lua)：测试分屏间 `apple` 与 `banana` 的并行独立高亮、寄存器恢复、光标独立跳行及单独清除。
 - 运行测试：
   ```bash
   nvim --headless -u NONE -c "lua dofile('tests/split_window_focus_spec.lua')" -c "qa!"

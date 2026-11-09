@@ -18,6 +18,20 @@
 <leader>N	n	New File (Default Name)
 <leader>`	n	Switch to Other Buffer
 <leader>a	n	Increment number
+<leader>aa	n	AWS service picker
+<leader>ac	n	AWS CloudFormation
+<leader>ad	n	AWS DynamoDB
+<leader>ae	n	AWS ECS
+<leader>af	n	AWS CloudFront
+<leader>ag	n	AWS API Gateway
+<leader>ai	n	AWS IAM
+<leader>ak	n	AWS ACM
+<leader>al	n	AWS Lambda
+<leader>am	n	AWS Secrets Manager
+<leader>as	n	AWS S3
+<leader>av	n	AWS VPC
+<leader>aw	n	AWS CloudWatch
+<leader>ax	n	AWS EC2
 <leader>bC	n	Clear buffer contents
 <leader>bD	n	Delete Buffer and Window
 <leader>bd	n	Delete Buffer
@@ -62,24 +76,19 @@
 <leader>fu	n	Convert Current File to Unix Line Endings
 <leader>fw	n	Grep Word (cwd)
 <leader>gD	n	Diffview File History (Current File)
-<leader>gG	n	Lazygit (cwd)
 <leader>gL	n	Git Log (cwd)
 <leader>gV	n	Diffview Branch History
 <leader>gY	n	Git Browse (copy)
 <leader>gd	n	Diffview Open
 <leader>ge	n	Git Explorer
 <leader>gf	n	Git Current File History
-<leader>gg	n	Lazygit (Root Dir)
 <leader>gl	n	Git Log
 <leader>gq	n	Diffview Close
 <leader>gv	n	Restore cursors
 <leader>hk	n	Buffer Keymaps (which-key)
 <leader>jO	n	Portal: jump forward
-<leader>ja	n	Grapple: tag file
 <leader>jc	n	Portal: change list
 <leader>jo	n	Portal: jump back
-<leader>js	n	Grapple: scopes
-<leader>jt	n	Grapple: tag list
 <leader>l	n	Lazy
 <leader>mC	n	Bookmarks: Clear Project
 <leader>mN	n	Add cursor to previous match
@@ -88,8 +97,6 @@
 <leader>mn	n	Add cursor to next match
 <leader>mq	n	Toggle multicursor mode
 <leader>mt	n	Bookmarks: Toggle Line
-<leader>nd	n	Dial: decrement
-<leader>ni	n	Dial: increment
 <leader>p	n	Smart paste block
 <leader>qN	n	VimQuest next round
 <leader>qS	n	VimQuest stats
@@ -183,7 +190,6 @@
 <C-W>d	n	Show diagnostics under the cursor
 <C-_>	n	which_key_ignore
 <Esc>	n	Escape and Clear messages/hlsearch
-<LeftMouse>	n
 <M-D>	n	Skip previous match
 <M-d>	n	Skip next match
 <M-j>	n	Move Down
@@ -255,23 +261,59 @@ grn	n	vim.lsp.buf.rename()
 grr	n	vim.lsp.buf.references()
 grt	n	vim.lsp.buf.type_definition()
 grx	n	vim.lsp.codelens.run()
-gsF	n	Find left surrounding
-gsFl	n	Find previous left surrounding
-gsFn	n	Find next left surrounding
-gsa	n	Add surrounding
-gsd	n	Delete surrounding
-gsdl	n	Delete previous surrounding
-gsdn	n	Delete next surrounding
-gsf	n	Find right surrounding
-gsfl	n	Find previous right surrounding
-gsfn	n	Find next right surrounding
-gsh	n	Highlight surrounding
-gshl	n	Highlight previous surrounding
-gshn	n	Highlight next surrounding
-gsr	n	Replace surrounding
-gsrl	n	Replace previous surrounding
-gsrn	n	Replace next surrounding
 gx	n	Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)
+mA	n
+mB	n
+mC	n
+mD	n
+mE	n
+mF	n
+mG	n
+mH	n
+mI	n
+mJ	n
+mK	n
+mL	n
+mM	n
+mN	n
+mO	n
+mP	n
+mQ	n
+mR	n
+mS	n
+mT	n
+mU	n
+mV	n
+mW	n
+mX	n
+mY	n
+mZ	n
+ma	n
+mb	n
+mc	n
+md	n
+me	n
+mf	n
+mg	n
+mh	n
+mi	n
+mj	n
+mk	n
+ml	n
+mm	n
+mn	n
+mo	n
+mp	n
+mq	n
+mr	n
+ms	n
+mt	n
+mu	n
+mv	n
+mw	n
+mx	n
+my	n
+mz	n
 n	n	Next Search Result
 p	n	Smart paste after
 qn	n	VimQuest next
@@ -289,8 +331,6 @@ zr	n	Fold less
 <leader>mN	x	Add cursor to previous match
 <leader>mn	x	Add cursor to next match
 <leader>mq	x	Toggle multicursor mode
-<leader>nd	x	Dial: decrement
-<leader>ni	x	Dial: increment
 <leader>sR	x	Search/Replace selection (current file)
 <leader>sr	x	Search/Replace selection (project)
 #	x	:help v_#-default
@@ -298,13 +338,16 @@ zr	n	Fold less
 *	x	:help v_star-default
 <C-A>	x	Select all lines
 <C-C>	x	Copy selection to system clipboard
+<C-H>	x	Go to Left Window
+<C-J>	x	Go to Lower Window
+<C-K>	x	Go to Upper Window
+<C-L>	x	Go to Right Window
 <C-N>	x	Add cursor to next match
 <C-Q>	x	Visual block
 <C-S-N>	x	Add cursor to every match
 <C-S>	x	Save File
 <C-V>	x	Smart paste clipboard over selection
 <C-X>	x	Cut selection to system clipboard
-<LeftMouse>	v
 <M-D>	x	Skip previous match
 <M-d>	x	Skip next match
 <M-j>	v	Move Down
@@ -337,24 +380,68 @@ g]	x	Move to right "around"
 ga	x	Add cursor with operator
 gc	x	Toggle comment
 gra	x	vim.lsp.buf.code_action()
-gsF	x	Find left surrounding
-gsFl	x	Find previous left surrounding
-gsFn	x	Find next left surrounding
-gsa	x	Add surrounding to selection
-gsf	x	Find right surrounding
-gsfl	x	Find previous right surrounding
-gsfn	x	Find next right surrounding
 gx	x	Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)
 i	x	Inside textobject
 i%	x
 il	x	Inside last textobject
 in	x	Inside next textobject
+mA	x
+mB	x
+mC	x
+mD	x
+mE	x
+mF	x
+mG	x
+mH	x
+mI	x
+mJ	x
+mK	x
+mL	x
+mM	x
+mN	x
+mO	x
+mP	x
+mQ	x
+mR	x
+mS	x
+mT	x
+mU	x
+mV	x
+mW	x
+mX	x
+mY	x
+mZ	x
+ma	x
+mb	x
+mc	x
+md	x
+me	x
+mf	x
+mg	x
+mh	x
+mi	x
+mj	x
+mk	x
+ml	x
+mm	x
+mn	x
+mo	x
+mp	x
+mq	x
+mr	x
+ms	x
+mt	x
+mu	x
+mv	x
+mw	x
+mx	x
+my	x
+mz	x
 n	x	Next Search Result
 p	x	Smart paste over selection
 s	x	Flash
 z%	x
 %	o
-<LeftMouse>	o
 N	o	Prev Search Result
 S	o	Flash Treesitter
 [%	o
@@ -367,12 +454,6 @@ g%	o
 g[	o	Move to left "around"
 g]	o	Move to right "around"
 gc	o	Comment textobject
-gsF	o	Find left surrounding
-gsFl	o	Find previous left surrounding
-gsFn	o	Find next left surrounding
-gsf	o	Find right surrounding
-gsfl	o	Find previous right surrounding
-gsfn	o	Find next right surrounding
 i	o	Inside textobject
 i%	o
 il	o	Inside last textobject
@@ -396,7 +477,6 @@ z%	o
 <CR>	i	MiniPairs <CR>
 <Esc>	i	Escape and Clear messages/hlsearch
 <Left>	i
-<LeftMouse>	i
 <M-j>	i	Move Down
 <M-k>	i	Move Up
 <Right>	i

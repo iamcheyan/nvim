@@ -21,9 +21,23 @@ return {
       "AwsIAM",
       "AwsVPC",
       "AwsDDB",
+      "AwsEC2",
     },
     keys = {
       { "<leader>aa", "<cmd>AwsPicker<cr>", desc = "AWS service picker" },
+      { "<leader>ac", "<cmd>AwsCF<cr>", desc = "AWS CloudFormation" },
+      { "<leader>aw", "<cmd>AwsCW<cr>", desc = "AWS CloudWatch" },
+      { "<leader>as", "<cmd>AwsS3<cr>", desc = "AWS S3" },
+      { "<leader>al", "<cmd>AwsLambda<cr>", desc = "AWS Lambda" },
+      { "<leader>ak", "<cmd>AwsACM<cr>", desc = "AWS ACM" },
+      { "<leader>am", "<cmd>AwsSM<cr>", desc = "AWS Secrets Manager" },
+      { "<leader>af", "<cmd>AwsCFront<cr>", desc = "AWS CloudFront" },
+      { "<leader>ag", "<cmd>AwsAGW<cr>", desc = "AWS API Gateway" },
+      { "<leader>ae", "<cmd>AwsECS<cr>", desc = "AWS ECS" },
+      { "<leader>ai", "<cmd>AwsIAM<cr>", desc = "AWS IAM" },
+      { "<leader>av", "<cmd>AwsVPC<cr>", desc = "AWS VPC" },
+      { "<leader>ad", "<cmd>AwsDDB<cr>", desc = "AWS DynamoDB" },
+      { "<leader>ax", "<cmd>AwsEC2<cr>", desc = "AWS EC2" },
     },
     opts = {
       lambda = {

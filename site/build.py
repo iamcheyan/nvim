@@ -94,6 +94,8 @@ CATALOG = [
         ("dashboard-nvim", "dashboard-nvim", "公开", "启动页、最近文件与项目目录"),
         ("snacks.nvim", "snacks.nvim", "公开", "文件与内容搜索、通知和工具"),
         ("neo-tree.nvim", "neo-tree.nvim", "公开", "文件树、缓冲区与 Git 视图"),
+        ("aws", "aws.nvim", "公开", "AWS 服务与 Lambda 工作流"),
+        ("viewsplit", "viewsplit.nvim", "公开", "在分屏间隔离浏览状态"),
         ("bufferline.nvim", "bufferline.nvim", "公开", "顶部缓冲区标签栏"),
         ("grug-far.nvim", "grug-far.nvim", "公开", "跨文件查找替换"),
         ("auto-session", "auto-session", "公开", "按项目保存与恢复会话"),
