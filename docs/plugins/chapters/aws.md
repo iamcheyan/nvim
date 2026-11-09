@@ -45,7 +45,7 @@ aws sts get-caller-identity
 |---|---|---|
 | `<leader>rd` | `:AwsDownload` | 下载资源源码并写 `.aws-resource.json` |
 | `<leader>ru` / `<leader>au` | `:AwsUpload` | 保存全部缓冲区后打包上传 |
-| `<leader>ri` | `:AwsInvoke` | 调用 Lambda，写 `response.json` 并显示 StatusCode/FunctionError/ExecutedVersion |
+| `<leader>ri` | `:AwsInvoke` | 用 `invoke.json` 调用 Lambda，写 `response.json` 并显示 StatusCode/FunctionError/ExecutedVersion |
 | `<leader>rl` | `:AwsLogs` | 按 metadata 的 log_group 跟踪日志 |
 | `<leader>rr` | `:AwsRefresh` | 重新读取函数配置并写回 metadata |
 | `<leader>rm` | `:AwsMetadata` | 显示当前资源的 metadata |
@@ -77,27 +77,32 @@ aws sts get-caller-identity
 
 下载使用 `aws lambda get-function` 提供的代码 URL，显示进度，将内容写入暂存目录后再提取。插件会拒绝不安全的归档路径和符号链接，成功后才替换本地函数目录。`.aws-meta.json` 保存函数名、region 和 account 信息。`E` 优先打开 `app.py`、`index.js`、`handler.py` 或 `main.py` 中第一个存在的入口文件。
 
-## 交互式远程调用面板
+## Payload 驱动的调用流程
 
-在 Lambda 列表按 `I`（或在绑定源码里执行 `:AwsLambdaInvoke`）会打开底部水平分屏的调用面板：
+每个下载到本地的 Lambda 目录里会同时维护三个文件：
 
-- 上方是可编辑的 **JSON 载荷框**（`filetype=json`，带语法高亮），默认载入该函数上次使用的载荷；
-- 下方是一行 **按钮栏**：`[ Invoke <C-s> ]`、`[ Upload + Invoke ]`、`[ Copy response ]`、`[ Close q ]`，既支持鼠标点击也支持快捷键；
-- 右侧显示实时状态：`ready`、`invoking…`、`ok · 200`、`response copied`。
-
-面板内快捷键：`<C-s>` / `<C-CR>` 调用，`<C-a>` 先上传再调用，`q` / `<Esc>` 关闭。JSON 不合法时只在面板内提示，不会调用 AWS。调用结果（StatusCode、RequestId、响应体和解码后的 CloudWatch 日志）显示在 `aws://lambda/invoke-result/<函数名>` 浮动窗口，`Copy response` 会把原始响应写入无名寄存器。
-
-对下载后的源码作出修改后，可以在该函数绑定目录内执行：
-
-```vim
-:AwsLambdaUpload
-:AwsLambdaInvoke
-:AwsLambdaUploadInvoke
-:AwsLambdaLogs
-:AwsLambdaLogsStop
+```text
+lambda/<函数名>/
+├── app.py              # 源码
+├── invoke.json         # 请求体，下载时自动创建（内容 {}）
+├── response.json       # 最近一次调用结果
+└── .aws-resource.json  # metadata
 ```
 
-上传会更新 AWS 上的 Lambda 部署包；调用会实际执行函数；日志命令会持续读取 CloudWatch。执行前检查当前文件属于正确的 `lambda/<函数名>/` 目录，并确认账号、profile、region 与函数名称。自动保存部署默认关闭；启用 `lambda.auto_deploy` 后，仅绑定目录下的文件会触发部署。
+`invoke.json` 是唯一的 payload 来源：不会再临时拼 JSON，也不会发送空 payload。
+
+| 按键 | 动作 |
+|---|---|
+| `e` | 编辑 payload：打开 `invoke.json`，不存在时先创建 `{}` |
+| `i` | 用当前 payload 调用：`aws lambda invoke --payload fileb://invoke.json ...`，结果写入 `response.json` |
+| `v` | 查看 `response.json` |
+| `r` | 先上传源码，再用 `invoke.json` 调用 |
+
+没有 `invoke.json` 时按 `i` 不会发送请求，而是创建 `{}`、打开文件并提示 `invoke.json created. Please edit payload before invoking.`；JSON 不合法只在本地报错，不会调用 AWS。结果浮窗显示 StatusCode、FunctionError、ExecutedVersion、payload 路径和解码后的日志。
+
+`:AwsInvoke` 使用同一个 `invoke.json`，所以快捷键和命令行为一致。交互面板（`I`）也改为读写 `invoke.json`。
+
+payload 路径通过 `get_current_payload_file(dir)` 解析，后续要支持 `payloads/default.json`、`payloads/test1.json` 等多 payload 时不需要改调用逻辑。
 
 ## 资源动作（当前 Buffer 即当前资源）
 
