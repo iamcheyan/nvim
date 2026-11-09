@@ -64,7 +64,8 @@ map("n", "<leader>fu", function()
   vim.notify("dos2unix: " .. vim.fn.fnamemodify(file, ":t"))
 end, { desc = "Convert Current File to Unix Line Endings" })
 
--- <leader>a is only "increment" (below). A second key on that prefix made it wait.
+-- <leader>a is the AWS namespace (see the aws.nvim keys); increment lives on
+-- <leader><C-a> so the prefix opens a menu instead of firing a leaf mapping.
 map("n", "<leader>bC", function()
   vim.api.nvim_buf_set_lines(0, 0, -1, false, { "" })
   vim.api.nvim_win_set_cursor(0, { 1, 0 })
@@ -184,7 +185,7 @@ map("n", "<leader><tab>n", "<cmd>tabnew<cr>", { desc = "New Tab" })
 -- Insert <C-a> stays "insert previously inserted text".
 map({ "n", "x" }, "<C-a>", "ggVG", { desc = "Select all lines" })
 -- noremap so this is the builtin increment, not the select-all map above.
-map("n", "<leader>a", "<C-a>", { desc = "Increment number" })
+map("n", "<leader><C-a>", "<C-a>", { desc = "Increment number" })
 -- <C-v> is paste. <C-q> is the terminal-friendly visual-block key.
 map({ "n", "x" }, "<C-q>", "<C-v>", { desc = "Visual block" })
 

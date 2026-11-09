@@ -25,7 +25,7 @@
 | `<leader><up>` / `<leader><down>` 跳过一行 | 保留，仍是 `lineSkipCursor` |
 | `<leader>s` / `<leader>S` 跳过匹配 | 删掉。`<leader>s` 只做搜索前缀 |
 | `<C-d>` 跳过匹配 | 删掉，半页下滚回到 Neovim |
-| `<leader>a` 对齐列 | 改成 `<leader>A`。`<leader>a` 只做数字加 1 |
+| `<leader>a` 对齐列 | 改成 `<leader>A`。数字加 1 是 `<leader><C-a>`，`<leader>a` 留给 AWS 命名空间 |
 | `<C-q>` 暂停光标 | 改成 `<leader>mq`。光标层里 Escape 重新启用的注释同步改了 |
 | `<leader>n` / `<leader>N`、`<C-n>`、`<C-S-n>`、`ga`、`<leader>gv`、Ctrl+鼠标 | 没动 |
 
@@ -42,7 +42,7 @@
 - Path copies moved from `<leader>c*` to `<leader>y*`: `<leader>yp` copies a relative path, `<leader>yP` an absolute path, and `<leader>yd` the directory. All go to the `+` register.
 - `<leader>cd` remains available for line diagnostics.
 - Removed the redundant `<leader>aa`, `<leader>ac`, `<leader>ad`, and `<leader>d` mappings. `d`, `c`, and `x` already use the black-hole register. Clear buffer is now `<leader>bC`.
-- `<C-a>` selects all in Normal and Visual modes. Insert mode keeps its native insert-previous-text behavior. `<leader>a` increments the number without triggering select-all.
+- `<C-a>` selects all in Normal and Visual modes. Insert mode keeps its native insert-previous-text behavior. `<leader><C-a>` increments the number without triggering select-all; `<leader>a` is the AWS namespace.
 - `<C-q>` maps to native Visual Block mode. Insert `<C-v>` remains smart paste; Insert `<C-q>` inserts the literal control character.
 - `dd` and `cc` use expressions to preserve counts while deleting to the black-hole register.
 - `<leader>M` followed by a letter sets a mark. Bookmarks remain under `<leader>m`; cut mappings remain `m`, `mm`, and `M`.

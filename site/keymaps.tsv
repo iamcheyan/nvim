@@ -2,6 +2,7 @@
 <leader>,	n	Switch Buffer
 <leader>-	n	Split Window Below
 <leader>/	n	Grep
+<leader><C-A>	n	Increment number
 <leader><Down>	n	Add cursor on next line
 <leader><Tab><Tab>	n	List and switch Tab Pages
 <leader><Tab>[	n	Previous Tab
@@ -17,7 +18,6 @@
 <leader>K	n	Keywordprg
 <leader>N	n	New File (Default Name)
 <leader>`	n	Switch to Other Buffer
-<leader>a	n	Increment number
 <leader>aa	n	AWS service picker
 <leader>ac	n	AWS CloudFormation
 <leader>ad	n	AWS DynamoDB

@@ -30,7 +30,7 @@ multicursor 把光标同时放在多个位置，一次编辑作用于全部位�
 |---|---|
 | `<leader><up>` / `<leader><down>` | 跳过上一行 / 下一行再加光标。普通上下箭头保持移动 |
 | `ga` + motion | 按动作加，`gaip` 给段落每行一个光标 |
-| `<leader>A` | 对齐各光标的列。`<leader>a` 是数字加 1 |
+| `<leader>A` | 对齐各光标的列。数字加 1 是 `<leader><C-a>`；`<leader>a` 是 AWS 命名空间 |
 | `<leader>gv` | 误清除后恢复光标集合。打开差异用 `<leader>gd` |
 | `<leader>mq` | 暂停 / 恢复其它光标。`<C-q>` 是视觉块 |
 | `<left>` / `<right>` | 切换主光标 |

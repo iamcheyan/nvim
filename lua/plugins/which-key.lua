@@ -24,6 +24,7 @@ return {
           mode = { "n", "x" },
           { "<leader>", group = "Leader" },
           { "<leader><tab>", group = "tabs" },
+          { "<leader>a", group = "AWS" },
           { "<leader>c", group = "code" },
           { "<leader>d", group = "profiler" },
           { "<leader>y", group = "copy paths" },
