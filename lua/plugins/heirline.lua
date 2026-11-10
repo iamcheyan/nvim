@@ -952,10 +952,12 @@ return {
       end
       local PositionInfo = require("config.statusline.position").new(statusline_colors)
       interactive(PositionInfo)
+      -- one space of padding on each side, like the other right-hand segments
+      local PaddedPosition = { pad, PositionInfo, pad }
 
       local RightInfo = {
         AwsProfile,
-        PositionInfo,
+        PaddedPosition,
         Venv,
         FileMeta,
         LspName,
