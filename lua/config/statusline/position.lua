@@ -14,10 +14,9 @@ function M.new(statusline_colors)
       local col = vim.api.nvim_win_call(win, function()
         return vim.fn.virtcol(".")
       end)
-      local pos = cursor[2] + 1
-      -- Keep the padding inside the provider so it travels with the text when
-      -- the segment is highlighted (pressed or menu open).
-      return " " .. string.format("L%dC%dP%d", line, col, pos) .. " "
+      -- "line-column", e.g. 12-4. Keep the padding inside the provider so it
+      -- travels with the text when the segment is highlighted.
+      return " " .. string.format("%d-%d", line, col) .. " "
     end,
     on_click = {
       name = "heirline_position_menu",

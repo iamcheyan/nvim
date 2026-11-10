@@ -7,7 +7,6 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     opts = function()
-      local gap = { provider = "  " }
       local pad = { provider = " " }
       local function caps_locked()
         return _G._heirline_caps_lock_on == true
@@ -52,43 +51,6 @@ return {
         return { fg = accent.fg or statusline_colors.text, bg = accent.bg or statusline_colors.bg, bold = false }
       end
 
-      local mode_names = {
-        n = "NORMAL",
-        no = "N-PENDING",
-        nov = "N-PENDING",
-        noV = "N-PENDING",
-        ["no\22"] = "N-PENDING",
-        niI = "NORMAL",
-        niR = "NORMAL",
-        niV = "NORMAL",
-        nt = "NORMAL",
-        v = "VISUAL",
-        vs = "VISUAL",
-        V = "V-LINE",
-        Vs = "V-LINE",
-        ["\22"] = "V-BLOCK",
-        ["\22s"] = "V-BLOCK",
-        s = "SELECT",
-        S = "S-LINE",
-        ["\19"] = "S-BLOCK",
-        i = "INSERT",
-        ic = "INSERT",
-        ix = "INSERT",
-        R = "REPLACE",
-        Rc = "REPLACE",
-        Rx = "REPLACE",
-        Rv = "V-REPLACE",
-        Rvc = "V-REPLACE",
-        Rvx = "V-REPLACE",
-        c = "COMMAND",
-        cv = "EX",
-        r = "PROMPT",
-        rm = "MORE",
-        ["r?"] = "CONFIRM",
-        ["!"] = "SHELL",
-        t = "TERMINAL",
-      }
-
       local function get_venv_name()
         local venv = vim.env.VIRTUAL_ENV
         if venv and venv ~= "" then
@@ -104,89 +66,6 @@ return {
       local menu = require("config.statusline.menu")
       local get_active_editor_win = menu.active_editor_win
       local open_statusline_menu = menu.open
-
-      local Mode = {
-        init = function(self)
-          self.mode = vim.fn.mode(1)
-        end,
-        on_click = {
-          callback = function(self, _, _, button)
-            if button ~= "l" then return end
-            open_statusline_menu("mode", {
-              {
-                icon = "󰌌",
-                label = "Show All Keymaps (:WhichKey)",
-                action = function()
-                  pcall(function() require("which-key").show() end)
-                end,
-              },
-              {
-                icon = "󰍉",
-                label = "Find Files (<leader><space>)",
-                action = function()
-                  pcall(function() require("snacks").picker.files() end)
-                end,
-              },
-              {
-                icon = "󰊄",
-                label = "Search Text in Project (<leader>sg)",
-                action = function()
-                  pcall(function() require("snacks").picker.grep() end)
-                end,
-              },
-              {
-                icon = "󰙅",
-                label = "Project Explorer (<leader>e)",
-                action = function()
-                  pcall(function() require("neo-tree.command").execute({ toggle = true }) end)
-                end,
-              },
-              {
-                icon = "󱐋",
-                label = "Plugin Manager (:Lazy)",
-                action = function()
-                  vim.cmd("Lazy")
-                end,
-              },
-              {
-                icon = "󰑐",
-                label = "Reload Configuration (<leader>uR)",
-                action = function()
-                  require("config.reload").menu()
-                end,
-              },
-            }, "heirline_mode_menu")
-          end,
-          name = "heirline_mode_menu",
-        },
-        hl = function(self)
-          if _G._active_statusline_menu == "mode" then
-            return click_feedback({ _pressed = true }, mode_surface())
-          end
-          return click_feedback(self, mode_surface())
-        end,
-        {
-          provider = " ",
-          hl = function(self)
-            if _G._active_statusline_menu == "mode" then
-              return click_feedback({ _pressed = true }, mode_surface())
-            end
-            return click_feedback(self, mode_surface())
-          end,
-        },
-        {
-          provider = function(self)
-            return (mode_names[self.mode] or self.mode)
-          end,
-          hl = function(self)
-            if _G._active_statusline_menu == "mode" then
-              return click_feedback({ _pressed = true }, mode_surface())
-            end
-            return click_feedback(self, mode_surface())
-          end,
-        },
-      }
-
 
       local GitBranch = {
         init = function(self)
@@ -823,14 +702,6 @@ return {
           return click_feedback(self, "FreshStatusLineNeutral")
         end,
         {
-          provider = "󰦨 ",
-          hl = function(self)
-            if _G._active_statusline_menu == "nav" then return { fg = statusline_colors.text } end
-            if self._pressed then return click_feedback(self, "FreshStatusLineNeutral") end
-            return { fg = statusline_colors.text }
-          end,
-        },
-        {
           provider = function()
             local winid = get_active_editor_win()
             local bufnr = vim.api.nvim_win_get_buf(winid)
@@ -894,7 +765,6 @@ return {
       pad_segment(LspName)
       pad_segment(RemainingPercent)
       pad_segment(AwsProfile)
-      pad_segment(Mode)
       -- Heirline does not track mouse presses. Keep our own short pulse and
       -- invalidate cached components so the first mouse-down redraws immediately.
       local function invalidate(component)
@@ -906,7 +776,7 @@ return {
           local callback = component.on_click.callback
           local normal_hl = component.hl
           local menu_id = ({
-            heirline_mode_menu = "mode", heirline_git_menu = "git",
+            heirline_git_menu = "git",
             heirline_file_actions = "file", heirline_lsp_menu = "lsp",
             heirline_fileformat_menu = "fileformat", heirline_encoding_menu = "encoding",
             heirline_aws_profile_menu = "aws_profile",
@@ -947,7 +817,7 @@ return {
         end
         for _, child in ipairs(component) do interactive(child) end
       end
-      for _, component in ipairs({ GitBranch, FileName, FileFormat, Encoding, LspName, RemainingPercent, Mode, AwsProfile }) do
+      for _, component in ipairs({ GitBranch, FileName, FileFormat, Encoding, LspName, RemainingPercent, AwsProfile }) do
         interactive(component)
       end
       local PositionInfo = require("config.statusline.position").new(statusline_colors)
@@ -961,7 +831,6 @@ return {
         LspName,
         RemainingPercent,
         CapsState,
-        Mode,
       }
 
 
