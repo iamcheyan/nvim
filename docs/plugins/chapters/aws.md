@@ -165,6 +165,19 @@ metadata 示例：
 
 `stepfunctions/`、`glue/` 目录可以识别，但对应动作尚未实现，插件会明确提示且不调用 AWS。
 
+## 本地 mock 测试
+
+仓库里的 `docs/mock-data/` 提供完全离线的测试环境：mock 的 `aws`/`curl`/`unzip`/`zip`/`zipinfo`、脱敏的 `~/.aws/config`，以及生成临时工作区的脚本。
+
+```sh
+sh docs/mock-data/setup-demo.sh
+export PATH="$PWD/docs/mock-data/bin:$PATH"
+export AWS_CONFIG_FILE="$PWD/docs/mock-data/aws-config"
+export AWS_PROFILE=dev
+```
+
+之后 `:AwsProfile`、`:AwsLambda`、`D`/`E`、`e`/`i`/`v`、`r`、`:AwsKMS` 都能在没有真实 AWS 账号的情况下跑通。每次调用都会以 `<profile> <args>` 写入 `$AWS_FAKE_LOG`，可以直接确认传入的 profile 是否正确；`AWS_FAKE_FAIL=1` 用来模拟 `AccessDeniedException`。
+
 ## 远程删除保护
 
 插件不提供删除云端资源或清空 S3 bucket 的快捷键、命令或公开 API。AWS CLI 执行层也会拒绝删除类操作，避免旧映射或直接调用触发资源删除。
