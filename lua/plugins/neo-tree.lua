@@ -57,7 +57,12 @@ return {
       event_handlers = {
         {
           event = "neo_tree_window_after_open",
-          handler = function(args) require("config.sidebar_tabs").on_tree_open(args) end,
+          handler = function(args)
+            require("config.sidebar_tabs").on_tree_open(args)
+            vim.defer_fn(function()
+              require("config.sidebar_state").capture()
+            end, 80)
+          end,
         },
         {
           event = "neo_tree_buffer_enter",

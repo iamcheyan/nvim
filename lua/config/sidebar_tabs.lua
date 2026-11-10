@@ -47,6 +47,7 @@ function M.on_tree_open(args)
     M.pending_tree = nil
     vim.api.nvim_win_set_width(args.winid, request.width)
     if request.focus then vim.api.nvim_set_current_win(args.winid) end
+    require("config.sidebar_state").capture()
   end)
 end
 
@@ -55,7 +56,8 @@ function M.select(source, opts)
   local editor = editor_window()
   if not editor then return end
   local sidebar = sidebar_windows()[1]
-  local width = sidebar and vim.api.nvim_win_get_width(sidebar) or 32
+  local width = (opts and opts.width) or (sidebar and vim.api.nvim_win_get_width(sidebar)) or 32
+  require("config.sidebar_state").remember(source, width)
   M.pending_tree = nil
   vim.api.nvim_set_current_win(editor)
   if source == "symbols" then
@@ -97,6 +99,9 @@ function M.select(source, opts)
     vim.wo.winfixwidth = true
     vim.api.nvim_win_set_width(0, width)
   end
+  vim.schedule(function()
+    require("config.sidebar_state").capture()
+  end)
   if not focus then vim.api.nvim_set_current_win(editor) end
   vim.cmd.redrawtabline()
 end
@@ -141,6 +146,7 @@ function M.setup()
   local offset = require("bufferline.offset")
   if M.installed then return end
   M.installed = true
+  require("config.sidebar_state").setup()
   _G.__sidebar_source_click = function(index, _, button)
     if button == "l" and sources[index] then M.select(sources[index], { focus = false }) end
   end

@@ -94,6 +94,18 @@
 - 切换 buffer（BufEnter）
 - Git checkout：监听 `.git/HEAD` 的 fs_event
 
+## 侧栏状态记忆
+
+侧栏的状态按项目（cwd）记住，重启 Neovim 后原样恢复：
+
+- 上次是否打开：开着就自动打开，关着就保持关闭
+- 最后使用的标签（File / Todo / Git / Syms）
+- 侧栏宽度
+
+状态存在 `stdpath("state")/sidebar/<cwd 的 sha256>.json`，只记录布局，不缓存内容。实现方式：每 1.5 秒扫描一次窗口布局（neo-tree/aerial 的窗口是 API 创建的，不触发 BufWinEnter/FileType 事件），关闭判定要连续缺失 2.5 秒才生效，避免启动过程中窗口重建造成误判。
+
+`vidiff` 之类的 diff 会话永远不会恢复侧栏，进入 diff 时如果侧栏已经打开也会被关掉。
+
 ## 性能
 
 - 项目扫描异步执行（todo-comments 的 rg job），不阻塞编辑
