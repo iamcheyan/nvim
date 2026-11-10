@@ -10,8 +10,8 @@
 
 | 入口 | 作用 |
 |---|---|
-| `<leader>bl` | BOOKMARK 书签列表（按文件、行号排序，块书签只预览对应行段） |
-| `<leader>bt` | 只看 BOOKMARK 关键字的 todo-comments 列表 |
+| `<leader>tf` | 当前 buffer 的 TODO 列表（带预览） |
+| `<leader>ta` | 项目全部 TODO（优先 Snacks picker） |
 | `:Telescope find_files` | 文件列表 |
 | `<C-q>` | 把当前选中项送进 quickfix 并打开列表 |
 
@@ -19,9 +19,9 @@
 
 ## 和 Snacks picker 的分工
 
-配置里的日常搜索（`<leader><space>`、`<leader>sg` 等）仍然走 Snacks picker；Telescope 专门承载书签列表和 todo-comments 的检索，因为这两个源需要按文件/行号稳定排序和自定义预览。
+配置里的日常搜索（`<leader><space>`、`<leader>sg` 等）仍然走 Snacks picker；Telescope 承载当前 buffer 的 TODO 列表；项目级列表优先用 Snacks，二者都遵循同一套关键字。
 
 ## 注意事项
 
 - 布局在 `lua/plugins/telescope.lua` 里统一设置：`prompt_position=top`、`preview_cutoff=60`。终端太窄时看不到预览是预期行为。
-- 书签列表的 finder、预览和排序在 `lua/config/bookmarks.lua`，不要把逻辑写进插件配置。
+- 当前 buffer 的 TODO 列表在 `lua/config/todo.lua`（`list_buffer`），不要把逻辑写进插件配置。

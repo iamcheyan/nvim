@@ -77,7 +77,7 @@
 |---|---|---|
 | [gitsigns.nvim](chapters/gitsigns.md) | 公开 | Git 行变更与 hunk 操作 |
 | [diffview.nvim](chapters/diffview.md) | 公开 | 分支差异和文件历史 |
-| [todo-comments.nvim](chapters/todo-comments.md) | 公开 | BOOKMARK 书签 + TODO 关键字 |
+| [todo-comments.nvim](chapters/todo-comments.md) | 公开 | TODO 关键字 + 分类侧栏 |
 | [telescope.nvim](chapters/telescope.md) | 公开 | 书签与关键字检索 |
 
 ## 界面、颜色和辅助操作

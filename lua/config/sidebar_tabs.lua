@@ -1,7 +1,7 @@
 local M = {}
-local sources = { "filesystem", "bookmarks", "git_status", "symbols" }
-local labels = { "File", "Marks", "Git", "Syms" }
-local icons = { "󰉓", "󰃀", "󰊢", "󰘦" }
+local sources = { "filesystem", "todos", "git_status", "symbols" }
+local labels = { "File", "Todo", "Git", "Syms" }
+local icons = { "󰉓", "󰄱", "󰊢", "󰘦" }
 
 local function sidebar_windows()
   local windows = {}

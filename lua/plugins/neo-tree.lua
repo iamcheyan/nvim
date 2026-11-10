@@ -46,14 +46,14 @@ return {
       {
         "<leader>be",
         function()
-          require("neo-tree.command").execute({ source = "bookmarks", toggle = true })
+          require("neo-tree.command").execute({ source = "todos", toggle = true })
         end,
-        desc = "Bookmark Explorer",
+        desc = "Todo Explorer",
       },
     },
     opts = {
       enable_diagnostics = false,
-      sources = { "filesystem", "bookmarks", "git_status" },
+      sources = { "filesystem", "todos", "git_status" },
       event_handlers = {
         {
           event = "neo_tree_window_after_open",
@@ -78,25 +78,29 @@ return {
         content_layout = "center",
         sources = {
           { source = "filesystem", display_name = "󰉓 File" },
-          { source = "bookmarks", display_name = "󰃀 Marks" },
+          { source = "todos", display_name = "󰄱 Todo" },
           { source = "git_status", display_name = "󰊢 Git" },
         },
       },
-      bookmarks = {
-        window = { width = 40 },
+      todos = {
+        window = { width = 44 },
         renderers = {
           root = {
             { "indent", with_markers = false },
             { "name", highlight = "NeoTreeRootName" },
           },
-          bookmark_file = {
+          todo_tag = {
+            { "indent", with_markers = false },
+            { "name", highlight = "TodoTagName", use_git_status_colors = false },
+          },
+          todo_file = {
             { "indent", with_markers = false },
             { "icon", default = "󰈔" },
-            { "name", highlight = "BookmarkFile" },
+            { "name", highlight = "TodoFileName", use_git_status_colors = false },
           },
-          bookmark = {
+          todo_entry = {
             { "indent", with_markers = false },
-            { "name", highlight = "BookmarkName" },
+            { "name", highlight = "TodoEntryName", use_git_status_colors = false },
           },
         },
       },

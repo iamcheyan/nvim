@@ -36,19 +36,13 @@
 <leader>ax	n	AWS EC2
 <leader>bC	n	Clear buffer contents
 <leader>bD	n	Delete Buffer and Window
-<leader>b[	n	Prev Buffer
-<leader>b]	n	Next Buffer
-<leader>bb	n	Bookmarks: add for the current line
 <leader>bd	n	Delete Buffer
-<leader>be	n	Bookmark Explorer
+<leader>be	n	Todo Explorer
 <leader>bi	n	Delete Invisible Buffers
-<leader>bl	n	Bookmarks: list
-<leader>bn	n	Bookmarks: next
+<leader>bl	n	Files (Telescope)
+<leader>bn	n	Next Buffer
 <leader>bo	n	Delete Other Buffers
-<leader>bp	n	Bookmarks: previous
-<leader>bq	n	Bookmarks: quickfix list
-<leader>bs	n	Bookmarks: sidebar
-<leader>bt	n	Bookmarks: only BOOKMARK (Telescope)
+<leader>bp	n	Prev Buffer
 <leader>cC	n	Color Convert (ccc)
 <leader>cH	n	Hover: choose source
 <leader>cK	n	COBOL syntax check
@@ -126,8 +120,18 @@
 <leader>sr	n	Search/Replace (project)
 <leader>sw	n	Grep Word (Git Root)
 <leader>s|	n	Split Right
+<leader>ta	n	Todo: list project
 <leader>tb	n	Terminal Bottom
+<leader>td	n	Todo: delete line
+<leader>tf	n	Todo: list buffer
+<leader>th	n	Todo: insert HACK
+<leader>tn	n	Todo: insert NOTE
+<leader>to	n	Todo: sidebar
+<leader>tp	n	Todo: insert PERF
 <leader>tr	n	Terminal Right
+<leader>ts	n	Todo: insert TEST
+<leader>tt	n	Todo: insert TODO
+<leader>tw	n	Todo: insert WARN
 <leader>uA	n	Toggle Tabline
 <leader>uC	n	Colorscheme with Preview
 <leader>uD	n	Toggle Dim Mode
@@ -234,7 +238,7 @@ Y	n	:help Y-default
 [e	n	Prev Error
 [l	n	:lprevious
 [q	n	Previous Quickfix
-[t	n	:tprevious
+[t	n	Todo: previous
 [w	n	Prev Warning
 ] 	n	Add empty line below cursor
 ]%	n
@@ -253,7 +257,7 @@ Y	n	:help Y-default
 ]e	n	Next Error
 ]l	n	:lnext
 ]q	n	Next Quickfix
-]t	n	:tnext
+]t	n	Todo: next
 ]w	n	Next Warning
 cs%	n
 ds%	n
@@ -338,7 +342,6 @@ zp	n	Peek folded lines under cursor
 zr	n	Fold less
 <leader><Down>	x	Add cursor on next line
 <leader><Up>	x	Add cursor on previous line
-<leader>bb	x	Bookmarks: wrap the selection in a block
 <leader>gY	x	Git Browse (copy)
 <leader>mN	x	Add cursor to previous match
 <leader>mn	x	Add cursor to next match

@@ -70,7 +70,7 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 ### todo-comments.nvim（公开）
 
-用注释做书签：`BOOKMARK: 名称`、`BOOKMARK-BEGIN/END`、`region BOOKMARK:/endregion`。sign 列显示 hint 色书签图标，和 TODO/FIXME 区分；光标停在书签行时整行淡底高亮。`<leader>bb` 添加（可视模式生成块书签），`<leader>bl` 打开 Telescope 列表（按文件行号排序、右侧预览、回车跳转），`<leader>bn` / `<leader>bp` 上下跳，`<leader>bt` 只看 BOOKMARK，`<leader>bq` 送 quickfix，`<leader>bs` 打开侧栏 Marks 标签。书签就是源码注释，Git 提交后跨机器存在，不依赖 session 或 shada。缓冲区切换改为 `<leader>b]` / `<leader>b[`。
+代码待办：注释里的 `TODO`、`HACK`、`WARN`、`PERF`、`NOTE`、`TEST` 会被着色并加 sign，与上游关键字一致（不含 BOOKMARK/FIXME）。`<leader>tt/th/tw/tp/tn/ts` 在光标上方插入对应注释并进入插入模式，`<leader>td` 删除当前行；`<leader>ta` 打开项目全部（优先 Snacks picker），`<leader>tf` 只看当前 buffer，`<leader>to` 打开侧栏 Todo 标签（按类型分组、显示文件/摘要/行号，回车跳转），`]t`/`[t` 上下跳。侧栏在保存、切 buffer、编辑和 Git checkout 时自动刷新，扫描异步且有缓存。
 
 ## 编程、补全与文本编辑
 

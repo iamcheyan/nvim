@@ -36,6 +36,7 @@ return {
           { "<leader>q", group = "quit and sessions" },
           { "<leader>m", group = "multicursor" },
           { "<leader>s", group = "search and replace" },
+          { "<leader>t", group = "todo" },
           { "<leader>u", group = "UI and options" },
           { "<leader>x", group = "diagnostics and quickfix" },
           -- { "[", group = "prev" },
@@ -43,7 +44,13 @@ return {
           { "g", group = "goto" },
           { "gs", group = "surround" },
           { "z", group = "fold" },
-          { "<leader>b", group = "bookmarks" },
+          {
+            "<leader>b",
+            group = "buffer",
+            expand = function()
+              return require("which-key.extras").expand.buf()
+            end,
+          },
           {
             "<leader>w",
             group = "windows",

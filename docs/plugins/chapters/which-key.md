@@ -32,7 +32,8 @@
 | `<leader>s` | search |
 | `<leader>u` | ui |
 | `<leader>x` | diagnostics/quickfix |
-| `<leader>b` | bookmarks |
+| `<leader>b` | buffer |
+| `<leader>t` | todo |
 | `<leader>w` | windows |
 | `gs` | surround |
 | `z` | fold |
