@@ -719,16 +719,6 @@ return {
           local ok, profile = pcall(require, "aws.profile")
           return ok and #profile.profiles() > 0
         end,
-        provider = function()
-          local ok, profile = pcall(require, "aws.profile")
-          if not ok then return "" end
-          return " " .. profile.summary() .. " "
-        end,
-        hl = function(self)
-          if _G._active_statusline_menu == "aws_profile" then return "FreshStatusLineAccent" end
-          if self._pressed then return click_feedback(self) end
-          return { fg = statusline_colors.text, bold = false }
-        end,
         on_click = {
           name = "heirline_aws_profile_menu",
           callback = function(_, _, _, button)
@@ -760,6 +750,27 @@ return {
               action = function() profile.pick() end,
             })
             open_statusline_menu("aws_profile", items, "heirline_aws_profile_menu")
+          end,
+        },
+        hl = function(self)
+          if _G._active_statusline_menu == "aws_profile" then
+            return "Pmenu"
+          end
+          return click_feedback(self, "FreshStatusLineNeutral")
+        end,
+        {
+          provider = function()
+            local ok, profile = pcall(require, "aws.profile")
+            return ok and profile.summary() or ""
+          end,
+          hl = function(self)
+            if _G._active_statusline_menu == "aws_profile" then
+              return { fg = statusline_colors.text }
+            end
+            if self._pressed then
+              return click_feedback(self, "FreshStatusLineNeutral")
+            end
+            return { fg = statusline_colors.text, bold = false }
           end,
         },
       }
@@ -882,6 +893,7 @@ return {
       pad_segment(Venv)
       pad_segment(LspName)
       pad_segment(RemainingPercent)
+      pad_segment(AwsProfile)
       pad_segment(Mode)
       -- Heirline does not track mouse presses. Keep our own short pulse and
       -- invalidate cached components so the first mouse-down redraws immediately.
