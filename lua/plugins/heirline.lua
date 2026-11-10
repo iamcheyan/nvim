@@ -719,18 +719,16 @@ return {
           local ok, profile = pcall(require, "aws.profile")
           return ok and #profile.profiles() > 0
         end,
-        hl = "FreshStatusLineAccent",
-        {
-          provider = "󰸏 ",
-          hl = { fg = statusline_colors.warning },
-        },
-        {
-          provider = function()
-            local ok, profile = pcall(require, "aws.profile")
-            return ok and profile.summary() or ""
-          end,
-          hl = { fg = statusline_colors.accent, bold = false },
-        },
+        provider = function()
+          local ok, profile = pcall(require, "aws.profile")
+          if not ok then return "" end
+          return " " .. profile.summary() .. " "
+        end,
+        hl = function(self)
+          if _G._active_statusline_menu == "aws_profile" then return "FreshStatusLineAccent" end
+          if self._pressed then return click_feedback(self) end
+          return { fg = statusline_colors.text, bold = false }
+        end,
         on_click = {
           name = "heirline_aws_profile_menu",
           callback = function(_, _, _, button)
@@ -899,6 +897,7 @@ return {
             heirline_mode_menu = "mode", heirline_git_menu = "git",
             heirline_file_actions = "file", heirline_lsp_menu = "lsp",
             heirline_fileformat_menu = "fileformat", heirline_encoding_menu = "encoding",
+            heirline_aws_profile_menu = "aws_profile",
             heirline_nav_menu = "nav", heirline_position_menu = "position",
           })[component.on_click.name]
           component.hl = function(self)

@@ -125,7 +125,7 @@ region = ap-northeast-1
 
 选中后会写入 `vim.env.AWS_PROFILE`，所有 AWS CLI 调用（资源动作、Lambda 工作流）立即生效，并触发 `User AwsProfileChanged` 自动刷新状态栏。
 
-状态栏左侧右侧的 `󰸏 dev@ap-northeast-1` 由 Heirline 组件提供，点击后弹出和其它状态栏菜单一致的浮窗，列出所有 profile、当前项带勾选、末尾提供重新加载和 `vim.ui.select` 入口。
+状态栏里的 `dev@ap-northeast-1`（左右各一个空格、无图标、与编码指示器同色）由 Heirline 组件提供，点击后弹出和其它状态栏菜单一致的浮窗，列出所有 profile、当前项带勾选、末尾提供重新加载和 `vim.ui.select` 入口。
 
 API：
 
