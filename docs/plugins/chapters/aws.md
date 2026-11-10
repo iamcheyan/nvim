@@ -104,6 +104,41 @@ lambda/<函数名>/
 
 payload 路径通过 `get_current_payload_file(dir)` 解析，后续要支持 `payloads/default.json`、`payloads/test1.json` 等多 payload 时不需要改调用逻辑。
 
+## AWS Profile 与状态栏
+
+插件读取 `~/.aws/config`（或 `$AWS_CONFIG_FILE`），只把 `[default]` 和 `[profile <名称>]` 当作 profile；`[sso-session ...]`、`[services ...]` 等段落会忽略，重复段落以最后一次为准，缺少 `region` 也允许。
+
+```ini
+[profile dev]
+role_arn = arn:aws:iam::123456789012:role/PowerUser
+source_profile = default
+region = ap-northeast-1
+```
+
+当前 profile 的优先级：`$AWS_PROFILE` → 本次会话里选中的 profile → `default`。
+
+| 命令 | 作用 |
+|---|---|
+| `:AwsProfile` | 用 `vim.ui.select` 选择（兼容 dressing / snacks / telescope） |
+| `:AwsProfile dev` | 直接切到 dev |
+| `:AwsProfile reload` | 重新读取 `~/.aws/config` |
+
+选中后会写入 `vim.env.AWS_PROFILE`，所有 AWS CLI 调用（资源动作、Lambda 工作流）立即生效，并触发 `User AwsProfileChanged` 自动刷新状态栏。
+
+状态栏左侧右侧的 `󰸏 dev@ap-northeast-1` 由 Heirline 组件提供，点击后弹出和其它状态栏菜单一致的浮窗，列出所有 profile、当前项带勾选、末尾提供重新加载和 `vim.ui.select` 入口。
+
+API：
+
+```lua
+local profile = require("aws.profile")
+profile.current()      -- "dev"
+profile.set("prod")    -- 写入 $AWS_PROFILE
+profile.profiles()     -- { "default", "dev", "stg", "prod" }
+profile.region("dev")  -- "ap-northeast-1" 或 nil
+profile.summary()      -- "dev@ap-northeast-1"
+profile.reload()       -- 重读配置文件
+```
+
 ## 资源动作（当前 Buffer 即当前资源）
 
 所有动作都先做资源发现：从当前文件目录向上找 `.aws-resource.json`，其次旧版 `.aws-meta.json`，再按目录结构（`lambda/`、`stepfunctions/`、`glue/`）推断，最后才用 AWS Explorer 里光标选中的 Lambda。找不到时直接报 `❌ AWS resource metadata not found` 并终止，不会猜。

@@ -714,6 +714,58 @@ return {
         },
       }
 
+      local AwsProfile = {
+        condition = function()
+          local ok, profile = pcall(require, "aws.profile")
+          return ok and #profile.profiles() > 0
+        end,
+        hl = "FreshStatusLineAccent",
+        {
+          provider = "󰸏 ",
+          hl = { fg = statusline_colors.warning },
+        },
+        {
+          provider = function()
+            local ok, profile = pcall(require, "aws.profile")
+            return ok and profile.summary() or ""
+          end,
+          hl = { fg = statusline_colors.accent, bold = false },
+        },
+        on_click = {
+          name = "heirline_aws_profile_menu",
+          callback = function(_, _, _, button)
+            if button ~= "l" then return end
+            local ok, profile = pcall(require, "aws.profile")
+            if not ok then return end
+            local current = profile.current()
+            local items = {}
+            for _, name in ipairs(profile.profiles()) do
+              local region = profile.region(name)
+              table.insert(items, {
+                icon = name == current and "" or "󰄱",
+                label = name .. (region and ("  " .. region) or ""),
+                action = function() profile.set(name) end,
+              })
+            end
+            table.insert(items, { separator = true })
+            table.insert(items, {
+              icon = "",
+              label = "Reload ~/.aws/config",
+              action = function()
+                profile.reload()
+                vim.notify("aws.nvim: reloaded " .. #profile.profiles() .. " profile(s)")
+              end,
+            })
+            table.insert(items, {
+              icon = "",
+              label = "Open profile picker (vim.ui.select)",
+              action = function() profile.pick() end,
+            })
+            open_statusline_menu("aws_profile", items, "heirline_aws_profile_menu")
+          end,
+        },
+      }
+
       local RemainingPercent = {
         on_click = {
           callback = function(self, _, _, button)
@@ -884,13 +936,14 @@ return {
         end
         for _, child in ipairs(component) do interactive(child) end
       end
-      for _, component in ipairs({ GitBranch, FileName, FileFormat, Encoding, LspName, RemainingPercent, Mode }) do
+      for _, component in ipairs({ GitBranch, FileName, FileFormat, Encoding, LspName, RemainingPercent, Mode, AwsProfile }) do
         interactive(component)
       end
       local PositionInfo = require("config.statusline.position").new(statusline_colors)
       interactive(PositionInfo)
 
       local RightInfo = {
+        AwsProfile,
         PositionInfo,
         Venv,
         FileMeta,
