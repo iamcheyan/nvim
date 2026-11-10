@@ -128,7 +128,8 @@ CATALOG = [
     ("Git 与项目记录", [
         ("gitsigns", "gitsigns.nvim", "公开", "Git 行变更与 hunk 操作"),
         ("diffview", "diffview.nvim", "公开", "分支差异与文件历史"),
-        ("bookmark", "bookmark.nvim", "私有", "项目书签"),
+        ("todo-comments", "todo-comments.nvim", "公开", "BOOKMARK 书签 + TODO 关键字"),
+        ("telescope", "telescope.nvim", "公开", "文件与书签检索"),
     ]),
     ("界面、颜色与辅助操作", [
         ("heirline", "heirline.nvim", "公开", "底部状态栏"),

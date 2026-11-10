@@ -68,9 +68,9 @@
 Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着；`<leader>um` 切换预览。它在缓冲区里把标题、列表、代码块等以渲染样式显示，不会改写 Markdown 源文件。关闭后仍可编辑原始文本。
 
 
-### bookmark.nvim（私有）
+### todo-comments.nvim（公开）
 
-在行号旁添加可点击书签，并可按项目保存。`<leader>mt` 或 `:BookmarkToggle` 切换当前行书签；`<leader>mm` / `:BookmarkList` 打开书签列表；`]b`、`[b` 跳到下/上一个；`<leader>mc` 清当前 buffer，`<leader>mC` 清当前项目。书签列表由 Snacks picker 管理。注意：`[b`/`]b` 在 Neovim 默认习惯中常用作缓冲区切换，本配置已经从默认缓冲区映射移除这两个键，缓冲区切换请用 `Shift+h/l`。
+用注释做书签：`BOOKMARK: 名称`、`BOOKMARK-BEGIN/END`、`region BOOKMARK:/endregion`。sign 列显示 hint 色书签图标，和 TODO/FIXME 区分；光标停在书签行时整行淡底高亮。`<leader>bb` 添加（可视模式生成块书签），`<leader>bl` 打开 Telescope 列表（按文件行号排序、右侧预览、回车跳转），`<leader>bn` / `<leader>bp` 上下跳，`<leader>bt` 只看 BOOKMARK，`<leader>bq` 送 quickfix，`<leader>bs` 打开侧栏 Marks 标签。书签就是源码注释，Git 提交后跨机器存在，不依赖 session 或 shada。缓冲区切换改为 `<leader>b]` / `<leader>b[`。
 
 ## 编程、补全与文本编辑
 

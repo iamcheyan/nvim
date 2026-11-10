@@ -77,8 +77,8 @@ map("n", "<leader>bd", function() Snacks.bufdelete() end, { desc = "Delete Buffe
 map("n", "<leader>bo", function() Snacks.bufdelete.other() end, { desc = "Delete Other Buffers" })
 map("n", "<leader>bi", function() Snacks.bufdelete.invisible() end, { desc = "Delete Invisible Buffers" })
 map("n", "<leader>bD", "<cmd>:bd<cr>", { desc = "Delete Buffer and Window" })
-map("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "Next Buffer" })
-map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
+map("n", "<leader>b]", "<cmd>bnext<cr>", { desc = "Next Buffer" })
+map("n", "<leader>b[", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 
 ------------------- Clear search on escape -----------------------------------
 map({ "i", "n", "s" }, "<esc>", function()

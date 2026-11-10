@@ -46,14 +46,14 @@ return {
       {
         "<leader>be",
         function()
-          require("neo-tree.command").execute({ source = "buffers", toggle = true })
+          require("neo-tree.command").execute({ source = "bookmarks", toggle = true })
         end,
-        desc = "Buffer Explorer",
+        desc = "Bookmark Explorer",
       },
     },
     opts = {
       enable_diagnostics = false,
-      sources = { "filesystem", "buffers", "git_status" },
+      sources = { "filesystem", "bookmarks", "git_status" },
       event_handlers = {
         {
           event = "neo_tree_window_after_open",
@@ -78,8 +78,26 @@ return {
         content_layout = "center",
         sources = {
           { source = "filesystem", display_name = "󰉓 File" },
-          { source = "buffers", display_name = "󰈚 Bufs" },
+          { source = "bookmarks", display_name = "󰃀 Marks" },
           { source = "git_status", display_name = "󰊢 Git" },
+        },
+      },
+      bookmarks = {
+        window = { width = 40 },
+        renderers = {
+          root = {
+            { "indent", with_markers = false },
+            { "name", highlight = "NeoTreeRootName" },
+          },
+          bookmark_file = {
+            { "indent", with_markers = false },
+            { "icon", default = "󰈔" },
+            { "name", highlight = "BookmarkFile" },
+          },
+          bookmark = {
+            { "indent", with_markers = false },
+            { "name", highlight = "BookmarkName" },
+          },
         },
       },
       use_popups_for_input = false,

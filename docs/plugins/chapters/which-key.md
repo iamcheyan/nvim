@@ -32,7 +32,7 @@
 | `<leader>s` | search |
 | `<leader>u` | ui |
 | `<leader>x` | diagnostics/quickfix |
-| `<leader>m` | bookmarks |
+| `<leader>b` | bookmarks |
 | `<leader>w` | windows |
 | `gs` | surround |
 | `z` | fold |

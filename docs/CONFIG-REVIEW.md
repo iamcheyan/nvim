@@ -52,8 +52,7 @@
 
 - 普通模式 `m` 是剪切到系统剪贴板，`mm` 剪切整行。这是 `keymaps.lua` 的既定模型。
 - `<leader>m` 被映射成原生 `m`，用来设置 mark，所以它要再等一个 mark 字母。
-- `lua/plugins/bookmark.lua` 占用 `<leader>mm`、`<leader>mt`、`<leader>mc`、`<leader>mC`。
-- which-key 把 `<leader>m` 标成 bookmarks。
+- `<leader>b` 是书签命名空间：`bb/bl/bn/bp/bt/bq/bs` 由 `lua/plugins/bookmarks.lua` 注册，`b]`/`b[` 留给缓冲区切换。
 
 因此 `<leader>mm` 打开书签列表，不能把 mark 设到字母 `m`。按 `<leader>m` 也会因为更长的书签映射而等待 300ms。
 
@@ -278,7 +277,7 @@ blink 的 snippet 修复使用 `vim.lsp._snippet_grammar` 和 `vim.snippet._sess
 | 搜索替换两套 `<leader>sr` | `lua/plugins/grug-far.lua` |
 | 折叠与 fillchars | `lua/plugins/ufo.lua`、`lua/plugins/treesitter.lua`、`lua/plugins/aerial.lua` |
 | 诊断 handler | `lua/plugins/disable-diagnostics.lua`、`lua/plugins/shellcheck.lua`、`lua/plugins/lsp.lua` |
-| 书签与 `<leader>m` | `lua/plugins/bookmark.lua` |
+| 书签与 `<leader>b` | `lua/plugins/bookmarks.lua`、`lua/plugins/todo-comments.lua` |
 | 图片探测与 grep 补丁 | `lua/plugins/snacks.lua` |
 | which-key 分组与 `View.show` | `lua/plugins/which-key.lua` |
 | 空缓冲打开 Dashboard | `lua/config/autocmds.lua` |

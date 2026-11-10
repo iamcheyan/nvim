@@ -36,12 +36,19 @@
 <leader>ax	n	AWS EC2
 <leader>bC	n	Clear buffer contents
 <leader>bD	n	Delete Buffer and Window
+<leader>b[	n	Prev Buffer
+<leader>b]	n	Next Buffer
+<leader>bb	n	Bookmarks: add for the current line
 <leader>bd	n	Delete Buffer
-<leader>be	n	Buffer Explorer
+<leader>be	n	Bookmark Explorer
 <leader>bi	n	Delete Invisible Buffers
-<leader>bn	n	Next Buffer
+<leader>bl	n	Bookmarks: list
+<leader>bn	n	Bookmarks: next
 <leader>bo	n	Delete Other Buffers
-<leader>bp	n	Prev Buffer
+<leader>bp	n	Bookmarks: previous
+<leader>bq	n	Bookmarks: quickfix list
+<leader>bs	n	Bookmarks: sidebar
+<leader>bt	n	Bookmarks: only BOOKMARK (Telescope)
 <leader>cC	n	Color Convert (ccc)
 <leader>cH	n	Hover: choose source
 <leader>cK	n	COBOL syntax check
@@ -92,13 +99,9 @@
 <leader>jc	n	Portal: change list
 <leader>jo	n	Portal: jump back
 <leader>l	n	Lazy
-<leader>mC	n	Bookmarks: Clear Project
 <leader>mN	n	Add cursor to previous match
-<leader>mc	n	Bookmarks: Clear Buffer
-<leader>mm	n	Bookmarks: List
 <leader>mn	n	Add cursor to next match
 <leader>mq	n	Toggle multicursor mode
-<leader>mt	n	Bookmarks: Toggle Line
 <leader>p	n	Smart paste block
 <leader>qN	n	VimQuest next round
 <leader>qS	n	VimQuest stats
@@ -226,7 +229,7 @@ Y	n	:help Y-default
 [Q	n	:crewind
 [T	n	:trewind
 [a	n	:previous
-[b	n	Bookmarks: Prev
+[b	n	:bprevious
 [d	n	Prev Diagnostic
 [e	n	Prev Error
 [l	n	:lprevious
@@ -245,7 +248,7 @@ Y	n	:help Y-default
 ]Q	n	:clast
 ]T	n	:tlast
 ]a	n	:next
-]b	n	Bookmarks: Next
+]b	n	:bnext
 ]d	n	Next Diagnostic
 ]e	n	Next Error
 ]l	n	:lnext
@@ -335,6 +338,7 @@ zp	n	Peek folded lines under cursor
 zr	n	Fold less
 <leader><Down>	x	Add cursor on next line
 <leader><Up>	x	Add cursor on previous line
+<leader>bb	x	Bookmarks: wrap the selection in a block
 <leader>gY	x	Git Browse (copy)
 <leader>mN	x	Add cursor to previous match
 <leader>mn	x	Add cursor to next match

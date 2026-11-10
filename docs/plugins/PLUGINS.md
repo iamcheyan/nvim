@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，共 **47 章**。其中依赖库共用一章，因为它们是供其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
+这本书按当前 `lazy.nvim` 注册结果整理，共 **48 章**。其中依赖库共用一章，因为它们是供其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
 
 ## 怎么使用这本书
 
@@ -77,7 +77,8 @@
 |---|---|---|
 | [gitsigns.nvim](chapters/gitsigns.md) | 公开 | Git 行变更与 hunk 操作 |
 | [diffview.nvim](chapters/diffview.md) | 公开 | 分支差异和文件历史 |
-| [bookmark.nvim](chapters/bookmark.md) | 私有 | 项目书签 |
+| [todo-comments.nvim](chapters/todo-comments.md) | 公开 | BOOKMARK 书签 + TODO 关键字 |
+| [telescope.nvim](chapters/telescope.md) | 公开 | 书签与关键字检索 |
 
 ## 界面、颜色和辅助操作
 
