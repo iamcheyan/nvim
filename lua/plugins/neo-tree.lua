@@ -72,6 +72,8 @@ return {
             vim.wo.signcolumn = "no"
             vim.wo.statuscolumn = ""
             vim.wo.winfixwidth = true
+            -- Keep the split cell draggable without drawing a sidebar edge.
+            vim.opt_local.fillchars:append({ vert = " " })
           end,
         },
       },
