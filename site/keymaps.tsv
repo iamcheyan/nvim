@@ -79,12 +79,14 @@
 <leader>fu	n	Convert Current File to Unix Line Endings
 <leader>fw	n	Grep Word (cwd)
 <leader>gD	n	Diffview File History (Current File)
+<leader>gG	n	Lazygit (cwd)
 <leader>gL	n	Git Log (cwd)
 <leader>gV	n	Diffview Branch History
 <leader>gY	n	Git Browse (copy)
 <leader>gd	n	Diffview Open
 <leader>ge	n	Git Explorer
 <leader>gf	n	Git Current File History
+<leader>gg	n	Lazygit (Root Dir)
 <leader>gl	n	Git Log
 <leader>gq	n	Diffview Close
 <leader>gv	n	Restore cursors
@@ -138,8 +140,9 @@
 <leader>uG	n	Toggle Git Signs
 <leader>uI	n	Inspect Tree
 <leader>uL	n	Toggle Relative Line Numbers
-<leader>uM	n	Matchup: enable matchparen
+<leader>uM	n	Toggle Editor Mode (restart)
 <leader>uN	n	Matchup: disable matchparen
+<leader>uP	n	Matchup: enable matchparen
 <leader>uR	n	Reload Configuration
 <leader>uS	n	Toggle Smooth Scrolling
 <leader>uT	n	Toggle Treesitter Highlighting

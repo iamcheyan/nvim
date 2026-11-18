@@ -836,6 +836,7 @@ def build_plugin_index() -> str:
     inner = (
         f'<p class="lede">{total} 章，按插件分组。多数章节先说明它解决什么问题，'
         f'再给本配置里的用法和一组练习。</p>'
+        '<p><a href="guides/editor-modes.html">日常模式与增强模式：插件和加载条件对照 →</a></p>'
     ) + "".join(sections)
     return article_shell("插件手册", inner, "plugins", '<a href="index.html">首页</a> / 插件手册', "plugins/")
 
@@ -938,6 +939,8 @@ def rewrite_source_links(html: str, page_dir: str = "guides") -> str:
         mm = re.match(r"^([A-Za-z0-9._\-]+)\.md$", target)
         if mm:
             return f'href="{mm.group(1).lower()}.html"'
+        if target == "../plugins/PLUGINS.md":
+            return 'href="../plugins.html"'
         # Cross-section references
         # Cross-section links: ../wiki/x.md, ../guides/x.md, ../reference/x.md.
         # Sections published at their own path keep it; development/ lives
@@ -946,7 +949,7 @@ def rewrite_source_links(html: str, page_dir: str = "guides") -> str:
             if target.startswith(f"../{sect}/"):
                 tail = target[len(f"../{sect}/") :].replace(".md", ".html").lower()
                 published = "guides" if sect == "development" else sect
-                if page_dir in ("plugins", "tutorials", "wiki", "reference"):
+                if page_dir in ("plugins", "tutorials", "wiki", "reference", "guides"):
                     return f'href="../{published}/{tail}"'
                 return f'href="{published}/{tail}"'
         # Repository files that are not published pages
