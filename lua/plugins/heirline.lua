@@ -29,6 +29,12 @@ return {
             return vim.api.nvim_get_hl(0, { name = "FreshStatusLineAccent", link = false }).fg or fg
           end
           if key == "text" then return fg end
+          if key == "detail_text" then
+            if vim.g.colors_name == "blue" then
+              return require("config.ui_highlights").to_rgb(require("config.ui_highlights").nostalgia_palette().status_bar_fg)
+            end
+            return vim.api.nvim_get_hl(0, { name = "FreshStatusLineNeutral", link = false }).fg or fg
+          end
           if key == "accent" then
             return vim.api.nvim_get_hl(0, { name = "FreshStatusLineAccent", link = false }).fg or fg
           end
@@ -486,7 +492,7 @@ return {
               return click_feedback({ _pressed = true }, "FreshStatusLineWarning")
             end
             if self._pressed then return click_feedback(self, "FreshStatusLineWarning") end
-            return { fg = statusline_colors.text }
+            return { fg = statusline_colors.detail_text }
           end,
         },
         {
@@ -498,7 +504,7 @@ return {
               return click_feedback({ _pressed = true }, "FreshStatusLineWarning")
             end
             if self._pressed then return click_feedback(self, "FreshStatusLineWarning") end
-            return { fg = statusline_colors.text, bold = false }
+            return { fg = statusline_colors.detail_text, bold = false }
           end,
         },
       }
@@ -714,9 +720,9 @@ return {
             return remain .. "%"
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "nav" then return { fg = statusline_colors.text, bold = false } end
+            if _G._active_statusline_menu == "nav" then return { fg = statusline_colors.detail_text, bold = false } end
             if self._pressed then return click_feedback(self, "FreshStatusLineNeutral") end
-            return { fg = statusline_colors.text, bold = false }
+            return { fg = statusline_colors.detail_text, bold = false }
           end,
         },
       }
