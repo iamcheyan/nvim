@@ -33,7 +33,23 @@ vim.opt.rtp:prepend(lazypath)
 
 -- All plugin specs live in this repository. Optional local development settings
 -- are machine-local and never required by ordinary installations.
+local mode = require("config.mode")
 local spec = { { import = "plugins" } }
+if mode.current == "daily" then
+  -- Keep the editing, search, folding and Git tools; omit development services
+  -- and extra visual layers from this profile.
+  for _, plugin in ipairs({
+    "mason-org/mason.nvim", "mason-org/mason-lspconfig.nvim", "neovim/nvim-lspconfig",
+    "Bekaboo/dropbar.nvim", "stevearc/aerial.nvim", "iamcheyan/cobol.nvim",
+    "iamcheyan/batch.nvim", "iamcheyan/aws.nvim", "iamcheyan/VimQuest",
+    "sindrets/diffview.nvim", "MagicDuck/grug-far.nvim", "nvim-telescope/telescope.nvim",
+    "j-hui/fidget.nvim", "lewis6991/hover.nvim", "nvim-treesitter/nvim-treesitter-context",
+    "shellRaining/hlchunk.nvim", "HiPhish/rainbow-delimiters.nvim",
+    "uga-rosa/ccc.nvim",
+  }) do
+    spec[#spec + 1] = { plugin, enabled = false }
+  end
+end
 local local_file = (vim.env.XDG_CONFIG_HOME or vim.fn.expand("~/.config")) .. "/nvim-local.lua"
 local local_opts = {}
 if vim.fn.filereadable(local_file) == 1 then
@@ -104,6 +120,16 @@ require("lazy").setup(vim.tbl_deep_extend("force", {
 
 -- Baseline <leader> keymaps ported from LazyVim's defaults and adapted to the
 -- plugins we actually run (snacks picker, gitsigns, vim builtins).
+mode.setup()
+if mode.current == "daily" then
+  vim.opt.winbar = ""
+  -- Keep buffer tabs while suppressing the breadcrumb bar in each window.
+  vim.api.nvim_create_autocmd({ "VimEnter", "BufWinEnter", "WinEnter" }, {
+    callback = function()
+      vim.wo.winbar = ""
+    end,
+  })
+end
 require("config.keymaps-defaults")
 -- Load personal keymaps last so they intentionally override compatibility
 -- mappings when the same lhs is used.

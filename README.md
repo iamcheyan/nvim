@@ -36,6 +36,17 @@ Options:
 - `--skip-plugins`: prepare dependencies and link; defer plugin installation to first launch.
 - `--skip-install`: use existing dependencies; fail if anything required is missing.
 
+## Editor modes
+
+Use `<leader>uM` (UI and options → Editor Mode) or `:NvimMode` to toggle
+between Daily and Enhanced. The selection takes effect after restarting Neovim and is
+stored locally in Neovim's state directory. Enhanced is the default.
+
+Daily hides the breadcrumb bar while keeping buffer tabs, code browsing, basic completion,
+multicursor, folding, and Git signs, while omitting LSP and selected development
+and visual plugins. Override the saved choice for one launch with
+`NVIM_MODE=daily nvim` or `NVIM_MODE=full nvim`.
+
 ## Update
 
 ```bash

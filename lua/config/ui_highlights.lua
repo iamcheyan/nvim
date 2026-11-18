@@ -261,8 +261,8 @@ local function tab_palette()
     local surface_bg = to_rgb(fresh.tab_inactive_bg)
     local surface_fg = to_rgb(fresh.tab_inactive_fg)
     local separator_bg = to_rgb(fresh.tab_separator_bg)
-    local active_bg = 0xffffff
-    local active_fg = to_rgb(fresh.tab_active_fg)
+    local active_bg = theme_scrollbar_accent or to_rgb(fresh.tab_active_bg)
+    local active_fg = readable_foreground(active_bg, theme_scrollbar_fg, to_rgb(fresh.tab_active_fg), normal_fg, normal_bg)
     local topbar_bg = to_rgb(fresh.tab_active_bg)
     return {
       normal_fg = to_rgb(fresh.editor_fg),
@@ -275,12 +275,11 @@ local function tab_palette()
       visible_fg = surface_fg,
       visible_bg = surface_bg,
       separator_fg = to_rgb(fresh.split_separator_fg),
-      scrollbar_bg = theme_scrollbar_accent,
+      scrollbar_bg = active_bg,
       scrollbar_misc_fg = normal_fg,
       scrollbar_misc_bg = normal_bg,
-      -- Keep the context bar (WinBar) on the gray surface while the active
-      -- buffer tab uses pure white (#ffffff).
-      winbar_fg = active_fg,
+      -- Keep the context bar on its separate theme surface.
+      winbar_fg = to_rgb(fresh.tab_active_fg),
       winbar_bg = topbar_bg,
       winbar_nc_fg = surface_fg,
       winbar_nc_bg = surface_bg,
@@ -299,9 +298,8 @@ local function tab_palette()
   end
 
   local active = get("TabLineSel")
-  local active_bg = title_surfaces.active_bg or active.bg or get("Visual").bg or surface_bg
-  local active_fg = title_surfaces.active_fg or active.fg or get("Visual").fg or normal_fg
-  active_fg, active_bg = readable_pair(active_fg, active_bg, normal)
+  local active_bg = theme_scrollbar_accent or title_surfaces.active_bg or active.bg or surface_bg
+  local active_fg = readable_foreground(active_bg, theme_scrollbar_fg, active.fg, normal_fg, normal_bg)
 
   local visible_bg = title_surfaces.inactive_bg or pick_bg("CursorLine", "TabLine", "Normal")
   local visible_fg = title_surfaces.inactive_fg or pick_fg("TabLine", "StatusLineNC", "NormalNC", "Normal")
@@ -596,7 +594,7 @@ function M.apply()
   if nostalgia then
     set(0, "TabLine", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })
     set(0, "TabLineFill", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })
-    set(0, "TabLineSel", { fg = nostalgia.tab_active_fg, bg = "#ffffff", bold = false })
+    set(0, "TabLineSel", { fg = p.active_fg, bg = p.active_bg, bold = false })
     set(0, "FreshStatusLineNormal", M.fresh_normal_style())
     set(0, "FreshStatusLineAccent", {
       fg = nostalgia.status_palette_fg,
@@ -639,23 +637,9 @@ function M.apply()
   M.apply_menu_highlights()
   local active_status = get("StatusLine")
   local inactive_status = get("StatusLineNC")
-  local status_fg, status_bg
-  local status_nc_fg, status_nc_bg
-  if nostalgia then
-    status_fg, status_bg = nostalgia.status_bar_fg, nostalgia.status_bar_bg
-    status_nc_fg, status_nc_bg = nostalgia.status_bar_fg, nostalgia.status_bar_bg
-  else
-    status_fg, status_bg = readable_pair(
-      title_surfaces.status_active_fg or active_status.fg or normal.fg,
-      title_surfaces.status_active_bg or active_status.bg or normal.bg,
-      normal
-    )
-    status_nc_fg, status_nc_bg = readable_pair(
-      title_surfaces.status_inactive_fg or inactive_status.fg or status_fg,
-      title_surfaces.status_inactive_bg or inactive_status.bg or status_bg,
-      normal
-    )
-  end
+  -- Use the same theme-derived surface as the scrollbar and active tab.
+  local status_fg, status_bg = p.active_fg, p.scrollbar_bg or p.active_bg
+  local status_nc_fg, status_nc_bg = status_fg, status_bg
   set(0, "StatusLine", { fg = status_fg, bg = status_bg, bold = false })
   set(0, "StatusLineNC", { fg = status_nc_fg, bg = status_nc_bg, bold = false })
   if not nostalgia then

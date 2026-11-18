@@ -1,7 +1,8 @@
 local M = {}
-local sources = { "filesystem", "todos", "git_status", "symbols" }
-local labels = { "File", "Todo", "Git", "Syms" }
-local icons = { "󰉓", "󰄱", "󰊢", "󰘦" }
+local sources = require("config.mode").current == "daily" and { "filesystem", "todos", "git_status" }
+  or { "filesystem", "todos", "git_status", "symbols" }
+local labels = require("config.mode").current == "daily" and { "File", "Todo", "Git" } or { "File", "Todo", "Git", "Syms" }
+local icons = require("config.mode").current == "daily" and { "󰉓", "󰄱", "󰊢" } or { "󰉓", "󰄱", "󰊢", "󰘦" }
 
 local function sidebar_windows()
   local windows = {}
@@ -52,6 +53,7 @@ function M.on_tree_open(args)
 end
 
 function M.select(source, opts)
+  if require("config.mode").current == "daily" and source == "symbols" then return end
   local focus = not opts or opts.focus ~= false
   local editor = editor_window()
   if not editor then return end

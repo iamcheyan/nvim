@@ -11,7 +11,7 @@ return {
       vim.g.matchup_transmute_enabled = 1
     end,
     keys = {
-      { "<leader>uM", "<cmd>DoMatchParen<cr>", desc = "Matchup: enable matchparen" },
+      { "<leader>uP", "<cmd>DoMatchParen<cr>", desc = "Matchup: enable matchparen" },
       { "<leader>uN", "<cmd>NoMatchParen<cr>", desc = "Matchup: disable matchparen" },
     },
   },

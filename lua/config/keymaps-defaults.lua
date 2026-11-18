@@ -166,6 +166,8 @@ map("n", "<leader>K", "<cmd>norm! K<cr>", { desc = "Keywordprg" })
 map("x", "<", "<gv")
 map("x", ">", ">gv")
 
+map("n", "<leader>uM", function() require("config.mode").toggle() end, { desc = "Toggle Editor Mode (restart)" })
+
 ------------------- lazy ------------------------------------------------------
 map("n", "<leader>l", "<cmd>Lazy<cr>", { desc = "Lazy" })
 
