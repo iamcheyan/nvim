@@ -94,8 +94,8 @@ CATALOG = [
         ("dashboard-nvim", "dashboard-nvim", "公开", "启动页、最近文件与项目目录"),
         ("snacks.nvim", "snacks.nvim", "公开", "文件与内容搜索、通知和工具"),
         ("neo-tree.nvim", "neo-tree.nvim", "公开", "文件树、缓冲区与 Git 视图"),
-        ("aws", "aws.nvim", "公开", "AWS 服务与 Lambda 工作流"),
-        ("viewsplit", "viewsplit.nvim", "公开", "在分屏间隔离浏览状态"),
+        ("aws", "aws.nvim", "自有", "AWS 服务与 Lambda 工作流"),
+        ("viewsplit", "viewsplit.nvim", "自有", "在分屏间隔离浏览状态"),
         ("bufferline.nvim", "bufferline.nvim", "公开", "顶部缓冲区标签栏"),
         ("grug-far.nvim", "grug-far.nvim", "公开", "跨文件查找替换"),
         ("auto-session", "auto-session", "公开", "按项目保存与恢复会话"),
@@ -143,14 +143,14 @@ CATALOG = [
         ("mini-pairs", "mini.pairs", "公开", "自动补全括号与引号"),
         ("mini-hipatterns", "mini.hipatterns", "公开", "颜色值文本高亮"),
         ("ccc", "ccc.nvim", "公开", "取色与颜色转换"),
-        ("smart-paste", "smart-paste.nvim", "私有", "系统剪贴板与缩进粘贴"),
+        ("smart-paste", "smart-paste.nvim", "公开", "系统剪贴板与缩进粘贴"),
         ("noice", "noice.nvim", "公开", "命令行、消息与确认框浮层"),
     ]),
-    ("私有语言工具", [
-        ("cobol", "cobol.nvim", "私有", "COBOL 导航、格式与辅助"),
-        ("batch", "batch.nvim", "私有", "Windows Batch 标签导航与分析"),
-        ("vimquest", "VimQuest.nvim", "私有", "词汇练习"),
-        ("position-ruler", "position-ruler.nvim", "私有", "定长文件的字符列标尺"),
+    ("自有插件与定长文件工具", [
+        ("cobol", "cobol.nvim", "自有", "COBOL 导航、格式与辅助"),
+        ("batch", "batch.nvim", "自有", "Windows Batch 标签导航与分析"),
+        ("vimquest", "VimQuest.nvim", "自有", "词汇练习"),
+        ("position-ruler", "position-ruler.nvim", "自有", "定长文件的字符列标尺"),
     ]),
     ("管理器与依赖", [
         ("lazy", "lazy.nvim", "管理器", "插件安装与更新"),
@@ -1334,7 +1334,7 @@ def build_search_index() -> list[dict]:
         plain = re.sub(r"`{1,3}[^`]*`{1,3}", " ", text)
         plain = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", plain)
         plain = re.sub(r"^#\s+.*$", " ", plain, flags=re.M)
-        for noise in ("公开插件", "私有插件", "依赖", "管理器", "回到插件目录",
+        for noise in ("公开插件", "自有插件", "私有插件", "依赖", "管理器", "回到插件目录",
                       "它解决什么问题", "在当前配置里怎么用", "动手练习",
                       "注意事项", "查快捷键和帮助"):
             plain = plain.replace(noise, " ")

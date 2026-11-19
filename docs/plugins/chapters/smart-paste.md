@@ -1,6 +1,6 @@
 # smart-paste.nvim
 
-> 私有插件 · [回到插件目录](../PLUGINS.md) · 相关配置：[`lua/plugins/smart-paste.lua`](../../../lua/plugins/smart-paste.lua)
+> 公开插件 · [回到插件目录](../PLUGINS.md) · 相关配置：[`lua/plugins/smart-paste.lua`](../../../lua/plugins/smart-paste.lua)
 
 ---
 

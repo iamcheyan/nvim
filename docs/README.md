@@ -22,7 +22,7 @@ Neovim 的说明文档按用途集中放在 `config/nvim/docs/`。配置源文�
 
 ## 插件
 
-- [Neovim 插件使用书](plugins/PLUGINS.md)：50 个公开、私有插件和依赖的分类目录；每一项都链接到独立章节，含操作方法和练习。
+- [Neovim 插件使用书](plugins/PLUGINS.md)：覆盖当前 50 个插件规格，共 48 章；四个依赖库合并为一章，Snacks 缩进线另有功能说明章。
 - [合并版插件手册](plugin-guide/README.md)也保留在仓库；逐插件学习以使用书章节为入口。
 
 ## 使用指南

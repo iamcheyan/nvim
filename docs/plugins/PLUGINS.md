@@ -1,6 +1,6 @@
 # Neovim 插件使用书
 
-这本书按当前 `lazy.nvim` 注册结果整理，共 **48 章**。其中依赖库共用一章，因为它们是供其它插件调用的库，没有用户入口。私有插件在章节标题和目录中标明。
+这本书按当前 `lazy.nvim` 注册结果整理，覆盖 **50 个插件规格，共 48 章**。其中四个依赖库共用一章；Snacks 的缩进线功能另有独立说明章。自有插件使用独立的公开 Git 仓库，在目录中标明。
 
 [查看日常模式与增强模式的插件和加载条件对照](../guides/EDITOR-MODES.md)。
 
@@ -30,8 +30,8 @@
 | [dashboard-nvim](chapters/dashboard-nvim.md) | 公开 | 启动页、最近文件和项目目录 |
 | [snacks.nvim](chapters/snacks.nvim.md) | 公开 | 文件/内容搜索、通知和工具 |
 | [neo-tree.nvim](chapters/neo-tree.nvim.md) | 公开 | 文件树、缓冲区和 Git 视图 |
-| [aws.nvim](chapters/aws.md) | 公开 | AWS 服务与 Lambda 工作流 |
-| [viewsplit.nvim](chapters/viewsplit.md) | 公开 | 在分屏间隔离浏览状态 |
+| [aws.nvim](chapters/aws.md) | 自有 | AWS 服务与 Lambda 工作流 |
+| [viewsplit.nvim](chapters/viewsplit.md) | 自有 | 在分屏间隔离浏览状态 |
 | [bufferline.nvim](chapters/bufferline.nvim.md) | 公开 | 缓冲区标签栏 |
 | [grug-far.nvim](chapters/grug-far.nvim.md) | 公开 | 跨文件查找替换 |
 | [auto-session](chapters/auto-session.md) | 公开 | 项目会话保存和恢复 |
@@ -58,6 +58,7 @@
 | 插件 | 类型 | 章节 |
 |---|---|---|
 | [hover.nvim](chapters/hover-nvim.md) | 公开 | 统一的悬浮文档窗口 |
+| [noice.nvim](chapters/noice.md) | 公开 | 命令行、消息与确认框浮层 |
 
 ## 阅读与上下文
 
@@ -80,7 +81,7 @@
 | [gitsigns.nvim](chapters/gitsigns.md) | 公开 | Git 行变更与 hunk 操作 |
 | [diffview.nvim](chapters/diffview.md) | 公开 | 分支差异和文件历史 |
 | [todo-comments.nvim](chapters/todo-comments.md) | 公开 | TODO 关键字 + 分类侧栏 |
-| [telescope.nvim](chapters/telescope.md) | 公开 | 书签与关键字检索 |
+| [telescope.nvim](chapters/telescope.md) | 公开 | 备用文件搜索与 TODO 列表后端 |
 
 ## 界面、颜色和辅助操作
 
@@ -96,17 +97,18 @@
 | [mini.pairs](chapters/mini-pairs.md) | 公开 | 自动补全括号和引号 |
 | [mini.hipatterns](chapters/mini-hipatterns.md) | 公开 | 颜色值文本高亮 |
 | [ccc.nvim](chapters/ccc.md) | 公开 | 取色与颜色转换 |
-| [smart-paste.nvim](chapters/smart-paste.md) | 私有 | 系统剪贴板和缩进粘贴 |
+| [smart-paste.nvim](chapters/smart-paste.md) | 公开 | 系统剪贴板和缩进粘贴 |
 
 | [dropbar.nvim](chapters/dropbar.md) | 公开 | 语言结构上下文栏 |
 
-## 私有语言工具
+## 自有语言工具
 
-| 插件 | 章节 |
+| 插件 | 类型 | 章节 |
 |---|---|
-| [cobol.nvim](chapters/cobol.md) | COBOL 导航、格式和辅助 |
-| [batch.nvim](chapters/batch.md) | Windows Batch 标签导航和分析 |
-| [VimQuest.nvim](chapters/vimquest.md) | 词汇练习 |
+| [cobol.nvim](chapters/cobol.md) | 自有（公开仓库） | COBOL 导航、格式和辅助 |
+| [batch.nvim](chapters/batch.md) | 自有（公开仓库） | Windows Batch 标签导航和分析 |
+| [VimQuest.nvim](chapters/vimquest.md) | 自有（公开仓库） | 词汇练习 |
+| [position-ruler.nvim](chapters/position-ruler.md) | 自有（公开仓库） | 定长文件的字符列标尺 |
 
 ## 管理器、图标和内部依赖
 
@@ -117,15 +119,15 @@
 
 ## 按键冲突与常见误解
 
-- COBOL 文件中的 `gd` 由私有 `cobol.nvim` 接管；普通语言中的 `gd` 通常由 LSP 提供。跳转后按 `Ctrl-o` 返回、`Ctrl-i` 前进。参见 [COBOL 章节](chapters/cobol.md) 和 `:help jumplist`。
-- 缓冲区切换使用 `Shift+h` / `Shift+l`。`[b` / `]b` 留给私有书签。
+- COBOL 文件中的 `gd` 由自有 `cobol.nvim` 接管；普通语言中的 `gd` 通常由 LSP 提供。跳转后按 `Ctrl-o` 返回、`Ctrl-i` 前进。参见 [COBOL 章节](chapters/cobol.md) 和 `:help jumplist`。
+- 缓冲区切换可用 `Shift+h` / `Shift+l`，也可用 Neovim 内置的 `[b` / `]b`。
 - `<leader>gd` 是打开 Git 差异视图；普通 `gd` 是跳到定义，两者不是同一个映射。
-- Snacks Dashboard 已关闭，启动页由 `dashboard-nvim` 提供；Snacks 本体仍用于搜索器、工具和私有插件集成。
+- Snacks Dashboard 已关闭，启动页由 `dashboard-nvim` 提供；Snacks 本体仍用于搜索器、工具和自有插件集成。
 
 ## 配置位置
 
 - 公开插件规格：`config/nvim/lua/plugins/`
 - 本书章节：`config/nvim/docs/plugins/chapters/`
-- 本机私有插件说明和源码：独立公开插件仓库，由 lazy.nvim 安装。
+- 自有插件说明和源码：独立公开插件仓库，由 lazy.nvim 安装。
 
 编辑快捷键后，重新打开 Neovim 或重载对应插件，再用 `:verbose nmap <按键>` 查最终绑定。插件管理操作见 [lazy.nvim 章节](chapters/lazy.md)。

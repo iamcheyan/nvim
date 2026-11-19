@@ -1,6 +1,6 @@
 # Neovim 鼠标与剪贴板
 
-这份说明按当前公开配置和可选私有 `smart-paste.nvim` 集成整理。`<leader>` 默认为空格。
+这份说明按当前公开配置和 `smart-paste.nvim` 插件集成整理。`<leader>` 默认为空格。
 
 ## 鼠标选择
 
@@ -16,13 +16,13 @@
 | 视觉块 | `<C-q>` | Normal/Visual 进入 Visual-block。Insert `<C-q>` 仍是字面控制字符 |
 | 复制选区 | Visual `<C-c>` | 复制到系统剪贴板 |
 | 剪切选区 | Visual `<C-x>` | 写入系统剪贴板并删除选区 |
-| 智能粘贴系统剪贴板 | Normal `<C-v>` / `<leader>p`（非 Markdown），Insert `<C-v>`，Visual `<C-v>` | 私有 `smart-paste.nvim` 提供；多行内容按目标缩进调整 |
+| 智能粘贴系统剪贴板 | Normal `<C-v>` / `<leader>p`（非 Markdown），Insert `<C-v>`，Visual `<C-v>` | `smart-paste.nvim` 提供；多行内容按目标缩进调整 |
 | 智能缩进 put | `p`、`P`、`gp`、`gP`、`]p`、`[p` | 自动匹配上下文缩进，已修复多余空行缺陷（空行占位自动替换） |
 | 原生 yank | `y`、`yy`、`Y` | 原生 Vim 行为（寄存器与系统剪贴板同步） |
 | 原生删除/修改 | `d`、`c`、`x` 等 | 原生 Vim 行为（内容进寄存器并同步系统剪贴板） |
 | 复制路径 | `<leader>yp` / `<leader>yP` / `<leader>yd` | 相对路径、绝对路径、所在目录，写入系统剪贴板 |
 
-私有 `smart-paste.nvim` 不存在时，系统剪贴板的多行智能缩进映射不可用；公开配置仍通过 Neovim 的 `+` 寄存器和系统剪贴板适配器工作。
+`smart-paste.nvim` 未安装或未加载时，它提供的多行智能缩进映射不可用；Neovim 的 `+` 寄存器仍由系统剪贴板适配器处理。
 
 ## 跨平台剪贴板适配
 

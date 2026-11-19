@@ -1,6 +1,6 @@
 # 当前 Neovim 插件使用手册
 
-这份手册按当前 `lazy.nvim` 插件规格编写。插件目录共 **47 个条目**（公开 41 个、私有 6 个）；依赖库和管理器也计入总数。分类目录和逐项练习见 [插件使用书](../plugins/PLUGINS.md)。
+当前配置有 **50 个插件规格**，[插件使用书](../plugins/PLUGINS.md) 按 48 章整理；四个依赖库合并为一章，Snacks 缩进线另有功能说明章。这里保留常用入口摘要；逐插件说明以插件使用书为准。
 
 插件仍然可以因未安装的外部工具、当前 filetype 或 LSP 服务器能力不同而表现不同。`<leader>` 是空格。`<leader>` 后停顿可看 which-key 提示；`<leader>?` 打开帮助搜索，`<leader>hk` 查看当前缓冲的快捷键。
 
@@ -17,7 +17,6 @@
 | 多文件查找替换 | `<leader>sr` |
 | 查看剪贴板历史 | `<leader>fy` |
 | Markdown 预览开关 | `<leader>um` |
-| 查看个人书签 | `<leader>mm` |
 | 包围符号添加/替换/删除 | `gsa` / `gsr` / `gsd` |
 | 打开 quickfix 结果 | `<leader>xq`；列表内 `>` 展开上下文，`<` 收起 |
 | 查看完整命令/快捷键 | `<leader>` 后稍候；`<leader>hk` 看当前缓冲，`<leader>?` 搜帮助，`:WhichKey` |
@@ -51,9 +50,9 @@
 
 快速定位：普通/可视/操作符待决模式按 `s` 输入目标字符，按屏幕上的标签跳到目标；`S` 使用 Treesitter 语法节点跳转；命令行搜索状态下 `<C-s>` 切换 Flash 搜索提示。例：`sword` 快速跳到屏幕内 `word`，`d s )` 可配合操作符跨位置删除。`r` 和 `R` 没有绑定给 Flash，以保留其他编辑操作。
 
-### aerial.nvim（公开；COBOL 后端由私有层扩展）
+### aerial.nvim（公开；COBOL 后端由自有插件扩展）
 
-符号大纲侧栏，按函数、类、章节等结构跳转。`<leader>cs` 或 `:AerialToggle` 开关，`:AerialOpen` 打开，`:AerialInfo` 查看支持情况；大纲内选择条目可跳到定义位置。普通语言用 Treesitter/LSP 等后端，Markdown 等也可显示结构；COBOL 与 Batch 后端由私有插件提供。
+符号大纲侧栏，按函数、类、章节等结构跳转。`<leader>cs` 或 `:AerialToggle` 开关，`:AerialOpen` 打开，`:AerialInfo` 查看支持情况；大纲内选择条目可跳到定义位置。普通语言用 Treesitter/LSP 等后端，Markdown 等也可显示结构；COBOL 与 Batch 后端由自有插件提供。
 
 ### 原生 quickfix
 
@@ -80,11 +79,11 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 
 ### nvim-lspconfig（公开）+ mason-lspconfig.nvim（公开）+ mason.nvim（公开）
 
-这是两项协同工作的 LSP 安装和连接设施。Mason 用 `:Mason` / `<leader>cm` 浏览安装服务器；当前管理 basedpyright、lua_ls。mason-lspconfig 把已安装服务器连接到 Neovim，nvim-lspconfig 提供服务器配置。LSP 附加后：`gd` 定义，`gD` 声明，`K` 悬浮文档，`gI` 实现，`gy` 类型定义，`gK` 签名帮助（插入模式 `<C-S-k>`，`<C-k>` 留给 digraph），`<leader>ca` 代码操作，`<leader>cr` 重命名，`<leader>co` 整理 imports，`<leader>cl` 查看 LSP 配置。诊断有下划线和标记列，行内虚拟文本关闭。`<leader>cd` 打开当前行诊断。`]d`/`[d` 仍是诊断跳转。
+这是三项协同工作的 LSP 安装和连接设施。Mason 用 `:Mason` / `<leader>cm` 管理服务器；配置请求安装 basedpyright、lua_ls。mason-lspconfig 管理服务器启用，nvim-lspconfig 提供服务器配置。LSP 附加后按服务器能力注册跳转、悬浮文档、代码操作和重命名；`<leader>co` 只执行 organize imports 源代码操作，`<leader>cl` 查看 LSP 配置。诊断有下划线和标记列，行内虚拟文本关闭。`<leader>cd` 打开当前行诊断，`<leader>ud` 切换诊断显示，`]d`/`[d` 跳转诊断。
 
 ### nvim-treesitter（公开）
 
-提供语法解析和高亮，并被折叠、文本对象、符号列表等插件调用。多数受支持语言自动安装配置的 parser；`:TSInstall <语言>` 安装，`:TSUpdate` 更新/重建，`:TSLog` 查看日志，`:TSUninstall <语言>` 卸载。安装目录在 `~/.local/share/nvim/site/parser`。**最低 Neovim 0.12，nvim-treesitter 和 textobjects 都固定 main 分支**；升级/换分支后需要重建 parser。细节见公开配置 `config/nvim/TREESITTER.md`。
+提供语法解析和高亮，并被折叠、文本对象、符号列表等插件调用。`:TSInstall <语言>` 安装，`:TSUpdate` 更新/重建，`:TSLog` 查看日志，`:TSUninstall <语言>` 卸载。Parser 安装在 Neovim 的 `stdpath("data")/site` 下。**最低 Neovim 0.12，nvim-treesitter 和 textobjects 都固定 main 分支**；升级/换分支后需要重建 parser。细节见仓库的 Treesitter 运行要求文档。
 
 ### nvim-treesitter-textobjects（公开）
 
@@ -107,7 +106,7 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 取色和颜色格式转换。光标位于颜色值时按 `<leader>cp` / `:CccPick` 打开交互式颜色滑块，`<leader>cC` / `:CccConvert` 转换当前颜色表示。也可双击十六进制颜色唤起取色器。常驻颜色文本高亮由 mini.hipatterns 处理，ccc 自身高亮默认关闭。
 
 
-### smart-paste.nvim（私有）
+### smart-paste.nvim（公开）
 
 智能处理系统剪贴板和多行粘贴缩进。Normal 模式 `<leader>p` 或 `<C-v>` 粘贴系统剪贴板；Insert 模式 `<C-v>` 粘贴；Visual 模式 `<C-v>` 用系统剪贴板替换选区。多行代码会根据目标缩进重新对齐，保留块内相对缩进；在 COBOL 中包含专门的定格式对齐处理。普通 `p/P` 也由插件增强。适合从网页、文档或其他编辑器复制多行代码后粘贴。
 
@@ -126,6 +125,10 @@ Markdown、Quarto、R Markdown 预览渲染。打开对应文件后默认附着�
 ### rainbow-delimiters.nvim（公开）
 
 自动按层级为括号、方括号等嵌套分隔符着色，便于看清配对范围；无命令和快捷键。若颜色干扰阅读，可从插件规格移除或调整主题高亮。
+
+### position-ruler.nvim（自有，独立公开仓库）
+
+在 `text` / `csv` / `tsv` 文件中显示字符列标尺；`.dat`、`.lst`、`.ctl` 会映射到 `text`。详情与命令见 [position-ruler 章节](../plugins/chapters/position-ruler.md)。
 
 ## Git 与导航信息
 
@@ -153,6 +156,10 @@ LSP 服务器执行索引、诊断等工作时显示进度通知；自动运行�
 
 为顶部上下文栏提供文件路径、当前语言结构、函数/类层级等信息；大纲上下文可点击。`:DropbarContextMenu` 打开上下文层级菜单并选择跳转位置。优先读取实时 Treesitter 结构，缺少 parser 时使用 LSP；在受支持语言中随光标更新。
 
+### Portal、Noice 与 AWS
+
+[Portal](../plugins/chapters/portal.nvim.md) 提供跳转/改动历史选择；[Noice](../plugins/chapters/noice.md) 用于确认框和消息呈现；自有 [aws.nvim](../plugins/chapters/aws.md) 提供 AWS 命令工作流。它们的可用命令与前提以各自章节为准。
+
 ## 状态栏、快捷键与基础库
 
 ### heirline.nvim（公开）
@@ -175,29 +182,29 @@ LSP 服务器执行索引、诊断等工作时显示进度通知；自动运行�
 
 两者分别提供 Lua 通用异步/测试工具和 Neovim UI 组件，被其他插件调用（如 Neo-tree、Diffview、Todo-comments）。没有单独用户入口；只有当依赖它们的插件也被移除时才可评估删除。
 
-## 私有语言与个人工具
+## 自有插件与个人工具
 
-### cobol.nvim（私有）
+### cobol.nvim（自有，独立公开仓库）
 
 独立插件，源码、配置说明、完整用法和练习统一维护在 [cobol.nvim 插件章节](../plugins/chapters/cobol.md) 和插件仓库；安装后可在 Neovim 中运行 `:help cobol.nvim`。这里仅保留目录入口，避免手册分散。
 
-### batch.nvim（私有）
+### batch.nvim（自有，独立公开仓库）
 
 Windows Batch 文件结构解析与导航。支持 `:BatchCheck` 检查、`:BatchJumpToLabel` 跳到 label、`:BatchReferences` 找 label 引用、`:BatchOutline` 打开大纲、`:BatchPeek` 预览目标；关联 filetype 为 `dosbatch` / `batch`。诊断、折叠、状态栏集成启用，但插件自己的快捷键关闭，全部使用显式命令。
 
-### VimQuest.nvim（私有）
+### VimQuest.nvim（自有，独立公开仓库）
 
-在 Neovim 内做词汇练习。`:VimQuestStart` 开始，`:VimQuestStop` 停止，`:VimQuestNext` / `:VimQuestPrev` 切换题目，`:VimQuestNextRound` 下一轮。词库和详细玩法见私有插件 README；如果从不使用，是容易移除的独立插件。
+在 Neovim 内做词汇练习。`:VimQuestStart` 开始，`:VimQuestStop` 停止，`:VimQuestNext` / `:VimQuestPrev` 切换题目，`:VimQuestNextRound` 下一轮。词库和详细玩法见插件仓库 README；如果从不使用，是容易移除的独立插件。
 
 ## 建议清理顺序与目前发现
 
-1. **Oil 已按要求删除**：`config/nvim/lua/plugins/oil.lua` 已移除；运行时规格核对也不再出现 `oil.nvim`。重启 Neovim 后可用 `:Lazy clean` 清理缓存。插件清单中不再把它列为当前插件。
-2. **插件统计**：插件手册统计需随插件增删同步；独立插件仓库和依赖项不计入该分类数量。
-3. **发现 `[b` / `]b` 冲突**：私有书签把它们用于前/后书签，公开默认映射此前又用于前/后缓冲区。已删除默认缓冲区映射；请用 `Shift+h/l` 切换缓冲区。
+1. Oil 不在当前插件规格中，文件侧栏由 Neo-tree 提供。
+2. 插件规格与章节数量见 [插件使用书](../plugins/PLUGINS.md)；四个依赖库合并在同一章。
+3. 缓冲区切换可用 Neovim 内置的 `[b` / `]b`、`<leader>bp` / `<leader>bn` 或 `Shift+h/l`。
 4. **格式化** 使用 LSP 提供程序格式化能力，快捷键为 `<leader>fo`。
-5. **诊断**：标记列和下划线打开，行内虚拟文本关闭。Ruff/ShellCheck 的 nvim-lint 自动检查已按 Issue 51 移除。`disable-diagnostics.lua` 已删除。
+5. **诊断**：标记列和下划线打开，行内虚拟文本关闭；配置没有 nvim-lint 自动检查。
 6. **候选取舍**：Oil 已移除后 Neo-tree 是唯一文件侧栏；`ccc.nvim` 是按需取色；`mini.hipatterns` 是颜色值自动高亮；`flash.nvim` 是跳转；`nvim-hlslens` 是搜索命中提示；两者不是完全相同功能。`fidget.nvim`、`satellite.nvim`、`rainbow-delimiters.nvim`、`mini.pairs` 属于自动生效 UI/编辑便利，是否保留按日常感受判断。
 
 ## 怎样确认插件是否真的在运行
 
-在 Neovim 执行 `:Lazy` 查看插件状态；`cond`/`ft`/`cmd`/`event` 插件可能未触发前显示待加载。运行 `:Lazy profile` 查看启动加载情况。查看快捷键可用 `:map <键>`，命令用 `:command <前缀>`。配置源文件位置：全部插件规格在 `~/nvim/lua/plugins/`；自研插件源码在各自独立仓库。编辑源文件后按各自仓库规则维护，不要改 `~/.config/nvim` 下的部署输出。
+在 Neovim 执行 `:Lazy` 查看插件状态；`cond`/`ft`/`cmd`/`event` 插件可能未触发前显示待加载。运行 `:Lazy profile` 查看启动加载情况。查看快捷键可用 `:map <键>`，命令用 `:command <前缀>`。配置源文件位于仓库的 `lua/plugins/`；自有插件源码位于各自独立公开仓库。编辑源文件后按各自仓库规则维护。

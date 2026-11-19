@@ -21,7 +21,7 @@ N + M 份工作。
 | 能力 | 你需要什么 |
 |---|---|
 | 跳到定义 | 光标在符号上按 `gd` |
-| 找所有引用 | `grr` 或 `<leader>ca` 里的「引用」 |
+| 找所有引用 | Neovim 内置 `grr` |
 | 悬停文档 | `K` |
 | 重命名 | `<leader>cr` |
 | 代码操作（加 import、提取变量） | `<leader>ca` |
@@ -37,19 +37,16 @@ N + M 份工作。
 - **不能替代编译器**。COBOL 的最终验证是 `cobc`。
 - **不是编辑器的一部分**。它是外部程序，要单独安装。
 
-## 为什么 COBOL 没有 LSP
+## 本配置里的 COBOL 能力
 
-因为没有人为 COBOL 写 Language Server（至少没有成熟的）。
-
-原因很实际：COBOL 的代码库多是几十年前的、企业内部私有，社区做通用 server 缺乏动力。
-
-所以在 COBOL 文件里：
+本配置没有为 COBOL 启用 LSP server；它使用专门的插件处理语言结构和编译检查：
 
 - `gd` 由 `cobol.nvim` 接管（它自己解析 COBOL 结构）
-- 诊断由 `cobc` 提供（跑真正的编译器）
-- 没有补全、没有重命名、没有代码操作
+- 诊断可由 `cobol.nvim` 调用 `cobc` 提供
+- Blink 仍可提供路径、片段和当前 buffer 补全，但没有 LSP 语义补全
+- 没有 LSP 重命名和代码操作
 
-**这不是配置缺陷，是 COBOL 生态的现状。**
+因此这里描述的是当前配置的能力，不代表整个 COBOL 生态没有 LSP 实现。
 
 ## 客户端和服务器的关系
 
@@ -87,53 +84,46 @@ LSP 的键在 `LspAttach` 事件里注册——也就是「server 连上这个 b
 
 ## 诊断的显示与侧边栏徽章
 
-Neovim 有两套诊断来源：
+诊断来源包括：
 
 | 来源 | 例子 |
 |---|---|
 | LSP | pyright 报类型错误 |
-| nvim-lint | shellcheck 报脚本问题 |
+| 语言插件 / 编译器 | 例如 COBOL 插件调用 `cobc` 检查 |
 
-两者都汇入同一个诊断系统，用同样的键跳转（`]d` / `[d`）。
+诊断来源汇入 Neovim 的诊断系统，可用 `]d` / `[d` 跳转。当前配置没有启用 nvim-lint。
 
 ### 显示策略与渲染原理
 
 ```
-[LSP 服务器 / Linter 分析]
+[LSP 服务器 / 语言插件]
            │
-           ▼ publishDiagnostics 协议通知
-[Neovim 内置 vim.diagnostic 引擎]
-           │
-           ▼ 在缓冲行创建 Sign Extmarks ( /  /  / )
-[snacks.statuscolumn 侧边栏]
-           │
-           ▼ 应用 DiagnosticSign* 精致圆形图标高亮
-[屏幕左侧行号栏 (Gutter)] 渲染出清晰居中的正圆形语义指示符
+           ▼
+[Neovim 内置 vim.diagnostic]
+           ├── 标记列 signs
+           └── 文本下划线
 ```
 
-这份配置的显示策略兼顾了**清爽度**与**极致性能**：
+当前显示设置如下：
 
 1. **行尾虚拟文本关闭**（`virtual_text = false`）：避免悬浮文字挤占代码视线。
 2. **行内下划线**（`underline = true`）：保留出错位置波浪线标明精确范围。
-3. **侧边栏精致正圆标记**（`signs`）：在行号左侧显示统一的几何正圆矢量图标。
-4. **文件树诊断彻底禁用**（Neo-tree `enable_diagnostics = false`）：卸载 `DiagnosticChanged` 全局监听，杜绝文件树目录递归扫描与重绘，保障文件浏览与打开的绝对轻量极速。
+3. **标记列**（`signs`）：启用诊断标记；启用 Nerd Font 时使用配置中的图标。
+4. **Neo-tree** 设置 `enable_diagnostics = false`，文件树不显示诊断标记。
 
-### 侧边栏精致正圆形指示符（Circular Diagnostic Signs）与 Nerd Font
+### 诊断标记与 Nerd Font
 
-当前配置已启用 Nerd Font 支持（`vim.g.have_nerd_font = true`）。诊断指示符（Diagnostics Signs）采用全套统一的几何正圆 Nerd Font 图标，图标内嵌简洁图形且全局居中，去除生硬的方形色块底色，视觉精致平整：
+当前配置将 `vim.g.have_nerd_font` 设为 `true`，诊断标记使用以下 Nerd Font 字符。终端需要安装支持这些字符的 Nerd Font 才能正确显示：
 
-| 级别 | Nerd Font 图标 | 视觉效果 | 语义呈现 | 终端 Fallback（无 Nerd Font） | 设计考量 |
-|---|:---:|---|---|---|---|
-| **Error (错误)** | ` ` | 🔴 **正圆叉号** | 纯净红色正圆内嵌叉号 | `E ` (`ctermfg=1`) | 精准醒目，一眼捕捉错误行 |
-| **Warn (警告)** | ` ` | 🟡 **正圆感叹号** | 纯净琥珀/黄色正圆内嵌感叹号 | `W ` (`ctermfg=3`) | 纯正圆形感叹号，告别粗糙三角或方块 |
-| **Info (信息)** | ` ` | 🔵 **正圆信息号** | 纯净天蓝正圆内嵌 i | `I ` (`ctermfg=4`) | 居中精致圆，温和提示上下文信息 |
-| **Hint (建议)** | ` ` | 🟢 **正圆建议号** | 纯净翠绿正圆内嵌问号 | `H ` (`ctermfg=2`) | 同套正圆族系，提供优化建议 |
+| 级别 | 字符 |
+|---|:---:|
+| Error | ` ` |
+| Warn | ` ` |
+| Info | ` ` |
+| Hint | ` ` |
 
-#### 设计细节与联动
-1. **正圆形系全局统一**：Error (``)、Warn (``)、Info (``)、Hint (``) 四个等级全部统一采用相同半径、相同笔画与同一图标族系的正圆符号，视觉风格平整和谐。
-2. **剔除生硬方块底色**：背景采用终端原生透明底色，仅靠圆形矢量字形本身着色，彻底杜绝粗糙的单格方块背景。
-3. **全环境自适应**：当 `vim.g.have_nerd_font = true` 时自动注入 Nerd Font 图标；若在无 Nerd Font 的纯文本终端环境，则优雅回退至单字母模式（`E` / `W` / `I` / `H`）。
-4. **文件树零损耗架构**：Neo-tree 彻底关闭诊断监听（`enable_diagnostics = false`），让文件树只做纯粹的目录导航；需要查看跨文件诊断时，统一使用 搜索器（`<leader>sd`），按需拉取，平时完全 0 开销。
+#### 图标与颜色
+Neovim 根据诊断严重级别选择对应标记；颜色由 `DiagnosticSign*` 高亮组决定。没有配置自动检测终端字体或单字母回退。
 
 ### 诊断相关按键与排查
 
@@ -143,16 +133,13 @@ Neovim 有两套诊断来源：
 |---|---|---|
 | `<leader>cd` | 浮窗查看当前行诊断 | 弹出 Float Window 显示具体错误信息、规则名称与来源 |
 | `]d` / `[d` | 跳转到下 / 上一个诊断 | 快速在文件内的各个问题点之间巡检 |
-| `<leader>ud` | 切换诊断指示器显示 | 一键隐藏或恢复行号旁的标记与下划线 |
+| `<leader>ud` | 切换诊断显示 | 由 Snacks toggle 控制 Neovim 诊断启用状态 |
 
 ## 性能考虑
 
-LSP 会索引整个工作区。大项目里这是个负担。
+语言服务器是否检查整个工作区取决于各自设置。当前 basedpyright 配置只检查已打开的文件。
 
-这份配置做了一个取舍：pyright 的 `diagnosticMode` 设成 `openFilesOnly`。
-
-意思是「只检查打开的文件」，不扫整个工作区。代价是没打开的文件里的错误不报；
-好处是启动快、不会占满 CPU。
+因此，未打开文件里的问题不会由 basedpyright 报出。
 
 ## 常见问题
 
@@ -165,7 +152,7 @@ LSP 会索引整个工作区。大项目里这是个负担。
 | 卡顿 | server 在索引大项目 | 看 fidget 进度提示 |
 | COBOL 里 `gd` 行为和文档不同 | 那是 cobol.nvim，不是 LSP | `:verbose nmap gd` |
 
-**排查第一站永远是 `:LspInfo`**——它列出当前 buffer 挂了哪些 server、各自支持什么能力。
+排查 LSP 问题可先运行 `:LspInfo`，查看当前 buffer 附加的服务器及其能力。COBOL 编译检查则查看 cobol.nvim 的命令和诊断。
 
 ## 下一步
 

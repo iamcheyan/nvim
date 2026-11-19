@@ -2,7 +2,7 @@
 
 - **最后更新**：2026-10-03
 - **相关文件**：`config/nvim/lua/config/options.lua`（唯一入口）
-- **私有层**：`lua/plugins/cobol.lua 与独立 batch.nvim 插件仓库`
+- **扩展层**：`lua/plugins/cobol.lua` 与自有的独立公开 `batch.nvim` 插件仓库
 
 ---
 
@@ -115,4 +115,4 @@ end
 | 大写扩展名仍无高亮 | pattern 写成了 glob，或误加了 `$`（见第二节） |
 | `tmux.conf` 变成 `conf` | 忘了 `priority = -1` |
 | 配置文件分类不对 | 内容嗅探阈值需要调整，按第四节用真实文件重测 |
-| 私有插件改了但没生效 | 运行 `:Lazy sync`；本地开发时检查 `nvim-local.lua` 的 dev 设置 |
+| 自有插件改了但没生效 | 确认对应插件仓库的版本和 Lazy 开发设置；必要时重启 Neovim |
