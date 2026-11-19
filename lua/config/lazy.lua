@@ -47,7 +47,10 @@ if mode.current == "daily" then
     "shellRaining/hlchunk.nvim", "HiPhish/rainbow-delimiters.nvim",
     "uga-rosa/ccc.nvim",
   }) do
-    spec[#spec + 1] = { plugin, enabled = false }
+    -- `enabled = false` removes the plugin from Lazy's active spec and makes
+    -- `:Lazy clean` treat its checkout as unused. `cond = false` keeps it
+    -- registered and installed while preventing it from loading in daily mode.
+    spec[#spec + 1] = { plugin, cond = false }
   end
 end
 local local_file = (vim.env.XDG_CONFIG_HOME or vim.fn.expand("~/.config")) .. "/nvim-local.lua"
