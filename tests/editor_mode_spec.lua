@@ -21,3 +21,8 @@ print('editor mode: ok')
 require('config.mode').toggle()
 package.loaded['config.mode'] = nil
 assert(require('config.mode').current == 'full', 'second toggle returns to enhanced mode')
+
+local startup_autocmds = #vim.api.nvim_get_autocmds({ event = 'VimEnter' })
+require('config.mode').setup()
+assert(#vim.api.nvim_get_autocmds({ event = 'VimEnter' }) == startup_autocmds, 'setup must not announce the mode on startup')
+assert(vim.fn.exists(':NvimMode') == 2, ':NvimMode must stay available after startup')

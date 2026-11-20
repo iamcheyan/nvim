@@ -28,14 +28,6 @@ end
 
 function M.setup()
   vim.api.nvim_create_user_command('NvimMode', M.toggle, { force = true })
-  vim.api.nvim_create_autocmd('VimEnter', {
-    once = true,
-    callback = function()
-      vim.schedule(function()
-        vim.notify('Current mode: ' .. labels[M.current], vim.log.levels.INFO, { title = 'Editor Mode', timeout = 5000 })
-      end)
-    end,
-  })
 end
 
 return M
