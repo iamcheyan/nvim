@@ -35,13 +35,11 @@ local function readable(name, fg, bg)
 end
 
 local tabs = ui.bufferline_highlights()
-local fresh = ui.nostalgia_palette()
-local fresh_rgb = ui.to_rgb
 local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-assert(tabs.fill.bg == fresh_rgb(fresh.tab_separator_bg), "top-bar fill should use Fresh Nostalgia blue")
-assert(tabs.buffer_selected.bg == 0xffffff, "selected tab should use pure white")
-assert(tabs.fill.bg ~= normal.bg, "top-bar fill should remain distinct from the document background")
-for _, name in ipairs({ "fill", "buffer", "buffer_visible", "buffer_selected" }) do
+assert(tabs.fill.bg == "NONE", "unused top-bar fill should remain transparent")
+assert(tabs.buffer.bg == 0x0000aa and tabs.buffer.fg == 0xaaaaaa, "inactive tab should use the muted Blue surface")
+assert(tabs.buffer_selected.bg == normal.bg, "selected tab should blend into the document background")
+for _, name in ipairs({ "buffer", "buffer_visible", "buffer_selected" }) do
   readable("BufferLine " .. name, tabs[name].fg, tabs[name].bg)
 end
 for _, name in ipairs({ "StatusLine", "StatusLineNC" }) do
@@ -52,21 +50,20 @@ local status_active = vim.api.nvim_get_hl(0, { name = "StatusLine", link = false
 local status_inactive = vim.api.nvim_get_hl(0, { name = "StatusLineNC", link = false })
 local winbar_active = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
 local winbar_inactive = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
-assert(status_active.bg == fresh_rgb(fresh.status_bar_bg), "bottom statusline should use Fresh Nostalgia cyan")
-assert(status_inactive.bg == fresh_rgb(fresh.status_bar_bg), "inactive statusline should use Fresh Nostalgia cyan")
-assert(status_active.fg == fresh_rgb(fresh.status_bar_fg), "bottom statusline should use Fresh Nostalgia black text")
+assert(status_active.bg == normal.bg and status_inactive.bg == normal.bg, "status bars should blend into the document background")
+assert(status_active.fg == normal.fg, "status text should use document text color")
 assert(status_active.bold ~= true and status_inactive.bold ~= true, "bottom bars should not be bold")
-assert(status_active.bg ~= normal.bg and status_inactive.bg ~= normal.bg, "bottom bars should be distinct from the document background")
-assert(winbar_active.bg == fresh_rgb(fresh.tab_active_bg) and winbar_active.fg == fresh_rgb(fresh.tab_active_fg), "context WinBar should match the Fresh active tab")
-assert(winbar_inactive.bg == fresh_rgb(fresh.tab_inactive_bg) and winbar_inactive.fg == fresh_rgb(fresh.tab_inactive_fg), "inactive context WinBar should match the Fresh inactive tab")
-assert(vim.api.nvim_get_hl(0, { name = "ScrollbarHandle", link = false }).bg == blue_tab_accent, "scrollbar handle should remain Blue")
-assert(vim.api.nvim_get_hl(0, { name = "SatelliteBackground", link = false }).bg == tonumber("25252a", 16), "satellite track should remain Blue")
+assert(status_active.bg == normal.bg and status_inactive.bg == normal.bg, "bottom bars should blend into the document")
+assert(winbar_active.bg == normal.bg and winbar_active.fg == 0x00ffff, "context WinBar should blend into the document")
+assert(winbar_inactive.bg == normal.bg and winbar_inactive.fg == 0x00ffff, "inactive context WinBar should blend into the document")
+assert(vim.api.nvim_get_hl(0, { name = "ScrollbarHandle", link = false }).bg == blue_tab_accent, "scrollbar handle should retain its Blue accent")
+assert(vim.api.nvim_get_hl(0, { name = "SatelliteBackground", link = false }).bg == 0x0000aa, "satellite track should use the muted Blue surface")
 
 -- Runtime theme switching should keep the existing high-contrast theme legible too.
 vim.cmd.colorscheme("high-contrast-plus")
 ui.apply()
 tabs = ui.bufferline_highlights()
-for _, name in ipairs({ "fill", "buffer", "buffer_visible", "buffer_selected" }) do
+for _, name in ipairs({ "buffer", "buffer_visible", "buffer_selected" }) do
   readable("High Contrast BufferLine " .. name, tabs[name].fg, tabs[name].bg)
 end
 for _, name in ipairs({ "WinBar", "WinBarNC", "StatusLine", "StatusLineNC" }) do

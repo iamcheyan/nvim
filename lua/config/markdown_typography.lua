@@ -147,6 +147,20 @@ local function register_global_aliases(groups)
   end
 end
 
+local function preserve_global_chrome(namespace)
+  -- The Markdown window gets a Delek highlight namespace for document text,
+  -- but tabline and scrollbar groups are app-wide chrome. Keep their active
+  -- global palette instead of inheriting Delek's unrelated definitions.
+  for _, prefix in ipairs({ "TabLine", "BufferLine", "Satellite", "Scrollbar" }) do
+    for _, name in ipairs(vim.fn.getcompletion(prefix, "highlight")) do
+      local highlight = vim.api.nvim_get_hl(0, { name = name, link = false })
+      if not vim.tbl_isempty(highlight) then
+        vim.api.nvim_set_hl(namespace, name, highlight)
+      end
+    end
+  end
+end
+
 local md_winhighlight = table.concat({
   "Normal:MdTypographyNormal",
   "NormalNC:MdTypographyNormalNC",
@@ -193,6 +207,7 @@ function M.get_delek_namespace()
   for name, spec in pairs(groups) do
     vim.api.nvim_set_hl(shared_delek_ns, name, spec)
   end
+  preserve_global_chrome(shared_delek_ns)
   -- Apply Markview paper-background overrides
   for name, spec in pairs(markview_overrides) do
     vim.api.nvim_set_hl(shared_delek_ns, name, spec)

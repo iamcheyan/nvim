@@ -31,7 +31,7 @@ return {
           if key == "text" then return fg end
           if key == "detail_text" then
             if vim.g.colors_name == "blue" then
-              return require("config.ui_highlights").to_rgb(require("config.ui_highlights").nostalgia_palette().status_bar_fg)
+              return fg
             end
             return vim.api.nvim_get_hl(0, { name = "FreshStatusLineNeutral", link = false }).fg or fg
           end

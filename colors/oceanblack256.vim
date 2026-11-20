@@ -16,7 +16,7 @@ endif
 
 let g:colors_name = "oceanblack256"
 
-highlight Normal         cterm=none           ctermfg=7 ctermbg=0
+highlight Normal         cterm=none           ctermfg=7 ctermbg=0 guibg=#000000
 highlight NonText        cterm=none           ctermfg=117 ctermbg=0
 
 highlight Visual         cterm=reverse        ctermfg=72  ctermbg=15

@@ -29,6 +29,11 @@ return {
           mode = "buffers",
           diagnostics = false,
           themable = true,
+          -- Let each label use its own text width, with the current longest
+          -- tab name as the cap for truncating longer buffer names.
+          truncate_names = true,
+          max_name_length = 17,
+          enforce_regular_tabs = false,
           -- Icons inherit the active/inactive tab text color. Keeping the
           -- filetype glyph while disabling per-filetype icon colors prevents
           -- selected icons from turning white or retaining stale colors.

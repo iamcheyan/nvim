@@ -70,6 +70,19 @@ local function contrast_ratio(fg, bg)
   return (fg_luminance + 0.05) / (bg_luminance + 0.05)
 end
 
+local function integrated_chrome_theme()
+  return vim.g.colors_name == "high-contrast-plus"
+    or vim.g.colors_name == "oceanblack"
+    or vim.g.colors_name == "oceanblack256"
+end
+
+local function document_background(normal)
+  -- oceanblack256 defines its document surface with ANSI black. Neovim can
+  -- report the terminal's fallback RGB background alongside that cterm value.
+  if vim.g.colors_name == "oceanblack256" and normal.ctermbg == 0 then return 0 end
+  return normal.bg
+end
+
 local function readable_foreground(bg, ...)
   local best_fg, best_ratio, count = nil, -1, select("#", ...)
   for i = 1, count do
@@ -143,6 +156,18 @@ local function xterm_color(index)
   end
 end
 
+local function integrated_inactive_tab_palette()
+  local theme = vim.g.colors_name
+  if theme == "high-contrast-plus" then
+    local tab = get("TabLine")
+    return tab.bg or 0x242424, 0xaaaaaa
+  elseif theme == "oceanblack" then
+    return 0x103040, 0x87afd7
+  elseif theme == "oceanblack256" then
+    return xterm_color(233) or 0x121212, xterm_color(245) or 0x8a8a8a
+  end
+end
+
 local function nearest_xterm_color(color)
   if type(color) ~= "number" then return nil end
   local best_index, best_distance = nil, math.huge
@@ -207,7 +232,25 @@ local function title_bar_surfaces()
   local active = get("TitleBar")
   local inactive = get("TitleBarNC")
   local tab_accent = theme_scrollbar_accent or get("TabLineSel").bg or active.bg
+  local normal = get("Normal")
   local is_blue = vim.g.colors_name == "blue"
+  local integrated = integrated_chrome_theme()
+  if integrated then
+    local search = get("Search")
+    local document_bg = document_background(normal)
+    local inactive_bg, inactive_fg = integrated_inactive_tab_palette()
+    return {
+      active_fg = normal.fg,
+      active_bg = document_bg,
+      inactive_fg = inactive_fg,
+      inactive_bg = inactive_bg,
+      status_active_fg = normal.fg,
+      status_active_bg = document_bg,
+      status_inactive_fg = normal.fg,
+      status_inactive_bg = document_bg,
+      scrollbar_bg = get("SatelliteBar").bg or search.bg or xterm_color(search.ctermbg) or tab_accent,
+    }
+  end
   return {
     active_fg = is_blue and (get("TabLineSel").fg or active.fg) or active.fg,
     -- Keep the original bright blue on the active top tab.  The darkened
@@ -255,15 +298,18 @@ end
 local function tab_palette()
   local normal = get("Normal")
   local normal_fg = normal.fg
-  local normal_bg = normal.bg
+  local normal_bg = document_background(normal)
   local fresh = vim.g.colors_name == "blue" and nostalgia_palette()
+  local integrated = integrated_chrome_theme()
+  local doc_bg = document_background(normal)
   if fresh then
-    local surface_bg = to_rgb(fresh.tab_inactive_bg)
-    local surface_fg = to_rgb(fresh.tab_inactive_fg)
     local separator_bg = to_rgb(fresh.tab_separator_bg)
-    local active_bg = theme_scrollbar_accent or to_rgb(fresh.tab_active_bg)
-    local active_fg = readable_foreground(active_bg, theme_scrollbar_fg, to_rgb(fresh.tab_active_fg), normal_fg, normal_bg)
-    local topbar_bg = to_rgb(fresh.tab_active_bg)
+    local surface_bg = separator_bg
+    local surface_fg = 0xaaaaaa
+    local active_bg = normal_bg
+    -- Markdown can link String to Constant instead of defining an fg itself.
+    -- Follow the Blue syntax color before falling back to Normal's yellow fg.
+    local active_fg = get("String").fg or get("Constant").fg or normal_fg
     return {
       normal_fg = to_rgb(fresh.editor_fg),
       normal_bg = normal_bg,
@@ -273,14 +319,14 @@ local function tab_palette()
       active_fg = active_fg,
       active_bg = active_bg,
       visible_fg = surface_fg,
-      visible_bg = surface_bg,
+      visible_bg = separator_bg,
       separator_fg = to_rgb(fresh.split_separator_fg),
-      scrollbar_bg = active_bg,
+      scrollbar_bg = theme_scrollbar_accent or active_bg,
       scrollbar_misc_fg = normal_fg,
       scrollbar_misc_bg = normal_bg,
       -- Keep the context bar on its separate theme surface.
-      winbar_fg = to_rgb(fresh.tab_active_fg),
-      winbar_bg = topbar_bg,
+      winbar_fg = 0x00ffff,
+      winbar_bg = normal_bg,
       winbar_nc_fg = surface_fg,
       winbar_nc_bg = surface_bg,
       top_bold = false,
@@ -305,6 +351,12 @@ local function tab_palette()
   local visible_fg = title_surfaces.inactive_fg or pick_fg("TabLine", "StatusLineNC", "NormalNC", "Normal")
   visible_fg, visible_bg = readable_pair(visible_fg, visible_bg, normal)
 
+  if integrated then
+    local inactive_bg, inactive_fg = integrated_inactive_tab_palette()
+    surface_bg, fill_bg, active_bg, visible_bg = inactive_bg, inactive_bg, doc_bg, inactive_bg
+    surface_fg, active_fg, visible_fg = inactive_fg, normal_fg, inactive_fg
+  end
+
   local separator_fg = pick_fg("WinSeparator", "VertSplit", "NonText", "TabLine")
   local readable_separator, separator_ratio = readable_foreground(
     surface_bg,
@@ -316,8 +368,8 @@ local function tab_palette()
   if separator_ratio >= minimum_text_contrast then separator_fg = readable_separator else separator_fg = surface_fg end
 
   local winbar = get("WinBar")
-  local winbar_bg = winbar.bg or title_surfaces.active_bg or surface_bg
-  local winbar_fg = winbar.fg or title_surfaces.active_fg or surface_fg
+  local winbar_bg = integrated and doc_bg or winbar.bg or title_surfaces.active_bg or surface_bg
+  local winbar_fg = integrated and normal_fg or winbar.fg or title_surfaces.active_fg or surface_fg
   winbar_fg, winbar_bg = readable_pair(winbar_fg, winbar_bg, normal)
 
   return {
@@ -577,11 +629,13 @@ function M.apply()
       ctermbg = context_ctermbg,
     })
   end
-  local split_bg = normal.bg
-  local split_fg = (p and (p.win_separator_fg or p.split_separator_fg or p.separator_fg)) or (comment and comment.fg) or "#5f87af"
-  set(0, "WinSeparator", { fg = split_fg, bg = "NONE" })
-  set(0, "VertSplit", { fg = split_fg, bg = "NONE" })
-  set(0, "NeoTreeWinSeparator", { fg = split_fg, bg = "NONE" })
+  -- Let split windows meet at the document surface without a bright divider.
+  -- Keep the separator cell on the same background as the document so it
+  -- disappears cleanly for both editor splits and the Neo-tree boundary.
+  local split_bg = document_background(normal) or "NONE"
+  set(0, "WinSeparator", { fg = split_bg, bg = "NONE" })
+  set(0, "VertSplit", { fg = split_bg, bg = "NONE" })
+  set(0, "NeoTreeWinSeparator", { fg = split_bg, bg = "NONE" })
   if normal.bg then
     local muted_fg = comment.fg or normal.fg
     set(0, "NeoTreeMessage", { fg = muted_fg, bg = "NONE", italic = true })
@@ -592,40 +646,38 @@ function M.apply()
     set(0, "NeoTreeIndentMarker", { fg = muted_fg, bg = "NONE", italic = true })
   end
   if nostalgia then
-    set(0, "TabLine", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })
-    set(0, "TabLineFill", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })
+    local status_text = normal.fg
+    local status_bg = normal.bg
+    set(0, "TabLine", { fg = "#aaaaaa", bg = nostalgia.tab_separator_bg, bold = false })
+    set(0, "TabLineFill", { fg = "#aaaaaa", bg = nostalgia.tab_separator_bg, bold = false })
     set(0, "TabLineSel", { fg = p.active_fg, bg = p.active_bg, bold = false })
     set(0, "FreshStatusLineNormal", M.fresh_normal_style())
-    set(0, "FreshStatusLineAccent", {
-      fg = nostalgia.status_palette_fg,
-      bg = nostalgia.status_palette_bg,
-      bold = false,
-    })
-    set(0, "FreshStatusLineGit", {
-      fg = nostalgia.tab_inactive_bg,
-      bg = nostalgia.tab_inactive_fg,
-      bold = false,
-    })
-    set(0, "FreshStatusLineNeutral", {
-      fg = nostalgia.tab_active_fg,
-      bg = nostalgia.tab_active_bg,
-      bold = false,
-    })
-    set(0, "FreshStatusLineWarning", {
-      fg = nostalgia.status_warning_indicator_fg,
-      bg = nostalgia.status_warning_indicator_bg,
-      bold = false,
-    })
-    set(0, "FreshStatusLineError", {
-      fg = nostalgia.status_error_indicator_fg,
-      bg = nostalgia.status_error_indicator_bg,
-      bold = false,
-    })
-    set(0, "FreshStatusLineCaps", {
-      fg = "#ffffff",
-      bg = "#ff0000",
-      bold = true,
-    })
+    -- In Blue, let the statusline disappear into the document surface. All
+    -- semantic segments use the document's base text colors as well.
+    for _, name in ipairs({
+      "FreshStatusLineNormal", "FreshStatusLineAccent", "FreshStatusLineGit",
+      "FreshStatusLineNeutral", "FreshStatusLineWarning", "FreshStatusLineError",
+      "FreshStatusLineCaps",
+    }) do
+      set(0, name, { fg = status_text, bg = status_bg, bold = false })
+    end
+  elseif integrated_chrome_theme() then
+    -- These schemes keep their own document and syntax palettes. Their chrome
+    -- use document colors for the selected tab and bars, with a quieter
+    -- theme-specific surface behind inactive tabs.
+    local inactive_bg, inactive_fg = integrated_inactive_tab_palette()
+    set(0, "TabLine", { fg = inactive_fg, bg = inactive_bg, bold = false })
+    set(0, "TabLineFill", { fg = inactive_fg, bg = inactive_bg, bold = false })
+    set(0, "TabLineSel", { fg = normal.fg, bg = document_background(normal), bold = false })
+    set(0, "TitleBar", { fg = normal.fg, bg = document_background(normal), bold = false })
+    set(0, "TitleBarNC", { fg = inactive_fg, bg = inactive_bg, bold = false })
+    for _, name in ipairs({
+      "FreshStatusLineNormal", "FreshStatusLineAccent", "FreshStatusLineGit",
+      "FreshStatusLineNeutral", "FreshStatusLineWarning", "FreshStatusLineError",
+      "FreshStatusLineCaps",
+    }) do
+      set(0, name, { fg = normal.fg, bg = document_background(normal), bold = false })
+    end
   else
     local tab = get("TabLine")
     set(0, "FreshStatusLineGit", { fg = tab.fg or normal.fg, bg = tab.bg or normal.bg, bold = false })
@@ -639,6 +691,11 @@ function M.apply()
   local inactive_status = get("StatusLineNC")
   -- Use the same theme-derived surface as the scrollbar and active tab.
   local status_fg, status_bg = p.active_fg, p.scrollbar_bg or p.active_bg
+  if nostalgia then
+    status_fg, status_bg = normal.fg, document_background(normal)
+  elseif integrated_chrome_theme() then
+    status_fg, status_bg = normal.fg, document_background(normal)
+  end
   local status_nc_fg, status_nc_bg = status_fg, status_bg
   set(0, "StatusLine", { fg = status_fg, bg = status_bg, bold = false })
   set(0, "StatusLineNC", { fg = status_nc_fg, bg = status_nc_bg, bold = false })

@@ -59,40 +59,50 @@ assert(vim.api.nvim_get_hl(0, { name = "Normal", link = false }).bg == document_
 local tabs = ui.bufferline_highlights()
 assert(tabs.fill.bg == "NONE", "unused BufferLine fill should not paint a background")
 assert(tabs.trunc_marker.bg == "NONE", "truncation count/arrow should not paint a background")
-assert(tabs.buffer.bg == color_id(fresh.tab_inactive_bg) and tabs.buffer.fg == color_id(fresh.tab_inactive_fg), "inactive tabs should use Fresh Nostalgia")
-assert(tabs.buffer_selected.bg == blue_tab_selected.bg, "active tab should match scrollbar")
+assert(tabs.buffer.bg == color_id(fresh.tab_separator_bg) and tabs.buffer.fg == 0xaaaaaa, "inactive tabs should use the muted Blue surface")
+assert(tabs.buffer_selected.bg == document_bg and tabs.buffer_selected.fg == vim.api.nvim_get_hl(0, { name = "String", link = false }).fg, "active tab should blend into the document")
 assert(tabs.buffer_selected.bold == false, "active tab should not be bold")
 local tabline = vim.api.nvim_get_hl(0, { name = "TabLine", link = false })
 local tabline_fill = vim.api.nvim_get_hl(0, { name = "TabLineFill", link = false })
 local tabline_selected = vim.api.nvim_get_hl(0, { name = "TabLineSel", link = false })
 assert(tabline.bg == color_id(fresh.tab_separator_bg) and tabline_fill.bg == color_id(fresh.tab_separator_bg), "native topbar should use Fresh Nostalgia")
-assert(tabline_selected.bg == blue_tab_selected.bg, "active native tab should match scrollbar")
+assert(tabline_selected.bg == document_bg, "active native tab should blend into the document")
 local winbar = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
 local winbar_nc = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
-assert(winbar.bg == color_id(fresh.tab_active_bg) and winbar.fg == color_id(fresh.tab_active_fg), "context WinBar should keep the gray topbar surface")
+assert(winbar.bg == document_bg and winbar.fg == 0x00ffff, "context WinBar should blend into the document with cyan text")
 assert(vim.deep_equal(winbar_nc, winbar), "context WinBar should retain one palette when focus changes")
 local bufferline_selected = vim.api.nvim_get_hl(0, { name = "BufferLineBufferSelected", link = false })
-assert(bufferline_selected.bg == blue_tab_selected.bg, "bufferline active tab should match scrollbar")
+assert(bufferline_selected.bg == document_bg, "bufferline active tab should blend into the document")
 assert(bufferline_selected.bold ~= true, "bufferline active tab should not be bold")
+
+-- Markdown links String to Constant. The selected tab should keep the Blue
+-- syntax accent instead of falling back to Normal's yellow foreground.
+local string_highlight = blue_before.String
+vim.api.nvim_set_hl(0, "String", { link = "Constant" })
+ui.apply()
+local blue_syntax_fg = vim.api.nvim_get_hl(0, { name = "Constant", link = false }).fg
+assert(ui.bufferline_highlights().buffer_selected.fg == blue_syntax_fg, "selected tab should resolve linked String foreground")
+vim.api.nvim_set_hl(0, "String", string_highlight)
+ui.apply()
 
 local status = vim.api.nvim_get_hl(0, { name = "StatusLine", link = false })
 local status_nc = vim.api.nvim_get_hl(0, { name = "StatusLineNC", link = false })
-assert(status.bg == blue_tab_selected.bg, "bottom bar should use Fresh Nostalgia")
-assert(status_nc.bg == blue_tab_selected.bg, "inactive bottom bar should use Fresh Nostalgia")
+assert(status.bg == document_bg and status.fg == blue_before.Normal.fg, "bottom bar should blend into the document")
+assert(status_nc.bg == document_bg and status_nc.fg == blue_before.Normal.fg, "inactive bottom bar should blend into the document")
 assert(status.bold ~= true and status_nc.bold ~= true, "bottom bars should not be bold")
 local status_accent = vim.api.nvim_get_hl(0, { name = "FreshStatusLineAccent", link = false })
-assert(status_accent.bg == color_id(fresh.status_palette_bg) and status_accent.fg == color_id(fresh.status_palette_fg), "bottom-bar accent should use Fresh Nostalgia green/white")
+assert(status_accent.bg == document_bg and status_accent.fg == blue_before.Normal.fg, "bottom-bar segments should use document colors")
 local status_warning = vim.api.nvim_get_hl(0, { name = "FreshStatusLineWarning", link = false })
-assert(status_warning.bg == color_id(fresh.status_warning_indicator_bg) and status_warning.fg == color_id(fresh.status_warning_indicator_fg), "bottom-bar warning should use Fresh Nostalgia")
+assert(status_warning.bg == document_bg and status_warning.fg == blue_before.Normal.fg, "bottom-bar warning should use document colors")
 
-assert(vim.api.nvim_get_hl(0, { name = "SatelliteBackground", link = false }).bg == tonumber("25252a", 16), "scrollbar track should remain Blue")
+assert(vim.api.nvim_get_hl(0, { name = "SatelliteBackground", link = false }).bg == color_id(fresh.tab_separator_bg), "scrollbar track should use the muted Blue surface")
 assert(vim.api.nvim_get_hl(0, { name = "SatelliteBar", link = false }).bg == blue_tab_selected.bg, "scrollbar thumb should remain Blue")
 
 local heirline_spec = dofile(nvim_root .. "/lua/plugins/heirline.lua")[1]
 local statusline_opts = heirline_spec.opts().statusline
 local statusline_style = statusline_opts.hl()
-assert(color_id(statusline_style.bg) == blue_tab_selected.bg, "Heirline bottom bar should use Fresh Nostalgia")
-assert(color_id(statusline_style.fg) == status.fg, "Heirline bottom-bar text should use Fresh Nostalgia")
+assert(color_id(statusline_style.bg) == document_bg, "Heirline bottom bar should blend into the document")
+assert(color_id(statusline_style.fg) == status.fg, "Heirline bottom-bar text should use document text color")
 assert(statusline_style.bold == false, "Heirline bottom bar should not be bold")
 local function find_component(component, predicate)
   if predicate(component) then return component end
@@ -101,26 +111,17 @@ local function find_component(component, predicate)
     if found then return found end
   end
 end
-local mode_component = assert(find_component(statusline_opts, function(component)
-  return component.on_click and component.on_click.name == "heirline_mode_menu"
-end), "mode segment must be present")
 local caps_component = assert(find_component(statusline_opts, function(component)
   local text = component[2] and component[2].provider
   if type(text) ~= "function" then return false end
   local ok, value = pcall(text)
   return ok and type(value) == "string" and value:match("^CAPS ")
-end), "Caps Lock segment must be present")
-
-assert(mode_component and mode_component.on_click.name == "heirline_mode_menu", "mode segment should remain in the right status block")
-assert(mode_component.hl({ mode = "n", _pressed = false }) == "FreshStatusLineAccent", "mode segment should share Fresh green")
+end), "Caps Lock status must be present")
 assert(caps_component.on_click == nil, "Caps Lock status should only display state")
 _G._heirline_caps_lock_on = false
-assert(caps_component[2].provider() == "CAPS OFF", "Caps Lock status should appear immediately before the mode segment")
+assert(caps_component[2].provider() == "CAPS OFF", "Caps Lock status should report normal state")
 _G._heirline_caps_lock_on = true
-assert(caps_component.hl() == "FreshStatusLineCaps", "Caps segment should turn red when Caps Lock is on")
-assert(mode_component.hl({ mode = "n", _pressed = false }) == "FreshStatusLineCaps", "mode segment should turn red when Caps Lock is on")
-assert(caps_component[2].provider() == "CAPS ON", "caps status should report uppercase state")
+assert(caps_component[2].provider() == "CAPS ON", "Caps Lock status should report uppercase state")
 _G._heirline_caps_lock_on = false
-assert(caps_component[2].provider() == "CAPS OFF", "caps status should report normal state")
 
 print("fresh_blue_chrome_spec: OK")

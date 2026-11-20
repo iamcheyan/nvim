@@ -40,7 +40,7 @@ if mode.current == "daily" then
   -- and extra visual layers from this profile.
   for _, plugin in ipairs({
     "mason-org/mason.nvim", "mason-org/mason-lspconfig.nvim", "neovim/nvim-lspconfig",
-    "Bekaboo/dropbar.nvim", "stevearc/aerial.nvim", "iamcheyan/cobol.nvim",
+    "stevearc/aerial.nvim", "iamcheyan/cobol.nvim",
     "iamcheyan/batch.nvim", "iamcheyan/aws.nvim", "iamcheyan/VimQuest",
     "sindrets/diffview.nvim", "MagicDuck/grug-far.nvim", "nvim-telescope/telescope.nvim",
     "j-hui/fidget.nvim", "lewis6991/hover.nvim", "nvim-treesitter/nvim-treesitter-context",
@@ -124,15 +124,6 @@ require("lazy").setup(vim.tbl_deep_extend("force", {
 -- Baseline <leader> keymaps ported from LazyVim's defaults and adapted to the
 -- plugins we actually run (snacks picker, gitsigns, vim builtins).
 mode.setup()
-if mode.current == "daily" then
-  vim.opt.winbar = ""
-  -- Keep buffer tabs while suppressing the breadcrumb bar in each window.
-  vim.api.nvim_create_autocmd({ "VimEnter", "BufWinEnter", "WinEnter" }, {
-    callback = function()
-      vim.wo.winbar = ""
-    end,
-  })
-end
 require("config.keymaps-defaults")
 -- Load personal keymaps last so they intentionally override compatibility
 -- mappings when the same lhs is used.

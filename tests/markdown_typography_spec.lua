@@ -25,6 +25,12 @@ assert(md_ns ~= -1, "Markdown window should use an isolated highlight namespace"
 local md_normal = vim.api.nvim_get_hl(md_ns, { name = "MdTypographyNormal", link = false })
 assert(md_normal.bg == tonumber(palette.paper:sub(2), 16), "Markdown window palette must use warm paper")
 assert(md_normal.fg == tonumber(palette.ink:sub(2), 16), "Markdown window palette must use book-text ink")
+for _, name in ipairs({ "BufferLineBufferSelected", "BufferLineBuffer", "SatelliteBar", "SatelliteBackground" }) do
+  local global = vim.api.nvim_get_hl(0, { name = name, link = false })
+  local local_ui = vim.api.nvim_get_hl(md_ns, { name = name, link = false })
+  assert(local_ui.fg == global.fg and local_ui.bg == global.bg,
+    name .. " must keep the global UI palette in Markdown windows")
+end
 assert(vim.wo[mdwin].winhighlight:find("Normal:MdTypographyNormal", 1, true), "Markdown window must map Normal locally")
 assert(vim.wo[mdwin].cursorcolumn == false, "Markdown windows must hide the vertical cursor guide")
 assert(vim.wo[mdwin].cursorline == true, "Markdown windows must keep the horizontal cursor guide")
