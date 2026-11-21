@@ -17,7 +17,7 @@ return {
         require("hover.providers.dictionary")
       end,
       preview_window = false,
-      preview_opts = { border = "single" },
+      preview_opts = { border = "rounded" },
     },
     keys = {
       {

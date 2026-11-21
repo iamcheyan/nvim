@@ -7,7 +7,7 @@ return {
       preset = "helix",
       show_keys = false,
       win = {
-        border = "single",
+        border = "rounded",
         title = true,
         title_pos = "center",
       },

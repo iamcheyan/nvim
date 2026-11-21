@@ -117,7 +117,7 @@ require("lazy").setup(vim.tbl_deep_extend("force", {
     },
   },
   ui = {
-    border = "single",
+    border = "rounded",
   },
 }, local_opts))
 

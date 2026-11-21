@@ -290,7 +290,7 @@ return {
         },
       },
       -- 1. 全局基础窗口配置
-      win = { border = "single", backdrop = false },
+      win = { border = "rounded", backdrop = false },
       -- 2. 覆盖 Snacks 内置的所有标准样式
       lazygit = {
         configure = true,
@@ -302,11 +302,11 @@ return {
         },
       },
       styles = {
-        float = { border = "single", backdrop = false },
-        notification = { border = "single", backdrop = false },
-        input = { border = "single", backdrop = false },
-        confirm = { border = "single", backdrop = false },
-        lazygit = { border = "single", backdrop = false },
+        float = { border = "rounded", backdrop = false },
+        notification = { border = "rounded", backdrop = false },
+        input = { border = "rounded", backdrop = false },
+        confirm = { border = "rounded", backdrop = false },
+        lazygit = { border = "rounded", backdrop = false },
       },
       picker = {
         on_show = function(picker)
@@ -364,7 +364,7 @@ return {
             width = 0.85,
             min_width = 120,
             height = 0.8,
-            border = "single",
+            border = "rounded",
             footer = {
               { " Alt+h ", "SnacksPickerFooterKey" },
               { "Toggle Hidden", "SnacksPickerFooterText" },
@@ -382,7 +382,7 @@ return {
             {
               box = "vertical",
               border = "none",
-              { win = "input", height = 1, border = "single" },
+              { win = "input", height = 1, border = "rounded" },
               { win = "list", border = "none" },
             },
             { win = "preview", border = "left", width = 0.55 },

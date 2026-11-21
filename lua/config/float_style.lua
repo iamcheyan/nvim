@@ -29,7 +29,7 @@ function M.setup()
     end
     local backdrop = float and config.focusable == false and config.border == 'none'
     if float and not backdrop and not ft:match('^snacks_picker') then
-      config = vim.tbl_extend('force', {}, config, { border = 'single' })
+      config = vim.tbl_extend('force', {}, config, { border = 'rounded' })
     end
     local win = open(buf, enter, config)
     if float and config.win and vim.api.nvim_win_is_valid(config.win) then

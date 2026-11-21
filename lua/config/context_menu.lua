@@ -490,9 +490,9 @@ function M.setup()
   -- that shows context-sensitive items.
   pcall(vim.api.nvim_del_augroup_by_name, "nvim.popupmenu")
 
-  -- Native context menus support square borders in current Neovim.
+  -- Match native context menus to the other rounded popups.
   if vim.fn.exists("+pumborder") == 1 then
-    vim.opt.pumborder = "single"
+    vim.opt.pumborder = "rounded"
   end
 
   local group = vim.api.nvim_create_augroup("context_menu_popup", { clear = true })

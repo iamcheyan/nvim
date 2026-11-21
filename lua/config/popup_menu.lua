@@ -29,7 +29,7 @@ function M.open(entries, execute)
   local win = vim.api.nvim_open_win(buf, false, {
     relative = 'editor', row = math.max(0, math.min(mouse.screenrow, vim.o.lines - height - 3)),
     col = math.max(0, math.min(mouse.screencol - 1, vim.o.columns - width - 2)),
-    width = width, height = height, style = 'minimal', border = 'single', zindex = 250,
+    width = width, height = height, style = 'minimal', border = 'rounded', zindex = 250,
   })
   vim.wo[win].winhighlight = 'Normal:FreshMenu,NormalFloat:FreshMenu,FloatBorder:FreshMenuBorder'
   vim.wo[win].cursorline = false

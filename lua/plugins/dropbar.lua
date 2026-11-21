@@ -27,7 +27,7 @@ return {
           preview = false,
           entry = { padding = { left = 1, right = 1 } },
           win_configs = {
-            border = "single",
+            border = "rounded",
             win = function(menu) return menu.prev_menu and menu.prev_menu.win or menu.prev_win end,
             col = source.menu_col,
             row = source.menu_row,

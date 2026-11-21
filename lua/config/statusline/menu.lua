@@ -177,7 +177,7 @@ local function open_statusline_menu(menu_id, items, click_name)
     width = win_width,
     height = win_height,
     style = "minimal",
-    border = "single",
+    border = "rounded",
     zindex = 250,
   })
 
