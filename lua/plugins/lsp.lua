@@ -132,7 +132,11 @@ return {
         on_attach = on_attach,
         settings = {
           Lua = {
-            workspace = { checkThirdParty = false },
+            diagnostics = { globals = { "vim" } },
+            workspace = {
+              checkThirdParty = false,
+              library = vim.api.nvim_get_runtime_file("", true),
+            },
             codeLens = { enable = true },
             completion = { callSnippet = "Replace" },
             doc = { privateName = { "^_" } },
