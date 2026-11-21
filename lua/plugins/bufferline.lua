@@ -4,6 +4,31 @@ return {
     lazy = false,
     enabled = vim.env.WDIFF_NVIM ~= "1",
     opts = function()
+      local function middle_truncate_name(info)
+        local name = info.name or ""
+        local limit = 21
+        if vim.fn.strdisplaywidth(name) <= limit then return name end
+
+        local left, right = "", ""
+        local left_index, right_index = 0, vim.fn.strchars(name) - 1
+        local left_width, right_width = 0, 0
+        local left_turn = true
+        while left_index <= right_index do
+          if left_turn then
+            local char = vim.fn.strcharpart(name, left_index, 1)
+            local width = vim.fn.strdisplaywidth(char)
+            if left_width + right_width + width > limit - 3 then break end
+            left, left_width, left_index = left .. char, left_width + width, left_index + 1
+          else
+            local char = vim.fn.strcharpart(name, right_index, 1)
+            local width = vim.fn.strdisplaywidth(char)
+            if left_width + right_width + width > limit - 3 then break end
+            right, right_width, right_index = char .. right, right_width + width, right_index - 1
+          end
+          left_turn = not left_turn
+        end
+        return left .. "..." .. right
+      end
       -- Neovim's tabline click protocol only resolves global functions.
       _G.__bufferline_new_buffer = function(_, _, button)
         if button == "l" then
@@ -32,7 +57,15 @@ return {
           -- Let each label use its own text width, with the current longest
           -- tab name as the cap for truncating longer buffer names.
           truncate_names = true,
-          max_name_length = 17,
+          -- Zero disables Bufferline's minimum/equal tab sizing, so each tab
+          -- can shrink to its content. max_name_length leaves room for the
+          -- icon, suffix, and padding within the intended overall cap.
+          tab_size = 0,
+          -- This is the filename budget; the remaining fixed label parts
+          -- (icon, close/modified marker, and padding) bring the full tab to
+          -- roughly 24 display cells at most while short names stay compact.
+          max_name_length = 21,
+          name_formatter = middle_truncate_name,
           enforce_regular_tabs = false,
           -- Icons inherit the active/inactive tab text color. Keeping the
           -- filetype glyph while disabling per-filetype icon colors prevents
