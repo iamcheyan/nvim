@@ -629,6 +629,25 @@ function M.apply()
       ctermbg = context_ctermbg,
     })
   end
+
+  -- MatchBackground (vim-matchup): invert colors between matched pairs
+  -- (parentheses, braces, brackets, tags, keyword blocks) so the enclosed span
+  -- stands out clearly on both normal lines and CursorLine.
+  set(0, "MatchBackground", {
+    reverse = true,
+    cterm = { reverse = true },
+  })
+  -- MatchWord / MatchWordCur (vim-matchup): keyword pairs such as if/elif/else/fi
+  -- or function/end. Use an underline instead of full reverse video so keyword
+  -- matches are clear without being overpowering.
+  set(0, "MatchWord", {
+    underline = true,
+    cterm = { underline = true },
+  })
+  set(0, "MatchWordCur", {
+    underline = true,
+    cterm = { underline = true },
+  })
   -- Let split windows meet at the document surface without a bright divider.
   -- Keep the separator cell on the same background as the document so it
   -- disappears cleanly for both editor splits and the Neo-tree boundary.

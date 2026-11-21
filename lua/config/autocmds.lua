@@ -144,3 +144,161 @@ vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave", "FocusLost" }, {
     end
   end,
 })
+
+-- Innermost surrounding pair highlight (`()`, `[]`, `{}`, `<>`, `""`, `''`, ````):
+-- Highlights the content inside the nearest pair enclosing the cursor with
+-- `MatchBackground`, while ignoring multi-line outer functions/blocks and
+-- word pairs (`if`/`fi`/`then`/`else`).
+local bracket_ns = vim.api.nvim_create_namespace("InnerBracketHighlight")
+local bracket_pairs = {
+  { "(", ")", "(", ")" },
+  { "[", "]", "\\[", "\\]" },
+  { "{", "}", "{", "}" },
+}
+local quote_chars = { '"', "'", "`" }
+
+local function find_quote_pair(line, col, q)
+  local positions = {}
+  local i = 1
+  local len = #line
+  while i <= len do
+    local c = line:sub(i, i)
+    if c == "\\" then
+      i = i + 2
+    else
+      if c == q then
+        positions[#positions + 1] = i
+      end
+      i = i + 1
+    end
+  end
+  for k = 1, #positions - 1, 2 do
+    local s, e = positions[k], positions[k + 1]
+    if col >= s and col <= e then
+      return s, e
+    end
+  end
+end
+
+local function find_angle_pair(line, col)
+  -- Match `<...>` on the current line while skipping comparison/shift/arrow
+  -- operators (`<=`, `>=`, `<<`, `>>`, `->`, `=>`, `< ` or ` >`).
+  local stack = {}
+  local best_s, best_e
+  local best_len = math.huge
+  for i = 1, #line do
+    local c = line:sub(i, i)
+    if c == "<" then
+      local next_c = line:sub(i + 1, i + 1)
+      local prev_c = i > 1 and line:sub(i - 1, i - 1) or ""
+      if next_c ~= "" and next_c ~= " " and next_c ~= "\t" and next_c ~= "=" and next_c ~= "<" and prev_c ~= "<" then
+        stack[#stack + 1] = i
+      end
+    elseif c == ">" and #stack > 0 then
+      local prev_c = i > 1 and line:sub(i - 1, i - 1) or ""
+      local next_c = line:sub(i + 1, i + 1)
+      if prev_c ~= " " and prev_c ~= "\t" and prev_c ~= "-" and prev_c ~= "=" and prev_c ~= ">" and next_c ~= ">" and next_c ~= "=" then
+        local s = table.remove(stack)
+        if col >= s and col <= i and (i - s) < best_len then
+          best_s, best_e = s, i
+          best_len = i - s
+        end
+      end
+    end
+  end
+  return best_s, best_e
+end
+
+local function clear_bracket_highlight(buf)
+  if buf and vim.api.nvim_buf_is_valid(buf) then
+    vim.api.nvim_buf_clear_namespace(buf, bracket_ns, 0, -1)
+  end
+end
+
+local function update_bracket_highlight()
+  local win = vim.api.nvim_get_current_win()
+  if not is_standard_window(win) then
+    return
+  end
+  local buf = vim.api.nvim_win_get_buf(win)
+  clear_bracket_highlight(buf)
+
+  local mode = vim.api.nvim_get_mode().mode
+  if mode:find("^[vV\22]") then
+    return
+  end
+
+  local cursor = vim.api.nvim_win_get_cursor(win)
+  local row, col = cursor[1], cursor[2] + 1
+  local line = vim.api.nvim_buf_get_lines(buf, row - 1, row, false)[1] or ""
+  local ch = line:sub(col, col)
+
+  local best_open, best_close
+  local best_span = math.huge
+  local stopline_top = math.max(1, row - 8)
+  local stopline_bot = math.min(vim.api.nvim_buf_line_count(buf), row + 8)
+
+  for _, pair in ipairs(bracket_pairs) do
+    local open_ch, close_ch, pat_open, pat_close = pair[1], pair[2], pair[3], pair[4]
+    local open_flags = (ch == open_ch) and "bcnW" or "bnW"
+    local close_flags = (ch == close_ch) and "cnW" or "nW"
+
+    local open_pos = vim.fn.searchpairpos(pat_open, "", pat_close, open_flags, "0", stopline_top, 15)
+    if open_pos[1] > 0 then
+      local close_pos = vim.fn.searchpairpos(pat_open, "", pat_close, close_flags, "0", stopline_bot, 15)
+      if close_pos[1] > 0 then
+        local span = (close_pos[1] - open_pos[1]) * 10000 + (close_pos[2] - open_pos[2])
+        -- Only highlight compact expressions (single line or up to 3 lines),
+        -- never whole functions or control-flow blocks.
+        if span >= 0 and (close_pos[1] - open_pos[1]) <= 2 and span < best_span then
+          best_span = span
+          best_open = open_pos
+          best_close = close_pos
+        end
+      end
+    end
+  end
+
+  for _, q in ipairs(quote_chars) do
+    local s, e = find_quote_pair(line, col, q)
+    if s and e then
+      local span = e - s
+      if span >= 0 and span < best_span then
+        best_span = span
+        best_open = { row, s }
+        best_close = { row, e }
+      end
+    end
+  end
+
+  local as, ae = find_angle_pair(line, col)
+  if as and ae then
+    local span = ae - as
+    if span >= 0 and span < best_span then
+      best_span = span
+      best_open = { row, as }
+      best_close = { row, ae }
+    end
+  end
+
+  if best_open and best_close then
+    vim.api.nvim_buf_set_extmark(buf, bracket_ns, best_open[1] - 1, best_open[2] - 1, {
+      end_row = best_close[1] - 1,
+      end_col = best_close[2],
+      hl_group = "MatchBackground",
+      priority = 150,
+    })
+  end
+end
+
+local bracket_group = vim.api.nvim_create_augroup("InnerBracketHighlight", { clear = true })
+vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter", "WinEnter", "ModeChanged" }, {
+  group = bracket_group,
+  callback = update_bracket_highlight,
+})
+vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
+  group = bracket_group,
+  callback = function(args)
+    clear_bracket_highlight(args.buf)
+  end,
+})

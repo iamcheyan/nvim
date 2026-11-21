@@ -166,6 +166,9 @@ function M.load()
   set("Conceal", { fg = p.inactive_cursor })
 
   set("MatchParen", { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true })
+  set("MatchBackground", { reverse = true, cterm = { reverse = true } })
+  set("MatchWord", { underline = true, cterm = { underline = true } })
+  set("MatchWordCur", { underline = true, cterm = { underline = true } })
 
   -----------------------------------------------------------------------------
   -- 2. Menus & Floating Prompts

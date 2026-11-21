@@ -44,6 +44,9 @@ local window_groups = {
   Search = delek["Search"] or { fg = 16777215, bg = 13435085, ctermfg = 231, ctermbg = 164 },
   IncSearch = delek["IncSearch"] or { fg = 52480, reverse = true, ctermfg = 40 },
   MatchParen = delek["MatchParen"] or { fg = 16777215, bg = 16716947, bold = true },
+  MatchBackground = { reverse = true, cterm = { reverse = true } },
+  MatchWord = { underline = true, cterm = { underline = true } },
+  MatchWordCur = { underline = true, cterm = { underline = true } },
   EndOfBuffer = { fg = 16777215, bg = 16777215, ctermfg = 231, ctermbg = 231 },
   WinSeparator = { fg = 12369084, bg = 16777215 },
   StatusLine = { fg = 0, bg = 15000804 },
@@ -88,6 +91,9 @@ local window_groups = {
   MdTypographyTreesitterContextLineNumberBottom = { bg = 16119285, underline = true, sp = 12369084, ctermbg = 255 },
   MdTypographyTreesitterContextSeparator = { fg = 12369084, bg = 16119285, ctermfg = 250, ctermbg = 255 },
   MdTypographyVisual = delek["Visual"] or { fg = 0, bg = 13684944, ctermfg = 16, ctermbg = 252 },
+  MdTypographyMatchBackground = { reverse = true, cterm = { reverse = true } },
+  MdTypographyMatchWord = { underline = true, cterm = { underline = true } },
+  MdTypographyMatchWordCur = { underline = true, cterm = { underline = true } },
 }
 
 -- Markview styling harmonized with delek clean paper
@@ -188,6 +194,9 @@ local md_winhighlight = table.concat({
   "TreesitterContextLineNumberBottom:MdTypographyTreesitterContextLineNumberBottom",
   "TreesitterContextSeparator:MdTypographyTreesitterContextSeparator",
   "Visual:MdTypographyVisual",
+  "MatchBackground:MdTypographyMatchBackground",
+  "MatchWord:MdTypographyMatchWord",
+  "MatchWordCur:MdTypographyMatchWordCur",
 }, ",")
 
 local shared_delek_ns = nil
