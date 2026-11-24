@@ -35,4 +35,15 @@ assert(children[1]:merge({name='copy'}):cat(true):find('copy', 1, true))
 children[1]:del()
 vim.api.nvim_win_set_width(win, 12)
 source.sync(buf, win)
+
+local saved_preload = package.preload['cobol.dropbar']
+local saved_loaded = package.loaded['cobol.dropbar']
+package.preload['cobol.dropbar'] = function() error("module 'cobol.dropbar' not found") end
+package.loaded['cobol.dropbar'] = nil
+vim.bo[buf].filetype = 'cobol'
+local ok, fallback = pcall(source.get_symbols, buf, win, {1, 0})
+package.preload['cobol.dropbar'] = saved_preload
+package.loaded['cobol.dropbar'] = saved_loaded
+assert(ok, 'missing COBOL dropbar module must not break cursor refresh')
+assert(fallback[1] and fallback[1].name == '(root)', 'missing COBOL symbols must fall back to root')
 print('dropbar_symbols_spec: OK')

@@ -235,7 +235,12 @@ function M.get_symbols(buf, win, cursor, layout)
   local ft = vim.bo[buf].filetype
   local result
   if ft == 'cobol' or ft == 'cbl' or ft == 'cob' then
-    result = require('cobol.dropbar').get_symbols(buf, win, cursor, layout)
+    local ok, cobol = pcall(require, 'cobol.dropbar')
+    if ok then
+      result = cobol.get_symbols(buf, win, cursor, layout)
+    else
+      result = require('dropbar.sources.lsp').get_symbols(buf, win, cursor)
+    end
   elseif ft == 'batch' or ft == 'dosbatch' then
     result = require('batch.dropbar').get_symbols(buf, win, cursor, layout)
   else
